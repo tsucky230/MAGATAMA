@@ -11,7 +11,7 @@
 
 ## ✨ 特徴
 
-- 🔍 **コード解析**: Tree-sitter による高速な AST 解析（Python, TypeScript/TSX, JavaScript/JSX）
+- 🔍 **コード解析**: Tree-sitter による高速な AST 解析（Python, TypeScript/TSX, JavaScript/JSX, Rust, Go）
 - 🕸️ **知識グラフ**: NetworkX によるエンティティ・関係性グラフ
 - 🔗 **関係性検出**: CALLS/IMPORTS 関係の自動検出
 - 🤖 **MCP 準拠**: Model Context Protocol 完全対応（8 Tools, 3 Prompts, 1 Resource）
@@ -216,6 +216,8 @@ yata serve [OPTIONS]
 | Python | `.py` | ✅ 対応 |
 | TypeScript | `.ts`, `.tsx` | ✅ 対応 |
 | JavaScript | `.js`, `.jsx` | ✅ 対応 |
+| Rust | `.rs` | ✅ 対応 |
+| Go | `.go` | ✅ 対応 |
 
 ## 🔗 関係性の自動検出
 
@@ -282,7 +284,7 @@ YATA は Clean Architecture に基づいて設計されています：
 
 ## 📊 テスト状況
 
-- **テスト数**: 274+
+- **テスト数**: 380+
 - **カバレッジ**: 82%+
 - **カバレッジ基準**: 80% 以上
 
@@ -296,6 +298,11 @@ MIT License - 詳細は [LICENSE](LICENSE) を参照してください。
 - [Tree-sitter](https://tree-sitter.github.io/tree-sitter/) - AST パーサー
 - [NetworkX](https://networkx.org/) - グラフライブラリ
 - [FastMCP](https://github.com/jlowin/fastmcp) - MCP SDK
+
+## 📖 ドキュメント
+
+- [AI ツール設定ガイド](docs/AI_TOOLS_SETUP.md) - Claude, Copilot, Cursor の設定
+- [トラブルシューティング](docs/TROUBLESHOOTING.md) - よくある問題と解決方法
 
 ---
 
