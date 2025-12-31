@@ -9,6 +9,8 @@
 
 ライブラリのソースコードを解析し、知識グラフを構築することで、Claude Desktop、GitHub Copilot、Cursor などの AI ツールに正確なコンテキストを提供します。
 
+> 🇺🇸 [English README](README.en.md)
+
 ## ✨ 特徴
 
 - 🔍 **コード解析**: Tree-sitter による高速な AST 解析（24言語対応）
