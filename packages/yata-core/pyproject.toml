@@ -17,8 +17,9 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Software Development :: Code Generators",
 ]
-
 dependencies = [
     # AST Parsing (ADR-003)
     "tree-sitter>=0.24.0",
@@ -37,6 +38,12 @@ dependencies = [
     "tree-sitter-rust>=0.24.0",
     "tree-sitter-go>=0.25.0",
 ]
+
+[project.urls]
+Homepage = "https://github.com/your-org/yata"
+Repository = "https://github.com/your-org/yata"
+Documentation = "https://github.com/your-org/yata#readme"
+Issues = "https://github.com/your-org/yata/issues"
 
 [project.optional-dependencies]
 rust = ["tree-sitter-rust>=0.21.0"]
