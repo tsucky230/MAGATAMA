@@ -9,9 +9,17 @@ from yata_core.infrastructure.storage.in_memory_repository import (
     InMemoryRelationshipRepository,
 )
 from yata_core.infrastructure.storage.networkx_graph import NetworkXKnowledgeGraph
+from yata_core.infrastructure.storage.sqlite_storage import (
+    SQLiteKnowledgeGraph,
+    SQLiteEntityRepository,
+    SQLiteRelationshipRepository,
+)
 
 __all__ = [
     "InMemoryEntityRepository",
     "InMemoryRelationshipRepository",
     "NetworkXKnowledgeGraph",
+    "SQLiteKnowledgeGraph",
+    "SQLiteEntityRepository",
+    "SQLiteRelationshipRepository",
 ]

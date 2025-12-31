@@ -440,7 +440,7 @@ class Calculator:
 
 ---
 
-#### TASK-015: SQLiteストレージ実装
+#### TASK-015: SQLiteストレージ実装 ✅ DONE
 
 **説明**: グラフデータの永続化
 
@@ -448,14 +448,15 @@ class Calculator:
 - REQ-KGC-003 (永続化)
 
 **Acceptance Criteria**:
-- [ ] SQLiteデータベーススキーマ
-- [ ] NetworkX ↔ SQLite変換
-- [ ] インクリメンタル更新
-- [ ] JSONエクスポート
+- [x] SQLiteデータベーススキーマ
+- [x] NetworkX ↔ SQLite変換
+- [x] インクリメンタル更新
+- [x] JSONエクスポート
 
 **Dependencies**: TASK-014
 **Estimated**: 8h
 **Priority**: P0
+**Completed**: Sprint 10
 
 ---
 
