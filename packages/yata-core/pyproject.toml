@@ -1,0 +1,65 @@
+# YATA Core - Knowledge Graph Engine Library
+# Article I: Library-First Principle - Independent, reusable library
+# Article II: CLI Interface Mandate - Exposes CLI
+
+[project]
+name = "yata-core"
+version = "0.1.0"
+description = "YATA Core - Knowledge Graph Engine for Code Analysis"
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.11"
+authors = [{ name = "YATA Team" }]
+keywords = ["knowledge-graph", "ast-parser", "code-analysis", "tree-sitter"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+
+dependencies = [
+    # AST Parsing (ADR-003)
+    "tree-sitter>=0.24.0",
+    # Tree-sitter language parsers
+    "tree-sitter-python>=0.24.0",
+    "tree-sitter-javascript>=0.24.0",
+    "tree-sitter-typescript>=0.23.0",
+    # Graph Storage (ADR-004)
+    "networkx>=3.2.0",
+    # Data Validation
+    "pydantic>=2.5.0",
+    "pydantic-settings>=2.1.0",
+    # Utilities
+    "structlog>=24.0.0",
+    "tomli>=2.0.0;python_version<'3.11'",
+    "tree-sitter-rust>=0.24.0",
+    "tree-sitter-go>=0.25.0",
+]
+
+[project.optional-dependencies]
+rust = ["tree-sitter-rust>=0.21.0"]
+go = ["tree-sitter-go>=0.21.0"]
+all-languages = [
+    "tree-sitter-rust>=0.21.0",
+    "tree-sitter-go>=0.21.0",
+]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-cov>=4.1.0",
+    "pytest-asyncio>=0.23.0",
+    "ruff>=0.4.0",
+    "mypy>=1.9.0",
+]
+
+[project.scripts]
+# Article II: CLI Interface Mandate
+yata-core = "yata_core.cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/yata_core"]
