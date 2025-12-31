@@ -1,7 +1,7 @@
 # Technology Stack
 
 **Project**: YATA (八咫)
-**Last Updated**: 2025-12-31
+**Last Updated**: 2026-01-01
 **Status**: 決定済み
 
 ---
@@ -33,15 +33,34 @@ YATAは、AI Codingを支援するMCP Serverです。CodeGraphMCPServerの技術
 | Config | pydantic | ^2.5.0 | 設定管理・バリデーション |
 | Logging | structlog | ^24.0.0 | 構造化ログ |
 
-### Language Support (Tree-sitter Parsers)
+### Language Support (Tree-sitter Parsers) - 24言語
 
-| 言語 | パーサー | 優先度 |
-|------|----------|--------|
-| Python | tree-sitter-python | High |
-| TypeScript | tree-sitter-typescript | High |
-| JavaScript | tree-sitter-javascript | High |
-| Rust | tree-sitter-rust | Medium |
-| Go | tree-sitter-go | Medium |
+| 言語 | パーサー | 状態 |
+|------|----------|------|
+| Python | tree-sitter-python | ✅ 対応 |
+| TypeScript | tree-sitter-typescript | ✅ 対応 |
+| JavaScript | tree-sitter-javascript | ✅ 対応 |
+| Rust | tree-sitter-rust | ✅ 対応 |
+| Go | tree-sitter-go | ✅ 対応 |
+| Java | tree-sitter-java | ✅ 対応 |
+| Kotlin | tree-sitter-kotlin | ✅ 対応 |
+| Scala | tree-sitter-scala | ✅ 対応 |
+| C | tree-sitter-c | ✅ 対応 |
+| C++ | tree-sitter-cpp | ✅ 対応 |
+| C# | tree-sitter-c-sharp | ✅ 対応 |
+| Swift | tree-sitter-swift | ✅ 対応 |
+| Objective-C | tree-sitter-objc | ✅ 対応 |
+| PHP | tree-sitter-php | ✅ 対応 |
+| Ruby | tree-sitter-ruby | ✅ 対応 |
+| Dart | tree-sitter-dart | ✅ 対応 |
+| Elixir | tree-sitter-elixir | ✅ 対応 |
+| Haskell | tree-sitter-haskell | ✅ 対応 |
+| Julia | tree-sitter-julia | ✅ 対応 |
+| Lua | tree-sitter-lua | ✅ 対応 |
+| Groovy | tree-sitter-groovy | ✅ 対応 |
+| SQL | tree-sitter-sql | ✅ 対応 |
+| Zig | tree-sitter-zig | ✅ 対応 |
+| YAML | tree-sitter-yaml | ✅ 対応 |
 
 ### Development Dependencies
 

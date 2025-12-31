@@ -36,10 +36,10 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/your-org/yata"
-Repository = "https://github.com/your-org/yata"
-Documentation = "https://github.com/your-org/yata#readme"
-Issues = "https://github.com/your-org/yata/issues"
+Homepage = "https://github.com/nahisaho/YATA"
+Repository = "https://github.com/nahisaho/YATA"
+Documentation = "https://github.com/nahisaho/YATA#readme"
+Issues = "https://github.com/nahisaho/YATA/issues"
 
 [project.optional-dependencies]
 dev = [

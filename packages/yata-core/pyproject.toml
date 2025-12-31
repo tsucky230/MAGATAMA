@@ -23,7 +23,7 @@ classifiers = [
 dependencies = [
     # AST Parsing (ADR-003)
     "tree-sitter>=0.24.0",
-    # Tree-sitter language parsers
+    # Tree-sitter language parsers (24 languages)
     "tree-sitter-python>=0.24.0",
     "tree-sitter-javascript>=0.24.0",
     "tree-sitter-typescript>=0.23.0",
@@ -32,6 +32,21 @@ dependencies = [
     "tree-sitter-ruby>=0.23.0",
     "tree-sitter-java>=0.23.0",
     "tree-sitter-c-sharp>=0.23.0",
+    "tree-sitter-cpp>=0.23.0",
+    "tree-sitter-objc>=3.0.0",
+    "tree-sitter-php>=0.24.0",
+    "tree-sitter-swift>=0.0.1",
+    "tree-sitter-kotlin>=1.1.0",
+    "tree-sitter-scala>=0.24.0",
+    "tree-sitter-lua>=0.2.0",
+    "tree-sitter-haskell>=0.23.0",
+    "tree-sitter-elixir>=0.3.0",
+    "tree-sitter-julia>=0.23.0",
+    "tree-sitter-sql>=0.3.0",
+    "tree-sitter-groovy>=0.1.0",
+    "tree-sitter-c>=0.24.0",
+    "tree-sitter-zig>=1.0.0",
+    "tree-sitter-yaml>=0.7.0",
     # Graph Storage (ADR-004)
     "networkx>=3.2.0",
     # Data Validation
@@ -43,10 +58,10 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/your-org/yata"
-Repository = "https://github.com/your-org/yata"
-Documentation = "https://github.com/your-org/yata#readme"
-Issues = "https://github.com/your-org/yata/issues"
+Homepage = "https://github.com/nahisaho/YATA"
+Repository = "https://github.com/nahisaho/YATA"
+Documentation = "https://github.com/nahisaho/YATA#readme"
+Issues = "https://github.com/nahisaho/YATA/issues"
 
 [project.optional-dependencies]
 ruby = ["tree-sitter-ruby>=0.23.0"]

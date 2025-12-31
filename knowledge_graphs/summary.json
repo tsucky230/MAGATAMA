@@ -1,0 +1,496 @@
+{
+  "timestamp": "2025-12-31T21:03:00.894534",
+  "total_frameworks": 25,
+  "successful": 25,
+  "total_entities": 225819,
+  "total_relationships": 333634,
+  "frameworks": [
+    {
+      "name": "React",
+      "language": "ts",
+      "files_processed": 1194,
+      "entities": 3890,
+      "relationships": 7258,
+      "entity_types": {
+        "module": 1207,
+        "type": 24,
+        "function": 2412,
+        "class": 48,
+        "method": 189,
+        "interface": 10
+      },
+      "relationship_types": {
+        "contains": 2676,
+        "imports": 3546,
+        "calls": 1036
+      },
+      "graph_file": "/home/nahisaho/GitHub/YATA/knowledge_graphs/react.json"
+    },
+    {
+      "name": "Angular",
+      "language": "ts",
+      "files_processed": 1919,
+      "entities": 16523,
+      "relationships": 29266,
+      "entity_types": {
+        "module": 1919,
+        "function": 5122,
+        "interface": 1403,
+        "type": 612,
+        "class": 1218,
+        "method": 6017,
+        "enum": 232
+      },
+      "relationship_types": {
+        "imports": 7978,
+        "contains": 14604,
+        "calls": 6684
+      },
+      "graph_file": "/home/nahisaho/GitHub/YATA/knowledge_graphs/angular.json"
+    },
+    {
+      "name": "Vue",
+      "language": "ts",
+      "files_processed": 241,
+      "entities": 1864,
+      "relationships": 3499,
+      "entity_types": {
+        "module": 241,
+        "interface": 259,
+        "function": 872,
+        "type": 307,
+        "enum": 39,
+        "class": 17,
+        "method": 129
+      },
+      "relationship_types": {
+        "contains": 1623,
+        "imports": 1121,
+        "calls": 755
+      },
+      "graph_file": "/home/nahisaho/GitHub/YATA/knowledge_graphs/vue.json"
+    },
+    {
+      "name": "Svelte",
+      "language": "ts",
+      "files_processed": 406,
+      "entities": 2707,
+      "relationships": 4745,
+      "entity_types": {
+        "module": 406,
+        "type": 178,
+        "interface": 342,
+        "class": 50,
+        "function": 1492,
+        "method": 239
+      },
+      "relationship_types": {
+        "contains": 2301,
+        "imports": 1456,
+        "calls": 988
+      },
+      "graph_file": "/home/nahisaho/GitHub/YATA/knowledge_graphs/svelte.json"
+    },
+    {
+      "name": "Next.js",
+      "language": "ts",
+      "files_processed": 1422,
+      "entities": 6955,
+      "relationships": 12462,
+      "entity_types": {
+        "module": 1488,
+        "type": 1143,
+        "function": 2625,
+        "class": 237,
+        "method": 914,
+        "interface": 499,
+        "enum": 49
+      },
+      "relationship_types": {
+        "contains": 5360,
+        "calls": 1847,
+        "imports": 5255
+      },
+      "graph_file": "/home/nahisaho/GitHub/YATA/knowledge_graphs/nextjs.json"
+    },
+    {
+      "name": "Nuxt",
+      "language": "ts",
+      "files_processed": 309,
+      "entities": 1262,
+      "relationships": 2908,
+      "entity_types": {
+        "module": 309,
+        "interface": 187,
+        "function": 611,
+        "type": 135,
+        "class": 6,
+        "method": 14
+      },
+      "relationship_types": {
+        "imports": 1620,
+        "contains": 953,
+        "calls": 335
+      },
+      "graph_file": "/home/nahisaho/GitHub/YATA/knowledge_graphs/nuxt.json"
+    },
+    {
+      "name": "Ember",
+      "language": "ts",
+      "files_processed": 304,
+      "entities": 1877,
+      "relationships": 3202,
+      "entity_types": {
+        "module": 304,
+        "function": 507,
+        "type": 160,
+        "interface": 167,
+        "class": 92,
+        "method": 646,
+        "enum": 1
+      },
+      "relationship_types": {
+        "imports": 1108,
+        "contains": 1573,
+        "calls": 521
+      },
+      "graph_file": "/home/nahisaho/GitHub/YATA/knowledge_graphs/ember.json"
+    },
+    {
+      "name": "Backbone",
+      "language": "js",
+      "files_processed": 8,
+      "entities": 10,
+      "relationships": 3,
+      "entity_types": {
+        "module": 8,
+        "function": 2
+      },
+      "relationship_types": {
+        "contains": 2,
+        "imports": 1
+      },
+      "graph_file": "/home/nahisaho/GitHub/YATA/knowledge_graphs/backbone.json"
+    },
+    {
+      "name": "Alpine.js",
+      "language": "ts",
+      "files_processed": 115,
+      "entities": 511,
+      "relationships": 915,
+      "entity_types": {
+        "module": 115,
+        "function": 343,
+        "class": 5,
+        "method": 48
+      },
+      "relationship_types": {
+        "contains": 396,
+        "calls": 274,
+        "imports": 245
+      },
+      "graph_file": "/home/nahisaho/GitHub/YATA/knowledge_graphs/alpine.json"
+    },
+    {
+      "name": "Express",
+      "language": "js",
+      "files_processed": 6,
+      "entities": 24,
+      "relationships": 20,
+      "entity_types": {
+        "module": 6,
+        "function": 18
+      },
+      "relationship_types": {
+        "contains": 18,
+        "calls": 2
+      },
+      "graph_file": "/home/nahisaho/GitHub/YATA/knowledge_graphs/express.json"
+    },
+    {
+      "name": "NestJS",
+      "language": "ts",
+      "files_processed": 568,
+      "entities": 2924,
+      "relationships": 5008,
+      "entity_types": {
+        "module": 568,
+        "class": 258,
+        "method": 1435,
+        "interface": 273,
+        "type": 244,
+        "enum": 32,
+        "function": 114
+      },
+      "relationship_types": {
+        "imports": 1808,
+        "contains": 2356,
+        "calls": 844
+      },
+      "graph_file": "/home/nahisaho/GitHub/YATA/knowledge_graphs/nestjs.json"
+    },
+    {
+      "name": "Koa",
+      "language": "js",
+      "files_processed": 7,
+      "entities": 14,
+      "relationships": 8,
+      "entity_types": {
+        "module": 7,
+        "function": 7
+      },
+      "relationship_types": {
+        "contains": 7,
+        "calls": 1
+      },
+      "graph_file": "/home/nahisaho/GitHub/YATA/knowledge_graphs/koa.json"
+    },
+    {
+      "name": "Fastify",
+      "language": "js",
+      "files_processed": 40,
+      "entities": 333,
+      "relationships": 458,
+      "entity_types": {
+        "module": 40,
+        "function": 193,
+        "class": 1,
+        "method": 12,
+        "interface": 27,
+        "type": 60
+      },
+      "relationship_types": {
+        "contains": 293,
+        "calls": 110,
+        "imports": 55
+      },
+      "graph_file": "/home/nahisaho/GitHub/YATA/knowledge_graphs/fastify.json"
+    },
+    {
+      "name": "Django",
+      "language": "py",
+      "files_processed": 872,
+      "entities": 11328,
+      "relationships": 15294,
+      "entity_types": {
+        "module": 872,
+        "function": 1153,
+        "class": 1888,
+        "method": 7415
+      },
+      "relationship_types": {
+        "imports": 3737,
+        "calls": 4142,
+        "contains": 7415
+      },
+      "graph_file": "/home/nahisaho/GitHub/YATA/knowledge_graphs/django.json"
+    },
+    {
+      "name": "Flask",
+      "language": "py",
+      "files_processed": 23,
+      "entities": 416,
+      "relationships": 587,
+      "entity_types": {
+        "module": 23,
+        "class": 48,
+        "method": 274,
+        "function": 71
+      },
+      "relationship_types": {
+        "imports": 179,
+        "contains": 274,
+        "calls": 134
+      },
+      "graph_file": "/home/nahisaho/GitHub/YATA/knowledge_graphs/flask.json"
+    },
+    {
+      "name": "FastAPI",
+      "language": "py",
+      "files_processed": 46,
+      "entities": 394,
+      "relationships": 542,
+      "entity_types": {
+        "module": 46,
+        "class": 97,
+        "method": 137,
+        "function": 114
+      },
+      "relationship_types": {
+        "imports": 294,
+        "contains": 137,
+        "calls": 111
+      },
+      "graph_file": "/home/nahisaho/GitHub/YATA/knowledge_graphs/fastapi.json"
+    },
+    {
+      "name": "Rails",
+      "language": "rb",
+      "files_processed": 1419,
+      "entities": 19269,
+      "relationships": 29569,
+      "entity_types": {
+        "module": 4076,
+        "class": 1728,
+        "method": 9531,
+        "function": 3934
+      },
+      "relationship_types": {
+        "contains": 17850,
+        "imports": 1856,
+        "calls": 8919,
+        "inherits": 944
+      },
+      "graph_file": "/home/nahisaho/GitHub/YATA/knowledge_graphs/rails.json"
+    },
+    {
+      "name": "Laravel",
+      "language": "php",
+      "files_processed": 1523,
+      "entities": 14741,
+      "relationships": 13220,
+      "entity_types": {
+        "module": 2954,
+        "class": 1258,
+        "method": 10269,
+        "function": 91,
+        "interface": 169
+      },
+      "relationship_types": {
+        "contains": 13220
+      },
+      "graph_file": "/home/nahisaho/GitHub/YATA/knowledge_graphs/laravel.json"
+    },
+    {
+      "name": "Symfony",
+      "language": "php",
+      "files_processed": 10037,
+      "entities": 70357,
+      "relationships": 60347,
+      "entity_types": {
+        "module": 17828,
+        "class": 8051,
+        "interface": 583,
+        "function": 62,
+        "method": 43833
+      },
+      "relationship_types": {
+        "contains": 60347
+      },
+      "graph_file": "/home/nahisaho/GitHub/YATA/knowledge_graphs/symfony.json"
+    },
+    {
+      "name": "CodeIgniter",
+      "language": "php",
+      "files_processed": 607,
+      "entities": 5350,
+      "relationships": 4744,
+      "entity_types": {
+        "module": 1144,
+        "class": 481,
+        "method": 3492,
+        "function": 176,
+        "interface": 57
+      },
+      "relationship_types": {
+        "contains": 4744
+      },
+      "graph_file": "/home/nahisaho/GitHub/YATA/knowledge_graphs/codeigniter.json"
+    },
+    {
+      "name": "Spring Boot",
+      "language": "java",
+      "files_processed": 3743,
+      "entities": 30945,
+      "relationships": 70724,
+      "entity_types": {
+        "module": 3734,
+        "class": 4476,
+        "method": 22208,
+        "interface": 470,
+        "function": 57
+      },
+      "relationship_types": {
+        "imports": 30211,
+        "contains": 27211,
+        "calls": 12470,
+        "inherits": 832
+      },
+      "graph_file": "/home/nahisaho/GitHub/YATA/knowledge_graphs/spring-boot.json"
+    },
+    {
+      "name": "Gin",
+      "language": "go",
+      "files_processed": 54,
+      "entities": 634,
+      "relationships": 1094,
+      "entity_types": {
+        "module": 54,
+        "function": 145,
+        "type": 21,
+        "class": 56,
+        "method": 340,
+        "interface": 18
+      },
+      "relationship_types": {
+        "contains": 580,
+        "calls": 310,
+        "imports": 204
+      },
+      "graph_file": "/home/nahisaho/GitHub/YATA/knowledge_graphs/gin.json"
+    },
+    {
+      "name": "Echo",
+      "language": "go",
+      "files_processed": 44,
+      "entities": 596,
+      "relationships": 1107,
+      "entity_types": {
+        "module": 44,
+        "interface": 12,
+        "class": 58,
+        "method": 308,
+        "function": 153,
+        "type": 21
+      },
+      "relationship_types": {
+        "contains": 552,
+        "imports": 222,
+        "calls": 333
+      },
+      "graph_file": "/home/nahisaho/GitHub/YATA/knowledge_graphs/echo.json"
+    },
+    {
+      "name": "React Native",
+      "language": "ts",
+      "files_processed": 1195,
+      "entities": 32895,
+      "relationships": 66654,
+      "entity_types": {
+        "module": 1197,
+        "type": 932,
+        "class": 2258,
+        "interface": 322,
+        "enum": 2,
+        "function": 9218,
+        "method": 18966
+      },
+      "relationship_types": {
+        "contains": 31529,
+        "imports": 3841,
+        "calls": 31284
+      },
+      "graph_file": "/home/nahisaho/GitHub/YATA/knowledge_graphs/react-native.json"
+    },
+    {
+      "name": "Flutter",
+      "language": "dart",
+      "files_processed": 1104,
+      "entities": 0,
+      "relationships": 0,
+      "entity_types": {},
+      "relationship_types": {},
+      "graph_file": "/home/nahisaho/GitHub/YATA/knowledge_graphs/flutter.json"
+    }
+  ]
+}

@@ -120,4 +120,4 @@ MIT License - 詳細は [LICENSE](../../LICENSE) を参照してください。
 
 ## 関連プロジェクト
 
-- [yata-mcp](https://github.com/your-org/yata/tree/main/packages/yata-mcp) - MCP Server
+- [yata-mcp](https://github.com/nahisaho/YATA/tree/main/packages/yata-mcp) - MCP Server

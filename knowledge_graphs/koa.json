@@ -1,0 +1,287 @@
+{
+  "entities": [
+    {
+      "id": "module_0001",
+      "name": "context",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/koa/lib/context.js",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0002",
+      "name": "is-stream",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/koa/lib/is-stream.js",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0003",
+      "name": "request",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/koa/lib/request.js",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "func_0004",
+      "name": "splitCommaSeparatedValues",
+      "type": "function",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/koa/lib/request.js",
+        "line": 735,
+        "column": 0
+      },
+      "docstring": null,
+      "parameters": [
+        [
+          "value",
+          null
+        ],
+        [
+          "limit",
+          null
+        ]
+      ],
+      "return_type": null,
+      "decorators": [],
+      "is_async": false
+    },
+    {
+      "id": "module_0005",
+      "name": "response",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/koa/lib/response.js",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "func_0006",
+      "name": "cleanupPreviousStream",
+      "type": "function",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/koa/lib/response.js",
+        "line": 139,
+        "column": 4
+      },
+      "docstring": null,
+      "parameters": [],
+      "return_type": null,
+      "decorators": [],
+      "is_async": false
+    },
+    {
+      "id": "module_0007",
+      "name": "only",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/koa/lib/only.js",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0008",
+      "name": "search-params",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/koa/lib/search-params.js",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "func_0009",
+      "name": "addKey",
+      "type": "function",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/koa/lib/search-params.js",
+        "line": 6,
+        "column": 4
+      },
+      "docstring": null,
+      "parameters": [
+        [
+          "k",
+          null
+        ],
+        [
+          "v",
+          null
+        ],
+        [
+          "params",
+          null
+        ]
+      ],
+      "return_type": null,
+      "decorators": [],
+      "is_async": false
+    },
+    {
+      "id": "module_0010",
+      "name": "application",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/koa/lib/application.js",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "func_0011",
+      "name": "handleRequest",
+      "type": "function",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/koa/lib/application.js",
+        "line": 161,
+        "column": 4
+      },
+      "docstring": null,
+      "parameters": [
+        [
+          "req",
+          null
+        ],
+        [
+          "res",
+          null
+        ]
+      ],
+      "return_type": null,
+      "decorators": [],
+      "is_async": false
+    },
+    {
+      "id": "func_0012",
+      "name": "onerror",
+      "type": "function",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/koa/lib/application.js",
+        "line": 190,
+        "column": 4
+      },
+      "docstring": null,
+      "parameters": [
+        [
+          "err",
+          null
+        ]
+      ],
+      "return_type": null,
+      "decorators": [],
+      "is_async": false
+    },
+    {
+      "id": "func_0013",
+      "name": "handleResponse",
+      "type": "function",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/koa/lib/application.js",
+        "line": 191,
+        "column": 4
+      },
+      "docstring": null,
+      "parameters": [],
+      "return_type": null,
+      "decorators": [],
+      "is_async": false
+    },
+    {
+      "id": "func_0014",
+      "name": "respond",
+      "type": "function",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/koa/lib/application.js",
+        "line": 257,
+        "column": 0
+      },
+      "docstring": null,
+      "parameters": [
+        [
+          "ctx",
+          null
+        ]
+      ],
+      "return_type": null,
+      "decorators": [],
+      "is_async": false
+    }
+  ],
+  "relationships": [
+    {
+      "source_id": "module_0003",
+      "target_id": "func_0004",
+      "type": "contains",
+      "metadata": {}
+    },
+    {
+      "source_id": "module_0005",
+      "target_id": "func_0006",
+      "type": "contains",
+      "metadata": {}
+    },
+    {
+      "source_id": "module_0008",
+      "target_id": "func_0009",
+      "type": "contains",
+      "metadata": {}
+    },
+    {
+      "source_id": "module_0010",
+      "target_id": "func_0011",
+      "type": "contains",
+      "metadata": {}
+    },
+    {
+      "source_id": "module_0010",
+      "target_id": "func_0012",
+      "type": "contains",
+      "metadata": {}
+    },
+    {
+      "source_id": "module_0010",
+      "target_id": "func_0013",
+      "type": "contains",
+      "metadata": {}
+    },
+    {
+      "source_id": "module_0010",
+      "target_id": "func_0014",
+      "type": "contains",
+      "metadata": {}
+    },
+    {
+      "source_id": "func_0014",
+      "target_id": "func_0012",
+      "type": "calls",
+      "metadata": {
+        "call_name": "onerror"
+      }
+    }
+  ],
+  "file_hashes": {}
+}

@@ -19,6 +19,28 @@ from yata_core.application.usecases.parse_usecase import (
     ParseFileUseCase,
     ParseDirectoryUseCase,
 )
+from yata_core.application.usecases.framework_usecase import (
+    FrameworkKnowledgeUseCase,
+    CodeContextUseCase,
+    SemanticSearchUseCase,
+    FrameworkSemanticSearchUseCase,
+    # REQ-001, REQ-002, REQ-003
+    DocumentationGenerationUseCase,
+    CodeRecommendationUseCase,
+    DependencyImpactUseCase,
+    # REQ-004, REQ-005, REQ-006
+    HybridSearchUseCase,
+    CodeQualityUseCase,
+    CodeEvolutionUseCase,
+    # REQ-007, REQ-008, REQ-009, REQ-010
+    CodingGuidanceUseCase,
+    PatternDetectionUseCase,
+    APICompatibilityUseCase,
+    CodeNavigationUseCase,
+)
+
+# Default knowledge graphs directory
+DEFAULT_KNOWLEDGE_GRAPHS_DIR = Path(__file__).parent.parent.parent.parent.parent.parent.parent / "knowledge_graphs"
 
 
 def create_mcp_server(name: str = "yata") -> FastMCP:
@@ -63,6 +85,37 @@ def create_mcp_server(name: str = "yata") -> FastMCP:
     parse_directory_usecase = ParseDirectoryUseCase(
         parse_file_usecase=parse_file_usecase,
     )
+    
+    # Initialize new use cases for enhanced features
+    framework_usecase = FrameworkKnowledgeUseCase(DEFAULT_KNOWLEDGE_GRAPHS_DIR)
+    code_context_usecase = CodeContextUseCase(knowledge_graph)
+    semantic_search_usecase = SemanticSearchUseCase(knowledge_graph)
+    framework_semantic_search = FrameworkSemanticSearchUseCase(DEFAULT_KNOWLEDGE_GRAPHS_DIR)
+    
+    # Phase 1 (Sprint 13) use cases
+    doc_generation_usecase = DocumentationGenerationUseCase(knowledge_graph)
+    code_recommendation_usecase = CodeRecommendationUseCase(
+        local_graph=knowledge_graph,
+        frameworks_dir=DEFAULT_KNOWLEDGE_GRAPHS_DIR,
+    )
+    impact_analysis_usecase = DependencyImpactUseCase(knowledge_graph)
+    
+    # Phase 2 (Sprint 14) use cases
+    hybrid_search_usecase = HybridSearchUseCase(
+        local_graph=knowledge_graph,
+        frameworks_dir=DEFAULT_KNOWLEDGE_GRAPHS_DIR,
+    )
+    quality_analysis_usecase = CodeQualityUseCase(knowledge_graph)
+    evolution_tracking_usecase = CodeEvolutionUseCase(knowledge_graph)
+    
+    # Phase 3 (Sprint 15) use cases
+    coding_guidance_usecase = CodingGuidanceUseCase(knowledge_graph)
+    pattern_detection_usecase = PatternDetectionUseCase(knowledge_graph)
+    api_compatibility_usecase = APICompatibilityUseCase(
+        knowledge_graph=knowledge_graph,
+        frameworks_dir=DEFAULT_KNOWLEDGE_GRAPHS_DIR,
+    )
+    navigation_usecase = CodeNavigationUseCase(knowledge_graph)
     
     # Register tools
     
@@ -501,6 +554,846 @@ def create_mcp_server(name: str = "yata") -> FastMCP:
         ])
         
         return "\n".join(prompt_parts)
+    
+    # ============================================================
+    # NEW TOOLS: Framework Knowledge, Semantic Search, Code Context
+    # ============================================================
+    
+    @mcp.tool()
+    def list_frameworks() -> dict[str, Any]:
+        """List all available framework knowledge graphs.
+        
+        Returns information about pre-analyzed frameworks including
+        React, Angular, Vue, Django, Flask, Rails, and more.
+        
+        Returns:
+            List of available frameworks with entity counts
+        """
+        frameworks = framework_usecase.list_frameworks()
+        return {
+            "frameworks": [
+                {
+                    "name": fw.name,
+                    "entities_count": fw.entities_count,
+                    "relationships_count": fw.relationships_count,
+                    "entity_types": fw.entity_types,
+                }
+                for fw in frameworks
+            ],
+            "total_count": len(frameworks),
+        }
+    
+    @mcp.tool()
+    def search_framework_docs(
+        framework: str,
+        query: str,
+        entity_type: str | None = None,
+        limit: int = 20,
+    ) -> dict[str, Any]:
+        """Search for code patterns and entities in a framework's knowledge graph.
+        
+        Use this to find how specific patterns are implemented in frameworks.
+        For example, search for "Router" in "react" to find routing implementations.
+        
+        Args:
+            framework: Framework name (e.g., "react", "django", "rails")
+            query: Search query (matches entity names)
+            entity_type: Filter by type (function, class, method, etc.)
+            limit: Maximum results
+            
+        Returns:
+            Matching entities from the framework
+        """
+        type_filter = None
+        if entity_type:
+            try:
+                type_filter = EntityType(entity_type)
+            except ValueError:
+                pass
+        
+        result = framework_usecase.search_framework(
+            framework, query, type_filter, limit
+        )
+        return {
+            "framework": result.framework,
+            "query": result.query,
+            "entities": result.entities,
+            "total_count": result.total_count,
+        }
+    
+    @mcp.tool()
+    def search_all_frameworks(
+        query: str,
+        entity_type: str | None = None,
+        limit_per_framework: int = 5,
+    ) -> dict[str, Any]:
+        """Search for patterns across ALL framework knowledge graphs.
+        
+        Useful for comparing how different frameworks implement similar patterns.
+        For example, search for "middleware" to see implementations across
+        Express, Django, Rails, etc.
+        
+        Args:
+            query: Search query
+            entity_type: Filter by type
+            limit_per_framework: Max results per framework
+            
+        Returns:
+            Results grouped by framework
+        """
+        type_filter = None
+        if entity_type:
+            try:
+                type_filter = EntityType(entity_type)
+            except ValueError:
+                pass
+        
+        results = framework_usecase.search_all_frameworks(
+            query, type_filter, limit_per_framework
+        )
+        
+        return {
+            "query": query,
+            "frameworks_matched": len(results),
+            "results": {
+                fw: {
+                    "entities": r.entities,
+                    "total_count": r.total_count,
+                }
+                for fw, r in results.items()
+            },
+        }
+    
+    @mcp.tool()
+    def find_code_patterns(
+        pattern: str,
+        entity_type: str | None = None,
+        limit: int = 20,
+    ) -> dict[str, Any]:
+        """Find similar code patterns across all frameworks.
+        
+        Identifies common patterns like Controller, Service, Repository,
+        Middleware, Router, Handler, etc. across different frameworks.
+        
+        Args:
+            pattern: Pattern to search for (e.g., "Controller", "Service")
+            entity_type: Filter by type
+            limit: Maximum results
+            
+        Returns:
+            Examples of the pattern from various frameworks
+        """
+        type_filter = None
+        if entity_type:
+            try:
+                type_filter = EntityType(entity_type)
+            except ValueError:
+                pass
+        
+        result = framework_usecase.find_similar_patterns(
+            pattern, type_filter, limit
+        )
+        
+        return {
+            "pattern": result.pattern_name,
+            "examples": result.examples,
+            "frameworks": result.frameworks,
+            "total_count": result.total_count,
+        }
+    
+    @mcp.tool()
+    def get_framework_entity_context(
+        framework: str,
+        entity_id: str,
+        depth: int = 2,
+    ) -> dict[str, Any]:
+        """Get detailed context for an entity in a framework.
+        
+        Retrieves the entity along with its relationships and related entities,
+        providing full context for understanding how it works.
+        
+        Args:
+            framework: Framework name
+            entity_id: Entity ID to get context for
+            depth: How many relationship hops to include
+            
+        Returns:
+            Entity with full context including relationships
+        """
+        return framework_usecase.get_entity_context(framework, entity_id, depth)
+    
+    @mcp.tool()
+    def semantic_search(
+        query: str,
+        entity_types: list[str] | None = None,
+        limit: int = 20,
+    ) -> dict[str, Any]:
+        """Perform semantic search across the local knowledge graph.
+        
+        Searches entity names, docstrings, and file paths with relevance scoring.
+        More intelligent than simple string matching.
+        
+        Args:
+            query: Search query (natural language)
+            entity_types: Filter by types (e.g., ["function", "class"])
+            limit: Maximum results
+            
+        Returns:
+            Matching entities with relevance scores
+        """
+        type_filters = None
+        if entity_types:
+            type_filters = []
+            for t in entity_types:
+                try:
+                    type_filters.append(EntityType(t))
+                except ValueError:
+                    pass
+        
+        results = semantic_search_usecase.search(query, type_filters, limit)
+        return {
+            "query": query,
+            "results": results,
+            "total_count": len(results),
+        }
+    
+    @mcp.tool()
+    def find_by_pattern(
+        pattern: str,
+        limit: int = 20,
+    ) -> dict[str, Any]:
+        """Find entities matching a naming pattern in local codebase.
+        
+        Supports wildcard patterns:
+        - "*Controller" finds UserController, AuthController, etc.
+        - "get*" finds getUser, getData, etc.
+        - "*Service" finds AuthService, UserService, etc.
+        
+        Args:
+            pattern: Pattern with * wildcard
+            limit: Maximum results
+            
+        Returns:
+            Matching entities
+        """
+        results = semantic_search_usecase.find_by_pattern(pattern, limit)
+        return {
+            "pattern": pattern,
+            "results": results,
+            "total_count": len(results),
+        }
+    
+    @mcp.tool()
+    def get_code_context(
+        entity_id: str,
+        include_source: bool = False,
+        max_related: int = 10,
+    ) -> dict[str, Any]:
+        """Get comprehensive code context for an entity.
+        
+        Provides detailed context including what the entity calls,
+        what calls it, imports, and containment relationships.
+        Essential for understanding how code fits together.
+        
+        Args:
+            entity_id: Entity ID to get context for
+            include_source: Include source code snippet
+            max_related: Maximum related entities per category
+            
+        Returns:
+            Entity with categorized relationships and context
+        """
+        return code_context_usecase.generate_context(
+            entity_id, include_source, max_related
+        )
+    
+    @mcp.tool()
+    def find_usage_examples(
+        entity_name: str,
+        limit: int = 10,
+    ) -> dict[str, Any]:
+        """Find usage examples of an entity in the codebase.
+        
+        Shows where and how an entity is used, helping understand
+        correct usage patterns.
+        
+        Args:
+            entity_name: Name of entity to find usages for
+            limit: Maximum examples
+            
+        Returns:
+            List of usage examples with caller information
+        """
+        examples = code_context_usecase.find_usage_examples(entity_name, limit)
+        return {
+            "entity_name": entity_name,
+            "examples": examples,
+            "total_count": len(examples),
+        }
+    
+    @mcp.tool()
+    def framework_semantic_search_tool(
+        query: str,
+        frameworks: list[str] | None = None,
+        limit: int = 50,
+    ) -> dict[str, Any]:
+        """Perform semantic search across framework knowledge graphs.
+        
+        Searches entity names, docstrings, and file paths with relevance scoring
+        across all 25+ pre-built framework knowledge graphs.
+        
+        Args:
+            query: Search query (natural language)
+            frameworks: Limit to specific frameworks (None = all)
+            limit: Maximum results
+            
+        Returns:
+            Matching entities with relevance scores, sorted by relevance
+        """
+        results = framework_semantic_search.search(query, frameworks, limit)
+        return {
+            "query": query,
+            "results": results.results,
+            "total_count": results.total_count,
+            "relevance_distribution": results.relevance_distribution,
+        }
+    
+    @mcp.tool()
+    def framework_find_by_pattern(
+        pattern: str,
+        frameworks: list[str] | None = None,
+        limit: int = 50,
+    ) -> dict[str, Any]:
+        """Find entities matching a naming pattern across frameworks.
+        
+        Supports wildcard patterns:
+        - "*Controller" finds UserController, AuthController, etc.
+        - "get*" finds getUser, getData, etc.
+        - "*Service" finds AuthService, UserService, etc.
+        
+        Args:
+            pattern: Pattern with * wildcard
+            frameworks: Limit to specific frameworks (None = all)
+            limit: Maximum results
+            
+        Returns:
+            Matching entities across frameworks
+        """
+        results = framework_semantic_search.find_by_pattern(pattern, frameworks, limit)
+        return {
+            "pattern": results.pattern,
+            "matches": results.matches,
+            "total_count": results.total_count,
+        }
+    
+    # =========================================================================
+    # Phase 1 (Sprint 13) Tools - REQ-001, REQ-002, REQ-003
+    # =========================================================================
+    
+    @mcp.tool()
+    def generate_documentation(
+        entity_name: str,
+        format: str = "markdown",
+        include_examples: bool = True,
+        include_related: bool = True,
+    ) -> dict[str, Any]:
+        """Generate intelligent documentation for a code entity.
+        
+        Analyzes entity structure, relationships, and usage patterns to
+        generate comprehensive documentation in multiple formats.
+        
+        Supported formats: markdown, jsdoc, google, numpy, sphinx
+        
+        Args:
+            entity_name: Name of the entity to document
+            format: Output format (default: markdown)
+            include_examples: Include usage examples (default: True)
+            include_related: Include related entities (default: True)
+            
+        Returns:
+            Generated documentation with metadata
+        """
+        result = doc_generation_usecase.generate_documentation(
+            entity_name=entity_name,
+            format=format,
+            include_examples=include_examples,
+            include_related=include_related,
+        )
+        return {
+            "entity_name": result.entity_name,
+            "entity_type": result.entity_type,
+            "documentation": result.documentation,
+            "format": result.format,
+            "related_entities": result.related_entities,
+            "source_file": result.source_file,
+            "generated_at": result.generated_at,
+        }
+    
+    @mcp.tool()
+    def recommend_code(
+        query: str,
+        include_frameworks: bool = True,
+        include_local: bool = True,
+        limit: int = 10,
+        min_relevance: float = 0.3,
+    ) -> dict[str, Any]:
+        """Recommend code snippets based on a query.
+        
+        Combines local codebase and framework knowledge to provide
+        contextually relevant code recommendations with relevance scoring.
+        
+        Relevance formula: name_match*0.4 + docstring*0.3 + context*0.2 + usage*0.1
+        
+        Args:
+            query: Natural language or technical query
+            include_frameworks: Include framework knowledge (default: True)
+            include_local: Include local codebase (default: True)
+            limit: Maximum results (max 50)
+            min_relevance: Minimum relevance score 0.0-1.0 (default: 0.3)
+            
+        Returns:
+            Recommended code snippets with relevance scores
+        """
+        result = code_recommendation_usecase.recommend_code(
+            query=query,
+            include_frameworks=include_frameworks,
+            include_local=include_local,
+            limit=limit,
+            min_relevance=min_relevance,
+        )
+        return {
+            "query": result.query,
+            "snippets": result.snippets,
+            "total_count": result.total_count,
+            "source_breakdown": result.source_breakdown,
+        }
+    
+    @mcp.tool()
+    def analyze_impact(
+        entity_name: str,
+        depth: int = 3,
+    ) -> dict[str, Any]:
+        """Analyze the impact of changes to an entity.
+        
+        Identifies all entities that depend on the target entity,
+        both directly and indirectly, to assess change risk.
+        
+        Impact formula: direct*1.0 + sum(indirect[d] * 0.5^d)
+        
+        Risk levels:
+        - high: impact >= 10 or affected >= 20
+        - medium: impact >= 5 or affected >= 10
+        - low: otherwise
+        
+        Args:
+            entity_name: Name of the entity to analyze
+            depth: Analysis depth 1-10 (default: 3)
+            
+        Returns:
+            Impact analysis with dependents and risk assessment
+        """
+        result = impact_analysis_usecase.analyze_impact(
+            entity_name=entity_name,
+            depth=depth,
+        )
+        return {
+            "entity_name": result.entity_name,
+            "direct_dependents": result.direct_dependents,
+            "indirect_dependents": result.indirect_dependents,
+            "impact_score": result.impact_score,
+            "total_affected": result.total_affected,
+            "depth_analyzed": result.depth_analyzed,
+            "risk_level": result.risk_level,
+        }
+    
+    @mcp.tool()
+    def find_critical_paths(
+        entity_name: str,
+        limit: int = 10,
+    ) -> dict[str, Any]:
+        """Find critical dependency paths from an entity.
+        
+        Identifies the most important dependency chains that could be
+        affected by changes to the target entity.
+        
+        Args:
+            entity_name: Starting entity name
+            limit: Maximum paths to return (default: 10)
+            
+        Returns:
+            List of dependency paths
+        """
+        paths = impact_analysis_usecase.find_critical_paths(
+            entity_name=entity_name,
+            limit=limit,
+        )
+        return {
+            "entity_name": entity_name,
+            "critical_paths": paths,
+            "path_count": len(paths),
+        }
+    
+    # ========================================
+    # Phase 2 (Sprint 14) MCP Tools
+    # REQ-004, REQ-005, REQ-006
+    # ========================================
+    
+    @mcp.tool()
+    def hybrid_search(
+        query: str,
+        local_weight: float = 0.5,
+        frameworks: list[str] | None = None,
+        limit: int = 20,
+    ) -> dict[str, Any]:
+        """Perform hybrid search combining local codebase and framework knowledge.
+        
+        Merges results from local knowledge graph and framework graphs
+        using configurable weighting. Useful for finding code patterns
+        across both project-specific and library implementations.
+        
+        Weighting formula:
+        - final_score = local_score * local_weight + framework_score * (1 - local_weight)
+        
+        Args:
+            query: Search query (natural language or technical terms)
+            local_weight: Weight for local results 0.0-1.0 (default: 0.5)
+            frameworks: Specific frameworks to search (None = all available)
+            limit: Maximum results to return (default: 20, max: 100)
+            
+        Returns:
+            Merged search results with source attribution and scores
+        """
+        results = hybrid_search_usecase.search(
+            query=query,
+            local_weight=local_weight,
+            frameworks=frameworks or [],
+            limit=limit,
+        )
+        return {
+            "query": results.query,
+            "results": [
+                {
+                    "entity_name": r["entity_name"],
+                    "entity_type": r["entity_type"],
+                    "source": r["source"],
+                    "score": r["score"],
+                    "file_path": r.get("file_path"),
+                    "docstring": r.get("docstring"),
+                }
+                for r in results.results
+            ],
+            "total_count": results.total_count,
+            "local_count": results.local_count,
+            "framework_count": results.framework_count,
+            "frameworks_searched": results.frameworks_searched,
+        }
+    
+    @mcp.tool()
+    def analyze_quality(
+        entity_name: str,
+    ) -> dict[str, Any]:
+        """Analyze code quality metrics for an entity.
+        
+        Computes various quality metrics including:
+        - Cyclomatic complexity: Number of independent paths
+        - Coupling: Number of external dependencies
+        - Cohesion: Internal relatedness of methods/attributes
+        - Method lines: Average lines per method
+        - Parameter count: Average parameters per method
+        
+        Provides recommendations based on industry best practices.
+        
+        Args:
+            entity_name: Name of the class, function, or module to analyze
+            
+        Returns:
+            Quality metrics with scores and improvement recommendations
+        """
+        result = quality_analysis_usecase.analyze_quality(entity_name)
+        return {
+            "entity_name": result.entity_name,
+            "entity_type": result.entity_type,
+            "metrics": [
+                {
+                    "name": m.name,
+                    "value": m.value,
+                    "threshold": m.threshold,
+                    "status": m.status,
+                    "description": m.description,
+                }
+                for m in result.metrics
+            ],
+            "overall_score": result.overall_score,
+            "grade": result.grade,
+            "recommendations": result.recommendations,
+        }
+    
+    @mcp.tool()
+    def track_evolution(
+        entity_name: str,
+        since: str | None = None,
+        until: str | None = None,
+        include_blame: bool = False,
+    ) -> dict[str, Any]:
+        """Track the evolution history of an entity from Git.
+        
+        Analyzes Git history to show how an entity has changed over time,
+        including commits, authors, and change frequency.
+        
+        Requires GitPython and must be run in a Git repository.
+        
+        Args:
+            entity_name: Name of the entity to track
+            since: Start date (ISO format, e.g., "2024-01-01")
+            until: End date (ISO format, e.g., "2024-12-31")
+            include_blame: Include line-by-line author attribution
+            
+        Returns:
+            Evolution history with commits, authors, and change frequency
+        """
+        result = evolution_tracking_usecase.track_evolution(
+            entity_name=entity_name,
+            since=since,
+            until=until,
+            include_blame=include_blame,
+        )
+        return {
+            "entity_name": result.entity_name,
+            "file_path": result.file_path,
+            "events": [
+                {
+                    "commit_hash": e.commit_hash,
+                    "author": e.author,
+                    "date": e.date,
+                    "message": e.message,
+                    "lines_added": e.lines_added,
+                    "lines_deleted": e.lines_deleted,
+                }
+                for e in result.events
+            ],
+            "total_commits": result.total_commits,
+            "authors": result.authors,
+            "change_frequency": result.change_frequency,
+            "first_seen": result.first_seen,
+            "last_modified": result.last_modified,
+        }
+    
+    @mcp.tool()
+    def find_hotspots(
+        limit: int = 10,
+    ) -> dict[str, Any]:
+        """Find code hotspots based on change frequency and complexity.
+        
+        Identifies files and entities that are changed frequently,
+        which often indicates areas that need refactoring or have high bug risk.
+        
+        Hotspot score formula:
+        - hotspot_score = change_frequency * complexity_factor
+        
+        Args:
+            limit: Maximum hotspots to return (default: 10)
+            
+        Returns:
+            List of hotspots with change frequency and complexity scores
+        """
+        hotspots = evolution_tracking_usecase.find_hotspots(limit=limit)
+        return {
+            "hotspots": hotspots,
+            "count": len(hotspots),
+        }
+    
+    # ========================================
+    # Phase 3 (Sprint 15) MCP Tools
+    # REQ-007, REQ-008, REQ-009, REQ-010
+    # ========================================
+    
+    @mcp.tool()
+    def get_coding_guidance(
+        task: str,
+        entity_type: str = "class",
+        similar_to: str | None = None,
+    ) -> dict[str, Any]:
+        """Get AI-powered coding guidance for a development task.
+        
+        Analyzes project patterns to provide guidance including:
+        - Naming conventions (snake_case, camelCase, PascalCase)
+        - Code templates based on similar entities
+        - Directory placement suggestions
+        - Import suggestions
+        
+        Args:
+            task: Description of what to create (e.g., "user authentication service")
+            entity_type: Type of entity to create (class, function, method, module)
+            similar_to: Reference entity name to base patterns on (optional)
+            
+        Returns:
+            Coding guidance with patterns, templates, and suggestions
+        """
+        result = coding_guidance_usecase.get_guidance(
+            task=task,
+            entity_type=entity_type,
+            similar_to=similar_to,
+        )
+        return {
+            "task": result.task,
+            "entity_type": result.entity_type,
+            "naming_convention": result.naming_convention,
+            "suggested_name": result.suggested_name,
+            "template": result.template,
+            "similar_entities": result.similar_entities,
+            "import_suggestions": result.import_suggestions,
+            "directory_suggestion": result.directory_suggestion,
+            "confidence": result.confidence,
+        }
+    
+    @mcp.tool()
+    def detect_patterns(
+        limit: int = 20,
+        min_confidence: float = 0.5,
+    ) -> dict[str, Any]:
+        """Detect design patterns in the codebase.
+        
+        Identifies 10 common design patterns:
+        - Creational: Singleton, Factory Method, Builder
+        - Structural: Adapter, Decorator, Facade
+        - Behavioral: Observer, Strategy, Command, Template Method
+        
+        Args:
+            limit: Maximum patterns to return (default: 20)
+            min_confidence: Minimum confidence threshold 0.0-1.0 (default: 0.5)
+            
+        Returns:
+            Detected patterns with locations and confidence scores
+        """
+        result = pattern_detection_usecase.detect_patterns(
+            limit=limit,
+            min_confidence=min_confidence,
+        )
+        return {
+            "patterns": [
+                {
+                    "pattern_name": p.pattern_name,
+                    "category": p.category,
+                    "entities": p.entities,
+                    "confidence": p.confidence,
+                    "description": p.description,
+                    "suggestions": p.suggestions,
+                }
+                for p in result.patterns
+            ],
+            "total_patterns": result.total_patterns,
+            "coverage": result.coverage,
+        }
+    
+    @mcp.tool()
+    def check_api_compatibility(
+        framework: str,
+        target_version: str,
+    ) -> dict[str, Any]:
+        """Check API compatibility against a framework version.
+        
+        Scans local code for usage of deprecated, removed, or changed APIs
+        when upgrading to a new framework version.
+        
+        Supported frameworks: django, fastapi, react, flask
+        
+        Args:
+            framework: Framework name (django, fastapi, react, flask)
+            target_version: Target version to check against (e.g., "4.2")
+            
+        Returns:
+            Compatibility issues with migration hints
+        """
+        result = api_compatibility_usecase.check_compatibility(
+            framework=framework,
+            target_version=target_version,
+        )
+        return {
+            "framework": result.framework,
+            "target_version": result.target_version,
+            "current_usage_count": result.current_usage_count,
+            "issues": [
+                {
+                    "entity_name": i.entity_name,
+                    "file": i.file,
+                    "line": i.line,
+                    "api_used": i.api_used,
+                    "issue_type": i.issue_type,
+                    "message": i.message,
+                    "migration_hint": i.migration_hint,
+                }
+                for i in result.issues
+            ],
+            "compatible": result.compatible,
+            "compatibility_score": result.compatibility_score,
+        }
+    
+    @mcp.tool()
+    def navigate_code(
+        entity_name: str,
+        direction: str = "both",
+        depth: int = 2,
+    ) -> dict[str, Any]:
+        """Navigate code relationships interactively.
+        
+        Explores code dependencies from a starting entity:
+        - callers: Find what calls this entity
+        - callees: Find what this entity calls
+        - both: Explore in both directions
+        
+        Args:
+            entity_name: Starting entity name
+            direction: Navigation direction (callers, callees, both)
+            depth: Maximum depth to explore (default: 2)
+            
+        Returns:
+            Navigation graph with nodes and edges
+        """
+        result = navigation_usecase.navigate_from(
+            entity_name=entity_name,
+            direction=direction,
+            depth=depth,
+        )
+        return {
+            "root_entity": result.root_entity,
+            "direction": result.direction,
+            "nodes": [
+                {
+                    "name": n.name,
+                    "type": n.type,
+                    "file": n.file,
+                    "line": n.line,
+                    "depth": n.depth,
+                    "relationship": n.relationship,
+                }
+                for n in result.nodes
+            ],
+            "edges": result.edges,
+            "max_depth": result.max_depth,
+            "total_nodes": result.total_nodes,
+        }
+    
+    @mcp.tool()
+    def get_call_graph(
+        entity_name: str,
+        depth: int = 3,
+    ) -> dict[str, Any]:
+        """Get call graph data for visualization.
+        
+        Returns graph data in D3-compatible format for visual rendering
+        of code dependencies and call relationships.
+        
+        Args:
+            entity_name: Center entity name
+            depth: Depth to explore (default: 3)
+            
+        Returns:
+            Graph data with nodes and links for visualization
+        """
+        return navigation_usecase.get_call_graph(
+            entity_name=entity_name,
+            depth=depth,
+        )
     
     return mcp
 

@@ -107,6 +107,10 @@ storage/changes/*
 !storage/archive/.gitkeep
 !storage/changes/.gitkeep
 
+# Framework knowledge repositories (cloned for analysis)
+frameworks/*
+!frameworks/.gitkeep
+
 # UV
 .uv/
 uv.lock

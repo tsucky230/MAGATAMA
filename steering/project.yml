@@ -1,12 +1,52 @@
 # MUSUBI Project Configuration
 name: YATA
-description: A software project using MUSUBI SDD
+description: AI Coding Support MCP Server - 知識グラフベースのAIコーディング支援
 locale: ja
-version: "0.1.0"
+version: "0.4.0"
 created: 2025-12-31
+updated: 2026-01-01
 
 # Technology Stack
 tech_stack:
-  approach: undecided
+  approach: clean-architecture
   languages:
-    - undecided  # To be determined
+    - python: "3.11+"
+  frameworks:
+    - mcp: "^1.0.0"
+    - fastmcp: "MCP SDK"
+    - tree-sitter: "^0.21.0"
+    - networkx: "^3.2.0"
+    - click: "^8.1.0"
+    - pydantic: "^2.5.0"
+  testing:
+    - pytest
+    - pytest-cov
+    - pytest-asyncio
+  linting:
+    - ruff
+    - mypy
+
+# Project Metrics
+metrics:
+  tests: 592
+  coverage: "82%+"
+  mcp_tools: 32
+  language_parsers: 24
+  framework_knowledge_graphs: 47
+  design_patterns_detection: 10
+
+# Features (Context7 Superior)
+features:
+  phase1:
+    - REQ-001: DocumentationGenerationUseCase
+    - REQ-002: CodeRecommendationUseCase
+    - REQ-003: DependencyImpactUseCase
+  phase2:
+    - REQ-004: HybridSearchUseCase
+    - REQ-005: CodeQualityUseCase
+    - REQ-006: CodeEvolutionUseCase
+  phase3:
+    - REQ-007: CodingGuidanceUseCase
+    - REQ-008: PatternDetectionUseCase
+    - REQ-009: APICompatibilityUseCase
+    - REQ-010: CodeNavigationUseCase

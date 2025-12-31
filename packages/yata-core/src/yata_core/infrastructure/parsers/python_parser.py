@@ -21,6 +21,7 @@ from yata_core.domain.entities.code_entities import (
     MethodEntity,
     ModuleEntity,
 )
+from yata_core.domain.entities.relationships import Relationship, RelationshipType
 from yata_core.domain.value_objects.ids import EntityId
 from yata_core.domain.value_objects.location import Location
 from yata_core.infrastructure.parsers.parse_result import ParseResult
@@ -126,6 +127,14 @@ class PythonParser:
                 # For methods, use class.method format
                 class_name = self._get_class_name_by_id(result.entities, parent_class_id)
                 function_name_to_id[f"{class_name}.{entity.name}"] = entity.id
+                # Add CONTAINS relationship: class contains method
+                result.relationships.append(
+                    Relationship(
+                        source_id=parent_class_id,
+                        target_id=entity.id,
+                        type=RelationshipType.CONTAINS,
+                    )
+                )
             function_name_to_id[entity.name] = entity.id
         elif node.type == "class_definition":
             class_entity = self._extract_class(node, code, file_path)

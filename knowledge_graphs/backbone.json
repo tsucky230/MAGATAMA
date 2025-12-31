@@ -1,0 +1,157 @@
+{
+  "entities": [
+    {
+      "id": "module_0001",
+      "name": "karma.conf",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/backbone/karma.conf.js",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0002",
+      "name": "backbone",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/backbone/backbone.js",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0003",
+      "name": "backbone-min",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/backbone/backbone-min.js",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0004",
+      "name": "karma.conf-sauce",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/backbone/karma.conf-sauce.js",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0005",
+      "name": "debug-info",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/backbone/debug-info.js",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "func_0006",
+      "name": "debugInfo",
+      "type": "function",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/backbone/debug-info.js",
+        "line": 7,
+        "column": 2
+      },
+      "docstring": null,
+      "parameters": [],
+      "return_type": null,
+      "decorators": [],
+      "is_async": false
+    },
+    {
+      "id": "module_0007",
+      "name": "debug-info",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/backbone/modules/debug-info.js",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0008",
+      "name": "todos",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/backbone/examples/todos/todos.js",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0009",
+      "name": "jquery.lazyload",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/backbone/docs/js/jquery.lazyload.js",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "func_0010",
+      "name": "update",
+      "type": "function",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/backbone/docs/js/jquery.lazyload.js",
+        "line": 33,
+        "column": 8
+      },
+      "docstring": null,
+      "parameters": [],
+      "return_type": null,
+      "decorators": [],
+      "is_async": false
+    }
+  ],
+  "relationships": [
+    {
+      "source_id": "module_0005",
+      "target_id": "func_0006",
+      "type": "contains",
+      "metadata": {}
+    },
+    {
+      "source_id": "module_0007",
+      "target_id": "external:backbone",
+      "type": "imports",
+      "metadata": {
+        "import_type": "import",
+        "module_name": "backbone",
+        "imported_names": [
+          "Backbone"
+        ]
+      }
+    },
+    {
+      "source_id": "module_0009",
+      "target_id": "func_0010",
+      "type": "contains",
+      "metadata": {}
+    }
+  ],
+  "file_hashes": {}
+}

@@ -1,8 +1,8 @@
 # Project Structure
 
 **Project**: YATA (八咫)
-**Last Updated**: 2025-12-31
-**Version**: 1.0
+**Last Updated**: 2026-01-01
+**Version**: 1.1
 
 ---
 
@@ -82,7 +82,7 @@
 **Contents**:
 | ファイル | 説明 |
 |----------|------|
-| `mcp/tools.py` | MCPツール定義（14ツール） |
+| `mcp/tools.py` | MCPツール定義（32ツール） |
 | `mcp/resources.py` | MCPリソース定義 |
 | `mcp/prompts.py` | MCPプロンプト定義 |
 | `cli/commands.py` | CLIコマンド実装 |
@@ -173,43 +173,65 @@ YATA/
 
 ## MCP Tools Architecture (Article II: CLI Interface)
 
-YATAは14種類のMCPツールを提供します。
+YATAは32種類のMCPツールを提供します。
 
 ### Tool Categories
 
-#### Library Discovery Tools
+#### 基本ツール (8)
 | ツール | 説明 | パラメータ |
 |--------|------|-----------|
-| `resolve_library` | ライブラリ名からIDを解決 | query, library_name |
-| `list_libraries` | 登録済みライブラリ一覧 | - |
+| `parse_file` | ソースファイル解析 | path |
+| `parse_directory` | ディレクトリ一括解析 | path, pattern |
+| `search_entities` | エンティティ検索 | query, type |
+| `get_entity` | エンティティ詳細取得 | entity_id |
+| `get_related_entities` | 関連エンティティ取得 | entity_id |
+| `get_graph_stats` | 統計情報取得 | - |
+| `save_graph` | グラフ保存 | path |
+| `load_graph` | グラフ読み込み | path |
 
-#### Documentation Tools
+#### フレームワーク知識グラフツール (7)
 | ツール | 説明 | パラメータ |
 |--------|------|-----------|
-| `query_docs` | ドキュメント検索 | library_id, query, version |
-| `get_api_reference` | API詳細取得 | library_id, entity_name |
+| `register_framework` | フレームワーク登録 | name, version |
+| `search_framework` | フレームワーク検索 | framework, query |
+| `get_framework_entity` | フレームワークエンティティ取得 | framework, entity_id |
+| `list_frameworks` | フレームワーク一覧 | - |
+| `get_framework_stats` | フレームワーク統計 | framework |
+| `get_usage_examples` | 使用例取得 | framework, entity |
+| `get_framework_structure` | 構造取得 | framework |
 
-#### Code Structure Tools
+#### Phase 1: ドキュメント生成ツール (3)
 | ツール | 説明 | パラメータ |
 |--------|------|-----------|
+| `generate_documentation` | ドキュメント自動生成 | entity_id, format |
+| `recommend_code` | コード推奨取得 | context, query |
+| `analyze_impact` | 変更影響分析 | entity_id |
+
+#### Phase 2: 検索・品質分析ツール (4)
+| ツール | 説明 | パラメータ |
+|--------|------|-----------|
+| `hybrid_search` | ハイブリッド検索 | query, weights |
+| `analyze_quality` | 品質メトリクス分析 | entity_id |
+| `track_evolution` | コード進化追跡 | path, since |
+| `find_hotspots` | ホットスポット検出 | path |
+
+#### Phase 3: AIコーディング支援ツール (5)
+| ツール | 説明 | パラメータ |
+|--------|------|-----------|
+| `get_coding_guidance` | コーディングガイダンス | framework, task |
+| `detect_patterns` | デザインパターン検出 | path |
+| `check_api_compatibility` | API互換性チェック | framework, from_version, to_version |
+| `navigate_code` | コードナビゲーション | entity_id, direction |
+| `get_call_graph` | 呼び出しグラフ取得 | entity_id |
+
+#### その他ツール (5)
+| ツール | 説明 | パラメータ |
+|--------|------|-----------|
+| `resolve_library` | ライブラリ名解決 | query |
+| `list_libraries` | ライブラリ一覧 | - |
+| `query_docs` | ドキュメント検索 | library_id, query |
+| `get_api_reference` | API詳細取得 | library_id, entity |
 | `query_code_structure` | コード構造クエリ | library_id, query |
-| `find_dependencies` | 依存関係取得 | entity_id, depth |
-| `find_callers` | 呼び出し元取得 | entity_id |
-| `find_implementations` | 実装クラス取得 | interface_id |
-
-#### GraphRAG Tools
-| ツール | 説明 | パラメータ |
-|--------|------|-----------|
-| `global_search` | グローバル検索 | query |
-| `local_search` | ローカル検索 | query, entity_id |
-
-#### Management Tools
-| ツール | 説明 | パラメータ |
-|--------|------|-----------|
-| `index_library` | ライブラリインデックス作成 | path, name, version |
-| `get_stats` | 統計情報取得 | library_id |
-| `remove_library` | ライブラリ削除 | library_id |
-| `update_library` | ライブラリ更新 | library_id, incremental |
 │   │   └── page.tsx
 │   └── register/
 │       └── page.tsx

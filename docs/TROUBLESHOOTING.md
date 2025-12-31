@@ -2,6 +2,25 @@
 
 よくある問題と解決方法をまとめています。
 
+---
+
+## YATA について
+
+**YATA（八咫）** は、[MUSUBI](https://github.com/nahisaho/musubi)（Ultimate Specification Driven Development）を強化するシステムとして誕生しました。
+
+YATA は [CodeGraph MCP Server](https://github.com/nahisaho/CodeGraphMCPServer) に続く **2つ目の MCP Server** です。CodeGraph MCP Server がコードベースの知識グラフ構築に特化しているのに対し、YATA はフレームワーク知識グラフ、デザインパターン検出、コード品質分析など、より高度な AI コーディング支援機能を提供します。
+
+YATA は [Context7](https://context7.com/) を超える機能を実装しています。詳細は [YATA vs Context7](YATA_vs_Context7.md) を参照してください。
+
+| プロジェクト | 役割 |
+|-------------|------|
+| [MUSUBI](https://github.com/nahisaho/musubi) | Ultimate Specification Driven Development フレームワーク |
+| [CodeGraph MCP Server](https://github.com/nahisaho/CodeGraphMCPServer) | コードベース知識グラフ構築 MCP Server（1st） |
+| **YATA** | AI コーディング支援 MCP Server（2nd） |
+| [Context7](https://context7.com/) | ライブラリドキュメント提供 MCP Server（比較対象） |
+
+---
+
 ## 目次
 
 - [インストール関連](#インストール関連)
@@ -391,7 +410,7 @@ yata benchmark ./src --json > benchmark.json
 
 問題が解決しない場合：
 
-1. [GitHub Issues](https://github.com/your-org/yata/issues) で報告
+1. [GitHub Issues](https://github.com/nahisaho/YATA/issues) で報告
 2. 以下の情報を含めてください：
    - OS とバージョン
    - Python バージョン
