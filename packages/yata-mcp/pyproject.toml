@@ -3,7 +3,7 @@
 
 [project]
 name = "yata-mcp"
-version = "0.1.0"
+version = "0.5.0"
 description = "YATA MCP Server - AI Coding Support via Model Context Protocol"
 readme = "README.md"
 license = { text = "MIT" }

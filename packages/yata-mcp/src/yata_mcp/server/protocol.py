@@ -11,9 +11,33 @@ from mcp.server import FastMCP
 
 from yata_core.domain.entities import EntityType
 from yata_core.domain.value_objects import EntityId
-from yata_core.infrastructure.parsers import PythonParser, RustParser, GoParser
-from yata_core.infrastructure.parsers.typescript_parser import TypeScriptParser
-from yata_core.infrastructure.parsers.javascript_parser import JavaScriptParser
+# Import all 24 language parsers
+from yata_core.infrastructure.parsers import (
+    PythonParser,
+    TypeScriptParser,
+    JavaScriptParser,
+    RustParser,
+    GoParser,
+    RubyParser,
+    JavaParser,
+    CSharpParser,
+    CppParser,
+    ObjectiveCParser,
+    PhpParser,
+    SwiftParser,
+    KotlinParser,
+    ScalaParser,
+    LuaParser,
+    HaskellParser,
+    ElixirParser,
+    JuliaParser,
+    SqlParser,
+    GroovyParser,
+    DartParser,
+    CParser,
+    ZigParser,
+    YAMLParser,
+)
 from yata_core.infrastructure.storage import NetworkXKnowledgeGraph
 from yata_core.application.usecases.parse_usecase import (
     ParseFileUseCase,
@@ -42,6 +66,34 @@ from yata_core.application.usecases.framework_usecase import (
 # Default knowledge graphs directory
 DEFAULT_KNOWLEDGE_GRAPHS_DIR = Path(__file__).parent.parent.parent.parent.parent.parent.parent / "knowledge_graphs"
 
+# Supported languages configuration (24 languages)
+SUPPORTED_LANGUAGES: dict[str, dict[str, Any]] = {
+    "python": {"extensions": [".py"], "name": "Python", "parser": "PythonParser"},
+    "typescript": {"extensions": [".ts", ".tsx"], "name": "TypeScript", "parser": "TypeScriptParser"},
+    "javascript": {"extensions": [".js", ".jsx"], "name": "JavaScript", "parser": "JavaScriptParser"},
+    "rust": {"extensions": [".rs"], "name": "Rust", "parser": "RustParser"},
+    "go": {"extensions": [".go"], "name": "Go", "parser": "GoParser"},
+    "ruby": {"extensions": [".rb"], "name": "Ruby", "parser": "RubyParser"},
+    "java": {"extensions": [".java"], "name": "Java", "parser": "JavaParser"},
+    "csharp": {"extensions": [".cs"], "name": "C#", "parser": "CSharpParser"},
+    "cpp": {"extensions": [".cpp", ".hpp", ".cc", ".hh", ".cxx"], "name": "C++", "parser": "CppParser"},
+    "c": {"extensions": [".c", ".h"], "name": "C", "parser": "CParser"},
+    "objc": {"extensions": [".m", ".mm"], "name": "Objective-C", "parser": "ObjectiveCParser"},
+    "php": {"extensions": [".php"], "name": "PHP", "parser": "PhpParser"},
+    "swift": {"extensions": [".swift"], "name": "Swift", "parser": "SwiftParser"},
+    "kotlin": {"extensions": [".kt", ".kts"], "name": "Kotlin", "parser": "KotlinParser"},
+    "scala": {"extensions": [".scala"], "name": "Scala", "parser": "ScalaParser"},
+    "lua": {"extensions": [".lua"], "name": "Lua", "parser": "LuaParser"},
+    "haskell": {"extensions": [".hs"], "name": "Haskell", "parser": "HaskellParser"},
+    "elixir": {"extensions": [".ex", ".exs"], "name": "Elixir", "parser": "ElixirParser"},
+    "julia": {"extensions": [".jl"], "name": "Julia", "parser": "JuliaParser"},
+    "sql": {"extensions": [".sql"], "name": "SQL", "parser": "SqlParser"},
+    "groovy": {"extensions": [".groovy"], "name": "Groovy", "parser": "GroovyParser"},
+    "dart": {"extensions": [".dart"], "name": "Dart", "parser": "DartParser"},
+    "zig": {"extensions": [".zig"], "name": "Zig", "parser": "ZigParser"},
+    "yaml": {"extensions": [".yaml", ".yml"], "name": "YAML", "parser": "YAMLParser"},
+}
+
 
 def create_mcp_server(name: str = "yata") -> FastMCP:
     """Create and configure the MCP server.
@@ -60,21 +112,93 @@ def create_mcp_server(name: str = "yata") -> FastMCP:
     # Initialize knowledge graph
     knowledge_graph = NetworkXKnowledgeGraph()
     
-    # Initialize parsers
+    # Initialize all 24 language parsers
     python_parser = PythonParser()
     ts_parser = TypeScriptParser()
     js_parser = JavaScriptParser()
     rust_parser = RustParser()
     go_parser = GoParser()
+    ruby_parser = RubyParser()
+    java_parser = JavaParser()
+    csharp_parser = CSharpParser()
+    cpp_parser = CppParser()
+    c_parser = CParser()
+    objc_parser = ObjectiveCParser()
+    php_parser = PhpParser()
+    swift_parser = SwiftParser()
+    kotlin_parser = KotlinParser()
+    scala_parser = ScalaParser()
+    lua_parser = LuaParser()
+    haskell_parser = HaskellParser()
+    elixir_parser = ElixirParser()
+    julia_parser = JuliaParser()
+    sql_parser = SqlParser()
+    groovy_parser = GroovyParser()
+    dart_parser = DartParser()
+    zig_parser = ZigParser()
+    yaml_parser = YAMLParser()
     
+    # Map file extensions to parsers (24 languages, 40+ extensions)
     parsers: dict[str, Any] = {
+        # Python
         ".py": python_parser,
+        # TypeScript
         ".ts": ts_parser,
         ".tsx": ts_parser,
+        # JavaScript
         ".js": js_parser,
         ".jsx": js_parser,
+        # Rust
         ".rs": rust_parser,
+        # Go
         ".go": go_parser,
+        # Ruby
+        ".rb": ruby_parser,
+        # Java
+        ".java": java_parser,
+        # C#
+        ".cs": csharp_parser,
+        # C++
+        ".cpp": cpp_parser,
+        ".hpp": cpp_parser,
+        ".cc": cpp_parser,
+        ".hh": cpp_parser,
+        ".cxx": cpp_parser,
+        # C
+        ".c": c_parser,
+        ".h": c_parser,
+        # Objective-C
+        ".m": objc_parser,
+        ".mm": objc_parser,
+        # PHP
+        ".php": php_parser,
+        # Swift
+        ".swift": swift_parser,
+        # Kotlin
+        ".kt": kotlin_parser,
+        ".kts": kotlin_parser,
+        # Scala
+        ".scala": scala_parser,
+        # Lua
+        ".lua": lua_parser,
+        # Haskell
+        ".hs": haskell_parser,
+        # Elixir
+        ".ex": elixir_parser,
+        ".exs": elixir_parser,
+        # Julia
+        ".jl": julia_parser,
+        # SQL
+        ".sql": sql_parser,
+        # Groovy
+        ".groovy": groovy_parser,
+        # Dart
+        ".dart": dart_parser,
+        # Zig
+        ".zig": zig_parser,
+        # YAML
+        ".yaml": yaml_parser,
+        ".yml": yaml_parser,
     }
     
     # Initialize use cases
@@ -343,6 +467,69 @@ def create_mcp_server(name: str = "yata") -> FastMCP:
             }
         except Exception as e:
             return {"success": False, "error": str(e)}
+    
+    @mcp.tool()
+    def list_supported_languages() -> dict[str, Any]:
+        """List all supported programming languages for code parsing.
+        
+        Returns information about all 24 supported languages including
+        file extensions and parser availability.
+        
+        Returns:
+            List of supported languages with their extensions
+        """
+        languages = []
+        for lang_id, info in SUPPORTED_LANGUAGES.items():
+            languages.append({
+                "id": lang_id,
+                "name": info["name"],
+                "extensions": info["extensions"],
+                "parser": info["parser"],
+            })
+        
+        # Count total extensions
+        total_extensions = sum(len(info["extensions"]) for info in SUPPORTED_LANGUAGES.values())
+        
+        return {
+            "languages": languages,
+            "total_languages": len(languages),
+            "total_extensions": total_extensions,
+        }
+    
+    @mcp.tool()
+    def get_language_for_file(file_path: str) -> dict[str, Any]:
+        """Get the programming language for a specific file based on its extension.
+        
+        Args:
+            file_path: Path to the file
+            
+        Returns:
+            Language information or error if unsupported
+        """
+        path = Path(file_path)
+        ext = path.suffix.lower()
+        
+        for lang_id, info in SUPPORTED_LANGUAGES.items():
+            if ext in info["extensions"]:
+                return {
+                    "supported": True,
+                    "language": {
+                        "id": lang_id,
+                        "name": info["name"],
+                        "extension": ext,
+                        "parser": info["parser"],
+                    }
+                }
+        
+        return {
+            "supported": False,
+            "extension": ext,
+            "error": f"Unsupported file extension: {ext}",
+            "supported_extensions": [
+                ext for info in SUPPORTED_LANGUAGES.values() 
+                for ext in info["extensions"]
+            ],
+        }
     
     # Register resources
     

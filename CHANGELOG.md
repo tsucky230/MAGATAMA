@@ -5,6 +5,60 @@ All notable changes to YATA (八咫) will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0] - 2026-01-01
+
+### 🚀 Full Language Integration Release
+
+24言語パーサーのMCPサーバー完全統合、言語情報ツール追加、ドキュメント整備。
+
+### Added
+
+#### 新規MCPツール（32 → 34 Tools）
+
+- **`list_supported_languages`** - サポートする24言語の一覧を取得
+  - 言語ID、名前、対応拡張子、パーサー名を返却
+  - 合計言語数・拡張子数のサマリー付き
+
+- **`get_language_for_file`** - ファイル拡張子から言語を判定
+  - ファイルパスから対応言語を自動検出
+  - 未対応拡張子の場合はサポート拡張子一覧を返却
+
+#### 24言語パーサーMCP統合
+
+すべてのパーサーをMCPサーバーに登録:
+- Python, TypeScript, JavaScript, Rust, Go
+- Ruby, Java, C#, C++, C
+- Objective-C, PHP, Swift, Kotlin, Scala
+- Lua, Haskell, Elixir, Julia, SQL
+- Groovy, Dart, Zig, YAML
+
+### Changed
+
+- **`yata info` コマンド修正**
+  - `YataMcpServer` から `create_mcp_server()` に変更
+  - 実際のMCPツール数を正確に表示（34 Tools）
+
+### Updated
+
+- **README.md / README.en.md**
+  - MCP Tools: 32 → 34
+  - フレームワーク数: 47 → 26（実際の知識グラフ数）
+  - テスト数: 683 (592 yata-core + 91 yata-mcp)
+  - E2Eテスト: 42 (18 統合 + 24 セキュリティ)
+  - カバレッジ: 75.65%
+
+- **AGENTS.md** - Review Gate Prompts (v6.2.0) 追加
+
+- **steering/project.yml** - Review Gate / Traceability 設定追加
+
+### Test Results
+
+- **Total Tests**: 683 passed
+- **E2E Tests**: 42 passed (integration: 18, security: 24)
+- **Coverage**: 75.65%
+
+---
+
 ## [0.4.0] - 2026-01-01
 
 ### 🎯 Language & Framework Expansion Release

@@ -2,7 +2,7 @@
 name: YATA
 description: AI Coding Support MCP Server - 知識グラフベースのAIコーディング支援
 locale: ja
-version: "0.4.0"
+version: "0.5.0"
 created: 2025-12-31
 updated: 2026-01-01
 
@@ -50,3 +50,29 @@ features:
     - REQ-008: PatternDetectionUseCase
     - REQ-009: APICompatibilityUseCase
     - REQ-010: CodeNavigationUseCase
+
+
+# Review Gate Settings (v6.2.0)
+reviewGate:
+  requirements:
+    earsCheck: true
+    stakeholderCoverage: true
+    acceptanceCriteriaRequired: true
+  design:
+    c4Required: ['context', 'container', 'component']
+    adrRequired: true
+    constitutionalArticles: [1, 2, 7, 8]
+  implementation:
+    minCoverage: 80
+    coverageType: 'line'
+    lintStrict: true
+
+# Traceability Settings (v6.2.0)
+traceability:
+  patterns:
+    - 'REQ-[A-Z0-9]+-\\d{3}'
+    - 'IMP-\\d+\\.\\d+-\\d{3}(?:-\\d{2})?'
+  extractFrom:
+    - 'src/**/*.{ts,js}'
+    - 'tests/**/*.test.{ts,js}'
+  outputPath: 'storage/traceability/matrix.yml'

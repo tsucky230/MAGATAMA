@@ -16,16 +16,15 @@
 - 🔍 **コード解析**: Tree-sitter による高速な AST 解析（24言語対応）
 - 🕸️ **知識グラフ**: NetworkX によるエンティティ・関係性グラフ
 - 🔗 **関係性検出**: CALLS/IMPORTS/INHERITS/CONTAINS 関係の自動検出
-- 🤖 **MCP 準拠**: Model Context Protocol 完全対応（32 Tools, 3 Prompts, 1 Resource）
-- 📚 **フレームワーク知識**: 47フレームワークの組み込み知識グラフ
-- 🔎 **ハイブリッド検索**: キーワード＋セマンティック統合検索
-- 📝 **ドキュメント生成**: JSDoc/docstring 自動生成
-- 🎯 **パターン検出**: 10種類のデザインパターン自動検出
-- 🔄 **互換性チェック**: API バージョン互換性分析
-- 📈 **品質分析**: 循環的複雑度・結合度・凝集度メトリクス
-- 📊 **進化追跡**: Git 履歴からコードホットスポット分析
+- 🤖 **MCP 準拠**: Model Context Protocol 完全対応（34 Tools, 3 Prompts, 1 Resource）
+- 📚 **フレームワーク知識**: 26フレームワークの組み込み知識グラフ
+- 🔎 **ハイブリッド検索**: ローカルコード＋フレームワーク横断検索
+- 🎯 **パターン検出**: デザインパターン自動検出
+- 📝 **ドキュメント生成**: 自動ドキュメント生成
+- 📊 **品質分析**: コード品質メトリクス
 - 💾 **永続化**: JSON/SQLite への保存/読み込み
 - 🔒 **プライバシー**: 完全ローカル実行（データ外部送信なし）
+- 🔄 **増分解析**: 変更ファイルのみを効率的に再解析
 
 ## 🚀 クイックスタート
 
@@ -112,9 +111,9 @@ python scripts/update_knowledge_db.py --frameworks react django fastapi
 }
 ```
 
-## 🔧 MCP Tools (32 Tools)
+## 🔧 MCP Tools (34 Tools)
 
-### 📁 基本ツール
+### 📁 基本ツール (10 Tools)
 
 | Tool | 説明 |
 |------|------|
@@ -122,51 +121,63 @@ python scripts/update_knowledge_db.py --frameworks react django fastapi
 | `parse_directory` | ディレクトリ内のファイルを一括解析 |
 | `search_entities` | 名前や型でエンティティを検索 |
 | `get_entity` | 特定エンティティの詳細を取得 |
-| `get_related_entities` | 関連エンティティを取得 |
+| `get_related_entities` | 関連エンティティを取得（グラフの隣接ノード） |
 | `get_graph_stats` | 知識グラフの統計情報を取得 |
 | `save_graph` | 知識グラフを JSON ファイルに保存 |
 | `load_graph` | JSON ファイルから知識グラフを読み込み |
+| `list_supported_languages` | サポートする24言語の一覧を取得 |
+| `get_language_for_file` | ファイル拡張子から言語を判定 |
 
-### 🧠 フレームワーク知識グラフツール
-
-| Tool | 説明 |
-|------|------|
-| `register_framework` | フレームワーク知識グラフを登録 |
-| `search_framework` | フレームワーク内でエンティティを検索 |
-| `get_framework_entity` | フレームワークエンティティの詳細を取得 |
-| `list_frameworks` | 登録済みフレームワーク一覧を取得 |
-| `get_framework_stats` | フレームワーク統計情報を取得 |
-| `get_usage_examples` | フレームワークの使用例を取得 |
-| `get_framework_structure` | フレームワーク構造を取得 |
-
-### 📚 ドキュメント生成ツール（Phase 1）
+### 🧠 フレームワーク知識グラフツール (7 Tools)
 
 | Tool | 説明 |
 |------|------|
-| `generate_documentation` | エンティティのドキュメントを自動生成（JSDoc/docstring形式） |
-| `recommend_code` | 知識グラフからコード推奨を取得（類似コード、パターン提案） |
-| `analyze_impact` | 依存関係の影響分析（変更影響範囲の特定） |
+| `list_frameworks` | 利用可能なフレームワーク一覧を取得 |
+| `search_framework_docs` | フレームワーク内でエンティティを検索 |
+| `search_all_frameworks` | 全フレームワークを横断検索 |
+| `find_code_patterns` | 複数フレームワークで共通パターンを検索 |
+| `get_framework_entity_context` | フレームワークエンティティの詳細を取得 |
+| `framework_semantic_search_tool` | フレームワークでセマンティック検索 |
+| `framework_find_by_pattern` | フレームワーク全体でパターンマッチング |
 
-### 🔍 ハイブリッド検索・品質分析ツール（Phase 2）
-
-| Tool | 説明 |
-|------|------|
-| `hybrid_search` | キーワード検索＋セマンティック検索の統合検索 |
-| `analyze_quality` | コード品質メトリクス分析（循環的複雑度、結合度、凝集度） |
-| `track_evolution` | Git履歴からコードの変更頻度・ホットスポットを分析 |
-| `find_hotspots` | 変更頻度の高いファイル・関数を特定 |
-
-### 🤖 AI コーディング支援ツール（Phase 3）
+### 🔍 検索・コンテキストツール (4 Tools)
 
 | Tool | 説明 |
 |------|------|
-| `get_coding_guidance` | AIコーディングガイダンス生成（フレームワーク推奨コード） |
-| `detect_patterns` | デザインパターン自動検出（Singleton, Factory等10パターン） |
-| `check_api_compatibility` | APIバージョン互換性チェック（Django, FastAPI, React対応） |
-| `navigate_code` | インタラクティブコードナビゲーション（関係性探索） |
+| `semantic_search` | ローカルコードでセマンティック検索 |
+| `find_by_pattern` | 命名パターンでエンティティ検索 |
+| `get_code_context` | エンティティの包括的コンテキスト取得 |
+| `find_usage_examples` | エンティティの使用例を検索 |
+
+### 📚 ドキュメント・推奨ツール (4 Tools)
+
+| Tool | 説明 |
+|------|------|
+| `generate_documentation` | エンティティのドキュメントを自動生成 |
+| `recommend_code` | コードスニペットを推奨 |
+| `analyze_impact` | 変更の影響を分析 |
+| `find_critical_paths` | 重要な依存パスを特定 |
+
+### 🔎 ハイブリッド検索・品質分析ツール (4 Tools)
+
+| Tool | 説明 |
+|------|------|
+| `hybrid_search` | ローカル＋フレームワーク横断検索 |
+| `analyze_quality` | コード品質メトリクス分析 |
+| `track_evolution` | Git履歴からコード進化を追跡 |
+| `find_hotspots` | 変更頻度の高いコードを特定 |
+
+### 🤖 AI コーディング支援ツール (5 Tools)
+
+| Tool | 説明 |
+|------|------|
+| `get_coding_guidance` | AIコーディングガイダンス生成 |
+| `detect_patterns` | デザインパターン自動検出 |
+| `check_api_compatibility` | APIバージョン互換性チェック |
+| `navigate_code` | コード関係性のナビゲーション |
 | `get_call_graph` | 関数の呼び出しグラフを取得 |
 
-## 💬 MCP Prompts
+## 💬 MCP Prompts (3 Prompts)
 
 | Prompt | 説明 |
 |--------|------|
@@ -294,7 +305,7 @@ yata serve [OPTIONS]
 | Zig | `.zig` | ✅ 対応 |
 | YAML | `.yaml`, `.yml` | ✅ 対応 |
 
-## 📚 対応フレームワーク (47フレームワーク)
+## 📚 対応フレームワーク (26フレームワーク)
 
 YATAは主要フレームワークの構造を事前学習済みの知識グラフとして提供します。
 
@@ -466,11 +477,12 @@ YATA は Clean Architecture に基づいて設計されています：
 
 ## 📊 テスト状況
 
-- **テスト数**: 592+
-- **カバレッジ**: 82%+
-- **カバレッジ基準**: 80% 以上
+- **テスト数**: 683 (592 yata-core + 91 yata-mcp)
+- **E2Eテスト**: 42 (18 統合 + 24 セキュリティ)
+- **カバレッジ**: 75.65%
+- **カバレッジ基準**: 80% (目標)
 - **対応言語パーサー**: 24
-- **フレームワーク知識グラフ**: 47
+- **フレームワーク知識グラフ**: 26
 
 ## 📜 ライセンス
 

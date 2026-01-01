@@ -126,6 +126,9 @@ def serve(transport: str, port: int) -> None:
 @cli.command()
 def info() -> None:
     """Show YATA server information."""
+    import asyncio
+    from yata_mcp.server.protocol import create_mcp_server
+    
     table = Table(title="YATA Server Information")
     table.add_column("Property", style="cyan")
     table.add_column("Value", style="green")
@@ -134,9 +137,10 @@ def info() -> None:
     table.add_row("Version", __version__)
     table.add_row("Protocol", "MCP (Model Context Protocol)")
     
-    server = YataMcpServer()
-    tools = server.list_tools()
-    resources = server.list_resources()
+    # Use the actual MCP server to get tool/resource counts
+    mcp = create_mcp_server()
+    tools = asyncio.run(mcp.list_tools())
+    resources = asyncio.run(mcp.list_resources())
     
     table.add_row("Tools", str(len(tools)))
     table.add_row("Resources", str(len(resources)))

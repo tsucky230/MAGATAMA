@@ -16,8 +16,8 @@ By analyzing library source code and building a knowledge graph, it provides acc
 - 🔍 **Code Analysis**: High-speed AST parsing via Tree-sitter (24 languages supported)
 - 🕸️ **Knowledge Graph**: Entity-relationship graph powered by NetworkX
 - 🔗 **Relationship Detection**: Automatic detection of CALLS/IMPORTS/INHERITS/CONTAINS relationships
-- 🤖 **MCP Compliant**: Full Model Context Protocol support (32 Tools, 3 Prompts, 1 Resource)
-- 📚 **Framework Knowledge**: Built-in knowledge graphs for 47 frameworks
+- 🤖 **MCP Compliant**: Full Model Context Protocol support (34 Tools, 3 Prompts, 1 Resource)
+- 📚 **Framework Knowledge**: Built-in knowledge graphs for 26 frameworks
 - 🔎 **Hybrid Search**: Keyword + Semantic integrated search
 - 📝 **Documentation Generation**: Automatic JSDoc/docstring generation
 - 🎯 **Pattern Detection**: Automatic detection of 10 design patterns
@@ -112,9 +112,9 @@ python scripts/update_knowledge_db.py --frameworks react django fastapi
 }
 ```
 
-## 🔧 MCP Tools (32 Tools)
+## 🔧 MCP Tools (34 Tools)
 
-### 📁 Basic Tools
+### 📁 Basic Tools (10 Tools)
 
 | Tool | Description |
 |------|-------------|
@@ -126,44 +126,56 @@ python scripts/update_knowledge_db.py --frameworks react django fastapi
 | `get_graph_stats` | Get knowledge graph statistics |
 | `save_graph` | Save knowledge graph to JSON file |
 | `load_graph` | Load knowledge graph from JSON file |
+| `list_supported_languages` | Get list of 24 supported languages |
+| `get_language_for_file` | Detect language from file extension |
 
-### 🧠 Framework Knowledge Graph Tools
-
-| Tool | Description |
-|------|-------------|
-| `register_framework` | Register a framework knowledge graph |
-| `search_framework` | Search entities within a framework |
-| `get_framework_entity` | Get framework entity details |
-| `list_frameworks` | List registered frameworks |
-| `get_framework_stats` | Get framework statistics |
-| `get_usage_examples` | Get framework usage examples |
-| `get_framework_structure` | Get framework structure |
-
-### 📚 Documentation Generation Tools (Phase 1)
+### 🧠 Framework Knowledge Graph Tools (7 Tools)
 
 | Tool | Description |
 |------|-------------|
-| `generate_documentation` | Auto-generate entity documentation (JSDoc/docstring format) |
-| `recommend_code` | Get code recommendations from knowledge graph (similar code, pattern suggestions) |
-| `analyze_impact` | Dependency impact analysis (identify change impact scope) |
+| `list_frameworks` | List available frameworks |
+| `search_framework_docs` | Search entities within a framework |
+| `search_all_frameworks` | Cross-search all frameworks |
+| `find_code_patterns` | Search common patterns across frameworks |
+| `get_framework_entity_context` | Get framework entity details |
+| `framework_semantic_search_tool` | Semantic search within framework |
+| `framework_find_by_pattern` | Pattern matching across frameworks |
 
-### 🔍 Hybrid Search & Quality Analysis Tools (Phase 2)
-
-| Tool | Description |
-|------|-------------|
-| `hybrid_search` | Integrated keyword + semantic search |
-| `analyze_quality` | Code quality metrics analysis (cyclomatic complexity, coupling, cohesion) |
-| `track_evolution` | Analyze code change frequency and hotspots from Git history |
-| `find_hotspots` | Identify frequently changed files and functions |
-
-### 🤖 AI Coding Support Tools (Phase 3)
+### � Search & Context Tools (4 Tools)
 
 | Tool | Description |
 |------|-------------|
-| `get_coding_guidance` | Generate AI coding guidance (framework recommended code) |
-| `detect_patterns` | Auto-detect design patterns (Singleton, Factory, etc. - 10 patterns) |
-| `check_api_compatibility` | API version compatibility check (Django, FastAPI, React supported) |
-| `navigate_code` | Interactive code navigation (relationship exploration) |
+| `semantic_search` | Semantic search in local code |
+| `find_by_pattern` | Search entities by naming pattern |
+| `get_code_context` | Get comprehensive entity context |
+| `find_usage_examples` | Search usage examples of entity |
+
+### 📚 Documentation & Recommendation Tools (4 Tools)
+
+| Tool | Description |
+|------|-------------|
+| `generate_documentation` | Auto-generate entity documentation |
+| `recommend_code` | Recommend code snippets |
+| `analyze_impact` | Analyze change impact |
+| `find_critical_paths` | Identify critical dependency paths |
+
+### 🔎 Hybrid Search & Quality Analysis Tools (4 Tools)
+
+| Tool | Description |
+|------|-------------|
+| `hybrid_search` | Local + framework cross-search |
+| `analyze_quality` | Code quality metrics analysis |
+| `track_evolution` | Track code evolution from Git history |
+| `find_hotspots` | Identify frequently changed code |
+
+### 🤖 AI Coding Support Tools (5 Tools)
+
+| Tool | Description |
+|------|-------------|
+| `get_coding_guidance` | Generate AI coding guidance |
+| `detect_patterns` | Auto-detect design patterns |
+| `check_api_compatibility` | API version compatibility check |
+| `navigate_code` | Code relationship navigation |
 | `get_call_graph` | Get function call graph |
 
 ## 💬 MCP Prompts
@@ -294,7 +306,7 @@ yata serve [OPTIONS]
 | Zig | `.zig` | ✅ Supported |
 | YAML | `.yaml`, `.yml` | ✅ Supported |
 
-## 📚 Supported Frameworks (47 Frameworks)
+## 📚 Supported Frameworks (26 Frameworks)
 
 YATA provides pre-learned knowledge graphs of major framework structures.
 
@@ -466,11 +478,12 @@ YATA is designed based on Clean Architecture:
 
 ## 📊 Test Status
 
-- **Test Count**: 592+
-- **Coverage**: 82%+
-- **Coverage Threshold**: 80% or higher
+- **Test Count**: 683 (592 yata-core + 91 yata-mcp)
+- **E2E Tests**: 42 (18 integration + 24 security)
+- **Coverage**: 75.65%
+- **Coverage Threshold**: 80% (target)
 - **Supported Language Parsers**: 24
-- **Framework Knowledge Graphs**: 47
+- **Framework Knowledge Graphs**: 26
 
 ## 📜 License
 
