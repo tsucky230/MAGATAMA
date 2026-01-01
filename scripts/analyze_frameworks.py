@@ -27,6 +27,7 @@ from yata_core.infrastructure.parsers import (
     SwiftParser,
     KotlinParser,
     DartParser,
+    ElixirParser,
 )
 from yata_core.infrastructure.storage import NetworkXKnowledgeGraph
 from yata_core.application.usecases.parse_usecase import ParseDirectoryUseCase, ParseFileUseCase
@@ -58,17 +59,29 @@ FRAMEWORKS = [
     FrameworkConfig("Ember", "ember", "ts", ["packages/**/*.ts", "packages/**/*.js"]),
     FrameworkConfig("Backbone", "backbone", "js", ["**/*.js"]),
     FrameworkConfig("Alpine.js", "alpine", "ts", ["packages/**/*.ts", "packages/**/*.js"]),
+    FrameworkConfig("SolidJS", "solidjs", "ts", ["packages/**/*.ts", "packages/**/*.tsx"]),
+    FrameworkConfig("Qwik", "qwik", "ts", ["packages/**/*.ts", "packages/**/*.tsx"]),
+    FrameworkConfig("Remix", "remix", "ts", ["packages/**/*.ts", "packages/**/*.tsx"]),
+    FrameworkConfig("Astro", "astro", "ts", ["packages/**/*.ts"]),
+    FrameworkConfig("HTMX", "htmx", "js", ["src/**/*.js", "**/*.js"]),
     
     # Backend JavaScript/TypeScript
     FrameworkConfig("Express", "express", "js", ["lib/**/*.js"]),
     FrameworkConfig("NestJS", "nestjs", "ts", ["packages/**/*.ts"]),
     FrameworkConfig("Koa", "koa", "js", ["lib/**/*.js"]),
     FrameworkConfig("Fastify", "fastify", "js", ["lib/**/*.js", "types/**/*.ts"]),
+    FrameworkConfig("Hono", "hono", "ts", ["src/**/*.ts", "packages/**/*.ts"]),
+    FrameworkConfig("tRPC", "trpc", "ts", ["packages/**/*.ts"]),
+    FrameworkConfig("Bun", "bun", "ts", ["src/**/*.ts", "packages/**/*.ts"]),
     
     # Python
     FrameworkConfig("Django", "django", "py", ["django/**/*.py"]),
     FrameworkConfig("Flask", "flask", "py", ["src/**/*.py"]),
     FrameworkConfig("FastAPI", "fastapi", "py", ["fastapi/**/*.py"]),
+    FrameworkConfig("Streamlit", "streamlit", "py", ["lib/**/*.py", "streamlit/**/*.py"]),
+    FrameworkConfig("Haystack", "haystack", "py", ["haystack/**/*.py"]),
+    FrameworkConfig("LangChain", "langchain", "py", ["libs/**/*.py"]),
+    FrameworkConfig("LangGraph", "langgraph", "py", ["libs/**/*.py"]),
     
     # Ruby
     FrameworkConfig("Rails", "rails", "rb", ["**/*.rb"]),
@@ -80,14 +93,32 @@ FRAMEWORKS = [
     
     # Java/Kotlin
     FrameworkConfig("Spring Boot", "spring-boot", "java", ["**/*.java"]),
+    FrameworkConfig("Jetpack Compose", "jetpack-compose", "kt", ["**/*.kt"]),
     
     # Go
     FrameworkConfig("Gin", "gin", "go", ["**/*.go"]),
     FrameworkConfig("Echo", "echo", "go", ["**/*.go"]),
+    FrameworkConfig("Fiber", "fiber", "go", ["**/*.go"]),
+    
+    # Rust
+    FrameworkConfig("Actix-Web", "actix-web", "rs", ["**/*.rs"]),
+    FrameworkConfig("Axum", "axum", "rs", ["**/*.rs"]),
     
     # Mobile
     FrameworkConfig("React Native", "react-native", "ts", ["packages/**/*.ts", "packages/**/*.tsx", "packages/**/*.js"]),
-    FrameworkConfig("Flutter", "flutter", "dart", ["packages/**/*.dart"]),  # Note: Dart parser not available
+    FrameworkConfig("Flutter", "flutter", "dart", ["packages/**/*.dart"]),
+    FrameworkConfig("Expo", "expo", "ts", ["packages/**/*.ts", "packages/**/*.tsx"]),
+    FrameworkConfig("SwiftUI", "swiftui-source", "swift", ["**/*.swift"]),
+    
+    # Desktop
+    FrameworkConfig("Tauri", "tauri", "rs", ["**/*.rs"]),
+    
+    # Database/ORM
+    FrameworkConfig("Prisma", "prisma", "ts", ["packages/**/*.ts"]),
+    FrameworkConfig("Drizzle", "drizzle", "ts", ["**/*.ts"]),
+    
+    # Elixir
+    FrameworkConfig("Phoenix", "phoenix", "ex", ["lib/**/*.ex", "**/*.ex"]),
 ]
 
 
@@ -108,6 +139,8 @@ def get_parsers():
         '.swift': SwiftParser(),
         '.kt': KotlinParser(),
         '.dart': DartParser(),
+        '.ex': ElixirParser(),
+        '.exs': ElixirParser(),
     }
 
 

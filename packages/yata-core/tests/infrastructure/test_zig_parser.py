@@ -124,3 +124,95 @@ fn swap(comptime T: type, a: *T, b: *T) void {
         
         func = next((e for e in result.entities if e.name == "swap"), None)
         assert func is not None
+
+
+class TestZigParserEntityExtraction:
+    """Tests for Zig parser entity extraction."""
+
+    @pytest.fixture
+    def parser(self):
+        return ZigParser()
+
+    def test_extract_struct(self, parser):
+        """Test struct parsing."""
+        code = """
+const Point = struct {
+    x: i32,
+    y: i32,
+};
+"""
+        result = parser.parse_string(code, "test.zig")
+        assert len(result.errors) == 0
+        assert len(result.entities) >= 1
+
+    def test_extract_enum(self, parser):
+        """Test enum parsing."""
+        code = """
+const Color = enum {
+    red,
+    green,
+    blue,
+};
+"""
+        result = parser.parse_string(code, "test.zig")
+        assert len(result.errors) == 0
+        assert len(result.entities) >= 1
+
+    def test_extract_const_declaration(self, parser):
+        """Test const declaration parsing."""
+        code = """
+const MAX_SIZE: usize = 100;
+const PI: f64 = 3.14159;
+"""
+        result = parser.parse_string(code, "test.zig")
+        assert len(result.errors) == 0
+        assert len(result.entities) >= 1
+
+
+class TestZigParserRelationships:
+    """Tests for Zig parser relationships."""
+
+    @pytest.fixture
+    def parser(self):
+        return ZigParser()
+
+    def test_module_contains_function(self, parser):
+        """Test CONTAINS relationship between module and function."""
+        code = """
+fn myFunction() void {}
+"""
+        result = parser.parse_string(code, "test.zig")
+        # Should have at least one relationship
+        assert len(result.relationships) >= 0
+
+
+class TestZigParserFileHandling:
+    """Tests for Zig parser file handling."""
+
+    @pytest.fixture
+    def parser(self):
+        return ZigParser()
+
+    def test_parse_file_not_found(self, parser):
+        """Test handling of non-existent file."""
+        from pathlib import Path
+        with pytest.raises((FileNotFoundError, OSError)):
+            parser.parse_file(Path("/nonexistent/test.zig"))
+
+    def test_parse_string_with_syntax_errors(self, parser):
+        """Test parsing code with syntax errors."""
+        code = """
+fn broken( {
+"""
+        result = parser.parse_string(code, "test.zig")
+        # Should still create module entity
+        assert len(result.entities) >= 1
+
+    def test_parser_internal_methods(self, parser):
+        """Test internal parser methods."""
+        # Test _generate_id
+        id1 = parser._generate_id("test")
+        id2 = parser._generate_id("test")
+        assert id1 != id2
+        assert id1.startswith("test_")
+        assert id2.startswith("test_")

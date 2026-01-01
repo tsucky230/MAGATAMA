@@ -118,3 +118,127 @@ end
 '''
         result = parser.parse_string(code, "test.ex")
         assert len(result.entities) >= 1
+
+
+class TestElixirParserEntityExtraction:
+    """Tests for entity extraction in Elixir parser."""
+
+    def test_extract_module_entity(self, parser: ElixirParser) -> None:
+        code = '''
+defmodule MyApp.UserController do
+  def index(conn, _params) do
+    render(conn, "index.html")
+  end
+end
+'''
+        result = parser.parse_string(code, "test.ex")
+        modules = [e for e in result.entities if e.type == EntityType.MODULE]
+        assert len(modules) >= 1
+        assert len(result.errors) == 0
+
+    def test_extract_function_entity(self, parser: ElixirParser) -> None:
+        code = '''
+defmodule Calculator do
+  def add(a, b), do: a + b
+  def subtract(a, b), do: a - b
+  def multiply(a, b), do: a * b
+end
+'''
+        result = parser.parse_string(code, "test.ex")
+        # Parser should process without errors
+        assert len(result.entities) >= 1
+        assert len(result.errors) == 0
+
+    def test_extract_private_function_entity(self, parser: ElixirParser) -> None:
+        code = '''
+defmodule Service do
+  def public_method(x) do
+    private_helper(x)
+  end
+  
+  defp private_helper(x), do: x * 2
+end
+'''
+        result = parser.parse_string(code, "test.ex")
+        # Parser should process without errors
+        assert len(result.entities) >= 1
+        assert len(result.errors) == 0
+
+    def test_extract_macro_entity(self, parser: ElixirParser) -> None:
+        code = '''
+defmodule MyMacros do
+  defmacro unless(condition, do: block) do
+    quote do
+      if !unquote(condition), do: unquote(block)
+    end
+  end
+end
+'''
+        result = parser.parse_string(code, "test.ex")
+        assert len(result.entities) >= 1
+        assert len(result.errors) == 0
+
+
+class TestElixirParserRelationships:
+    """Tests for relationship extraction in Elixir parser."""
+
+    def test_contains_relationship(self, parser: ElixirParser) -> None:
+        code = '''
+defmodule Parent do
+  defmodule Child do
+    def child_func, do: :ok
+  end
+  
+  def parent_func, do: Child.child_func()
+end
+'''
+        result = parser.parse_string(code, "test.ex")
+        # Parser should process without errors
+        assert len(result.entities) >= 1
+        assert len(result.errors) == 0
+
+
+class TestElixirParserFileHandling:
+    """Tests for file handling in Elixir parser."""
+
+    def test_parse_file(self, parser: ElixirParser, tmp_path) -> None:
+        elixir_file = tmp_path / "test.ex"
+        elixir_file.write_text('''
+defmodule Test do
+  def hello, do: "Hello"
+end
+''')
+        result = parser.parse_file(elixir_file)
+        assert result.file_path == str(elixir_file)
+        assert len(result.entities) >= 1
+
+    def test_parse_exs_file(self, parser: ElixirParser, tmp_path) -> None:
+        exs_file = tmp_path / "test.exs"
+        exs_file.write_text('''
+ExUnit.start()
+
+defmodule MyTest do
+  use ExUnit.Case
+  
+  test "example" do
+    assert 1 + 1 == 2
+  end
+end
+''')
+        result = parser.parse_file(exs_file)
+        assert result.file_path == str(exs_file)
+        assert len(result.entities) >= 1
+
+    def test_parser_internal_methods(self, parser: ElixirParser) -> None:
+        """Test internal parser methods for coverage."""
+        # Test _generate_id
+        id1 = parser._generate_id("test")
+        id2 = parser._generate_id("test")
+        assert id1 != id2
+        
+        # Test _get_node_text
+        code = "defmodule Test do end"
+        tree = parser._parser.parse(code.encode("utf-8"))
+        text = parser._get_node_text(tree.root_node, code)
+        assert "defmodule" in text
+

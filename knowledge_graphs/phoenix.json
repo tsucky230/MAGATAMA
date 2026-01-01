@@ -1,0 +1,2622 @@
+{
+  "entities": [
+    {
+      "id": "module_0001",
+      "name": "phoenix",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/phoenix.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0002",
+      "name": "presence",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/phoenix/presence.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0003",
+      "name": "socket",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/phoenix/socket.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0004",
+      "name": "router",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/phoenix/router.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0005",
+      "name": "digester",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/phoenix/digester.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0006",
+      "name": "exceptions",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/phoenix/exceptions.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0007",
+      "name": "debug",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/phoenix/debug.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0008",
+      "name": "logger",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/phoenix/logger.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0009",
+      "name": "naming",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/phoenix/naming.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0010",
+      "name": "code_reloader",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/phoenix/code_reloader.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0011",
+      "name": "token",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/phoenix/token.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0012",
+      "name": "endpoint",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/phoenix/endpoint.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0013",
+      "name": "controller",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/phoenix/controller.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0014",
+      "name": "flash",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/phoenix/flash.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0015",
+      "name": "verified_routes",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/phoenix/verified_routes.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0016",
+      "name": "channel",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/phoenix/channel.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0017",
+      "name": "param",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/phoenix/param.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0018",
+      "name": "config",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/phoenix/config.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0019",
+      "name": "phoenix",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/mix/phoenix.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0020",
+      "name": "console_formatter",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/phoenix/router/console_formatter.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0021",
+      "name": "helpers",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/phoenix/router/helpers.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0022",
+      "name": "resource",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/phoenix/router/resource.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0023",
+      "name": "route",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/phoenix/router/route.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0024",
+      "name": "scope",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/phoenix/router/scope.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0025",
+      "name": "pipeline",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/phoenix/controller/pipeline.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0026",
+      "name": "server",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/phoenix/channel/server.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0027",
+      "name": "proxy",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/phoenix/code_reloader/proxy.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0028",
+      "name": "server",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/phoenix/code_reloader/server.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0029",
+      "name": "mix_listener",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/phoenix/code_reloader/mix_listener.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0030",
+      "name": "message",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/phoenix/socket/message.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0031",
+      "name": "transport",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/phoenix/socket/transport.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0032",
+      "name": "pool_supervisor",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/phoenix/socket/pool_supervisor.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0033",
+      "name": "serializer",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/phoenix/socket/serializer.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0034",
+      "name": "long_poll_server",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/phoenix/transports/long_poll_server.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0035",
+      "name": "websocket",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/phoenix/transports/websocket.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0036",
+      "name": "long_poll",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/phoenix/transports/long_poll.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0037",
+      "name": "gzip",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/phoenix/digester/gzip.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0038",
+      "name": "compressor",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/phoenix/digester/compressor.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0039",
+      "name": "supervisor",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/phoenix/endpoint/supervisor.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0040",
+      "name": "watcher",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/phoenix/endpoint/watcher.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0041",
+      "name": "render_errors",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/phoenix/endpoint/render_errors.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0042",
+      "name": "cowboy2_adapter",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/phoenix/endpoint/cowboy2_adapter.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0043",
+      "name": "sync_code_reload_plug",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/phoenix/endpoint/sync_code_reload_plug.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0044",
+      "name": "v2_json_serializer",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/phoenix/socket/serializers/v2_json_serializer.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0045",
+      "name": "v1_json_serializer",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/phoenix/socket/serializers/v1_json_serializer.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0046",
+      "name": "schema",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/mix/phoenix/schema.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0047",
+      "name": "context",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/mix/phoenix/context.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0048",
+      "name": "scope",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/mix/phoenix/scope.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0049",
+      "name": "phx.digest",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/mix/tasks/phx.digest.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0050",
+      "name": "phx.server",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/mix/tasks/phx.server.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0051",
+      "name": "phx.gen.context",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/mix/tasks/phx.gen.context.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0052",
+      "name": "phx.routes",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/mix/tasks/phx.routes.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0053",
+      "name": "phx.gen.socket",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/mix/tasks/phx.gen.socket.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0054",
+      "name": "phx.digest.clean",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/mix/tasks/phx.digest.clean.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0055",
+      "name": "phx",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/mix/tasks/phx.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0056",
+      "name": "phx.gen.secret",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/mix/tasks/phx.gen.secret.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0057",
+      "name": "phx.gen.channel",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/mix/tasks/phx.gen.channel.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0058",
+      "name": "phx.gen.notifier",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/mix/tasks/phx.gen.notifier.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0059",
+      "name": "phx.gen.presence",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/mix/tasks/phx.gen.presence.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0060",
+      "name": "phx.gen",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/mix/tasks/phx.gen.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0061",
+      "name": "phx.gen.json",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/mix/tasks/phx.gen.json.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0062",
+      "name": "phx.gen.cert",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/mix/tasks/phx.gen.cert.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0063",
+      "name": "phx.gen.schema",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/mix/tasks/phx.gen.schema.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0064",
+      "name": "phx.gen.embedded",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/mix/tasks/phx.gen.embedded.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0065",
+      "name": "phx.gen.html",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/mix/tasks/phx.gen.html.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0066",
+      "name": "compile.phoenix",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/mix/tasks/compile.phoenix.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0067",
+      "name": "phx.gen.release",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/mix/tasks/phx.gen.release.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0068",
+      "name": "phx.gen.live",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/mix/tasks/phx.gen.live.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0069",
+      "name": "phx.gen.auth",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/mix/tasks/phx.gen.auth.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0070",
+      "name": "injector",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/mix/tasks/phx.gen.auth/injector.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0071",
+      "name": "migration",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/mix/tasks/phx.gen.auth/migration.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0072",
+      "name": "hashing_library",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/mix/tasks/phx.gen.auth/hashing_library.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0073",
+      "name": "phoenix",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/phoenix.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0074",
+      "name": "html",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/priv/templates/phx.gen.html/html.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0075",
+      "name": "controller",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/priv/templates/phx.gen.html/controller.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0076",
+      "name": "release",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/priv/templates/phx.gen.release/release.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0077",
+      "name": "embedded_schema",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/priv/templates/phx.gen.embedded/embedded_schema.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0078",
+      "name": "fallback_controller",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/priv/templates/phx.gen.json/fallback_controller.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0079",
+      "name": "changeset_json",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/priv/templates/phx.gen.json/changeset_json.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0080",
+      "name": "controller",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/priv/templates/phx.gen.json/controller.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0081",
+      "name": "json",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/priv/templates/phx.gen.json/json.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0082",
+      "name": "channel_case",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/priv/templates/phx.gen.channel/channel_case.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0083",
+      "name": "channel",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/priv/templates/phx.gen.channel/channel.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0084",
+      "name": "schema_access",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/priv/templates/phx.gen.context/schema_access.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0085",
+      "name": "access_no_schema_scope",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/priv/templates/phx.gen.context/access_no_schema_scope.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0086",
+      "name": "context",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/priv/templates/phx.gen.context/context.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0087",
+      "name": "schema_access_scope",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/priv/templates/phx.gen.context/schema_access_scope.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0088",
+      "name": "access_no_schema",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/priv/templates/phx.gen.context/access_no_schema.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0089",
+      "name": "fixtures_module",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/priv/templates/phx.gen.context/fixtures_module.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0090",
+      "name": "fixtures",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/priv/templates/phx.gen.context/fixtures.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0091",
+      "name": "notifier",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/priv/templates/phx.gen.notifier/notifier.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0092",
+      "name": "schema",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/priv/templates/phx.gen.schema/schema.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0093",
+      "name": "registration_html",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/priv/templates/phx.gen.auth/registration_html.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0094",
+      "name": "auth",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/priv/templates/phx.gen.auth/auth.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0095",
+      "name": "schema",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/priv/templates/phx.gen.auth/schema.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0096",
+      "name": "session_html",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/priv/templates/phx.gen.auth/session_html.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0097",
+      "name": "registration_controller",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/priv/templates/phx.gen.auth/registration_controller.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0098",
+      "name": "migration",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/priv/templates/phx.gen.auth/migration.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0099",
+      "name": "confirmation_live",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/priv/templates/phx.gen.auth/confirmation_live.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0100",
+      "name": "notifier",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/priv/templates/phx.gen.auth/notifier.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0101",
+      "name": "context_functions",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/priv/templates/phx.gen.auth/context_functions.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0102",
+      "name": "login_live",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/priv/templates/phx.gen.auth/login_live.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0103",
+      "name": "settings_live",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/priv/templates/phx.gen.auth/settings_live.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0104",
+      "name": "settings_controller",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/priv/templates/phx.gen.auth/settings_controller.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0105",
+      "name": "settings_html",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/priv/templates/phx.gen.auth/settings_html.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0106",
+      "name": "schema_token",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/priv/templates/phx.gen.auth/schema_token.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0107",
+      "name": "routes",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/priv/templates/phx.gen.auth/routes.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0108",
+      "name": "registration_live",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/priv/templates/phx.gen.auth/registration_live.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0109",
+      "name": "session_controller",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/priv/templates/phx.gen.auth/session_controller.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0110",
+      "name": "scope",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/priv/templates/phx.gen.auth/scope.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0111",
+      "name": "context_fixtures_functions",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/priv/templates/phx.gen.auth/context_fixtures_functions.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0112",
+      "name": "presence",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/priv/templates/phx.gen.presence/presence.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0113",
+      "name": "socket",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/priv/templates/phx.gen.socket/socket.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0114",
+      "name": "index",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/priv/templates/phx.gen.live/index.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0115",
+      "name": "show",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/priv/templates/phx.gen.live/show.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0116",
+      "name": "form",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/priv/templates/phx.gen.live/form.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0117",
+      "name": "router",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/installer/templates/phx_web/router.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0118",
+      "name": "endpoint",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/installer/templates/phx_web/endpoint.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0119",
+      "name": "telemetry",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/installer/templates/phx_web/telemetry.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0120",
+      "name": "data_case",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/installer/templates/phx_ecto/data_case.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0121",
+      "name": "repo",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/installer/templates/phx_ecto/repo.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0122",
+      "name": "gettext",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/installer/templates/phx_gettext/gettext.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0123",
+      "name": "layouts",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/installer/templates/phx_web/components/layouts.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0124",
+      "name": "core_components",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/installer/templates/phx_web/components/core_components.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0125",
+      "name": "page_html",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/installer/templates/phx_web/controllers/page_html.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0126",
+      "name": "error_html",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/installer/templates/phx_web/controllers/error_html.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0127",
+      "name": "page_controller",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/installer/templates/phx_web/controllers/page_controller.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0128",
+      "name": "error_json",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/installer/templates/phx_web/controllers/error_json.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0129",
+      "name": "app_name",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/installer/templates/phx_umbrella/apps/app_name_web/lib/app_name.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0130",
+      "name": "application",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/installer/templates/phx_umbrella/apps/app_name_web/lib/app_name/application.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0131",
+      "name": "app_name",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/installer/templates/phx_umbrella/apps/app_name/lib/app_name.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0132",
+      "name": "application",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/installer/templates/phx_umbrella/apps/app_name/lib/app_name/application.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0133",
+      "name": "mailer",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/installer/templates/phx_mailer/lib/app_name/mailer.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0134",
+      "name": "app_name",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/installer/templates/phx_single/lib/app_name.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0135",
+      "name": "app_name_web",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/installer/templates/phx_single/lib/app_name_web.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0136",
+      "name": "application",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/installer/templates/phx_single/lib/app_name/application.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0137",
+      "name": "web",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/installer/lib/phx_new/web.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0138",
+      "name": "generator",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/installer/lib/phx_new/generator.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0139",
+      "name": "project",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/installer/lib/phx_new/project.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0140",
+      "name": "single",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/installer/lib/phx_new/single.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0141",
+      "name": "umbrella",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/installer/lib/phx_new/umbrella.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0142",
+      "name": "ecto",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/installer/lib/phx_new/ecto.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0143",
+      "name": "mailer",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/installer/lib/phx_new/mailer.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0144",
+      "name": "phx.new",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/installer/lib/mix/tasks/phx.new.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0145",
+      "name": "phx.new.ecto",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/installer/lib/mix/tasks/phx.new.ecto.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0146",
+      "name": "phx.new.web",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/installer/lib/mix/tasks/phx.new.web.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0147",
+      "name": "local.phx",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/installer/lib/mix/tasks/local.phx.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0148",
+      "name": "presence",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/phoenix/presence.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0149",
+      "name": "socket",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/phoenix/socket.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0150",
+      "name": "router",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/phoenix/router.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0151",
+      "name": "digester",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/phoenix/digester.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0152",
+      "name": "exceptions",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/phoenix/exceptions.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0153",
+      "name": "debug",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/phoenix/debug.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0154",
+      "name": "logger",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/phoenix/logger.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0155",
+      "name": "naming",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/phoenix/naming.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0156",
+      "name": "code_reloader",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/phoenix/code_reloader.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0157",
+      "name": "token",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/phoenix/token.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0158",
+      "name": "endpoint",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/phoenix/endpoint.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0159",
+      "name": "controller",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/phoenix/controller.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0160",
+      "name": "flash",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/phoenix/flash.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0161",
+      "name": "verified_routes",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/phoenix/verified_routes.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0162",
+      "name": "channel",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/phoenix/channel.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0163",
+      "name": "param",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/phoenix/param.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0164",
+      "name": "config",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/phoenix/config.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0165",
+      "name": "phoenix",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/mix/phoenix.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0166",
+      "name": "console_formatter",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/phoenix/router/console_formatter.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0167",
+      "name": "helpers",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/phoenix/router/helpers.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0168",
+      "name": "resource",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/phoenix/router/resource.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0169",
+      "name": "route",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/phoenix/router/route.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0170",
+      "name": "scope",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/phoenix/router/scope.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0171",
+      "name": "pipeline",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/phoenix/controller/pipeline.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0172",
+      "name": "server",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/phoenix/channel/server.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0173",
+      "name": "proxy",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/phoenix/code_reloader/proxy.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0174",
+      "name": "server",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/phoenix/code_reloader/server.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0175",
+      "name": "mix_listener",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/phoenix/code_reloader/mix_listener.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0176",
+      "name": "message",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/phoenix/socket/message.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0177",
+      "name": "transport",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/phoenix/socket/transport.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0178",
+      "name": "pool_supervisor",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/phoenix/socket/pool_supervisor.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0179",
+      "name": "serializer",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/phoenix/socket/serializer.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0180",
+      "name": "long_poll_server",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/phoenix/transports/long_poll_server.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0181",
+      "name": "websocket",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/phoenix/transports/websocket.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0182",
+      "name": "long_poll",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/phoenix/transports/long_poll.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0183",
+      "name": "gzip",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/phoenix/digester/gzip.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0184",
+      "name": "compressor",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/phoenix/digester/compressor.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0185",
+      "name": "supervisor",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/phoenix/endpoint/supervisor.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0186",
+      "name": "watcher",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/phoenix/endpoint/watcher.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0187",
+      "name": "render_errors",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/phoenix/endpoint/render_errors.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0188",
+      "name": "cowboy2_adapter",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/phoenix/endpoint/cowboy2_adapter.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0189",
+      "name": "sync_code_reload_plug",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/phoenix/endpoint/sync_code_reload_plug.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0190",
+      "name": "v2_json_serializer",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/phoenix/socket/serializers/v2_json_serializer.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0191",
+      "name": "v1_json_serializer",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/phoenix/socket/serializers/v1_json_serializer.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0192",
+      "name": "schema",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/mix/phoenix/schema.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0193",
+      "name": "context",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/mix/phoenix/context.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0194",
+      "name": "scope",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/mix/phoenix/scope.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0195",
+      "name": "phx.digest",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/mix/tasks/phx.digest.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0196",
+      "name": "phx.server",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/mix/tasks/phx.server.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0197",
+      "name": "phx.gen.context",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/mix/tasks/phx.gen.context.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0198",
+      "name": "phx.routes",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/mix/tasks/phx.routes.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0199",
+      "name": "phx.gen.socket",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/mix/tasks/phx.gen.socket.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0200",
+      "name": "phx.digest.clean",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/mix/tasks/phx.digest.clean.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0201",
+      "name": "phx",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/mix/tasks/phx.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0202",
+      "name": "phx.gen.secret",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/mix/tasks/phx.gen.secret.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0203",
+      "name": "phx.gen.channel",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/mix/tasks/phx.gen.channel.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0204",
+      "name": "phx.gen.notifier",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/mix/tasks/phx.gen.notifier.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0205",
+      "name": "phx.gen.presence",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/mix/tasks/phx.gen.presence.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0206",
+      "name": "phx.gen",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/mix/tasks/phx.gen.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0207",
+      "name": "phx.gen.json",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/mix/tasks/phx.gen.json.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0208",
+      "name": "phx.gen.cert",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/mix/tasks/phx.gen.cert.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0209",
+      "name": "phx.gen.schema",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/mix/tasks/phx.gen.schema.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0210",
+      "name": "phx.gen.embedded",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/mix/tasks/phx.gen.embedded.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0211",
+      "name": "phx.gen.html",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/mix/tasks/phx.gen.html.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0212",
+      "name": "compile.phoenix",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/mix/tasks/compile.phoenix.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0213",
+      "name": "phx.gen.release",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/mix/tasks/phx.gen.release.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0214",
+      "name": "phx.gen.live",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/mix/tasks/phx.gen.live.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0215",
+      "name": "phx.gen.auth",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/mix/tasks/phx.gen.auth.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0216",
+      "name": "injector",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/mix/tasks/phx.gen.auth/injector.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0217",
+      "name": "migration",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/mix/tasks/phx.gen.auth/migration.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    },
+    {
+      "id": "module_0218",
+      "name": "hashing_library",
+      "type": "module",
+      "location": {
+        "file": "/home/nahisaho/GitHub/YATA/frameworks/phoenix/lib/mix/tasks/phx.gen.auth/hashing_library.ex",
+        "line": 1,
+        "column": 0
+      },
+      "docstring": null,
+      "exports": []
+    }
+  ],
+  "relationships": [],
+  "file_hashes": {}
+}

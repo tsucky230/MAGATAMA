@@ -17,7 +17,7 @@ By analyzing library source code and building a knowledge graph, it provides acc
 - 🕸️ **Knowledge Graph**: Entity-relationship graph powered by NetworkX
 - 🔗 **Relationship Detection**: Automatic detection of CALLS/IMPORTS/INHERITS/CONTAINS relationships
 - 🤖 **MCP Compliant**: Full Model Context Protocol support (34 Tools, 3 Prompts, 1 Resource)
-- 📚 **Framework Knowledge**: Built-in knowledge graphs for 26 frameworks
+- 📚 **Framework Knowledge**: Built-in knowledge graphs for 47 frameworks (457K+ entities)
 - 🔎 **Hybrid Search**: Keyword + Semantic integrated search
 - 📝 **Documentation Generation**: Automatic JSDoc/docstring generation
 - 🎯 **Pattern Detection**: Automatic detection of 10 design patterns
@@ -478,12 +478,12 @@ YATA is designed based on Clean Architecture:
 
 ## 📊 Test Status
 
-- **Test Count**: 683 (592 yata-core + 91 yata-mcp)
+- **Test Count**: 763 (663 yata-core + 100 yata-mcp)
 - **E2E Tests**: 42 (18 integration + 24 security)
-- **Coverage**: 75.65%
+- **Coverage**: 76%
 - **Coverage Threshold**: 80% (target)
 - **Supported Language Parsers**: 24
-- **Framework Knowledge Graphs**: 26
+- **Framework Knowledge Graphs**: 47
 
 ## 📜 License
 

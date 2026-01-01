@@ -165,3 +165,118 @@ class Child(Parent):
         result = await mcp.get_prompt("find_dependencies", {"entity_name": "Unknown"})
         
         assert result is not None
+
+
+class TestMcpToolsExtended:
+    """Extended tests for MCP tools."""
+
+    @pytest.mark.asyncio
+    async def test_get_entity_tool(self, tmp_path: Path) -> None:
+        """Test get_entity tool via MCP."""
+        mcp = create_mcp_server()
+        
+        test_file = tmp_path / "entity.py"
+        test_file.write_text("def my_func(): pass")
+        await mcp.call_tool("parse_file", {"file_path": str(test_file)})
+        
+        # Get entity - even with invalid ID should return response
+        result = await mcp.call_tool("get_entity", {"entity_id": "nonexistent"})
+        assert result is not None
+
+    @pytest.mark.asyncio
+    async def test_get_related_entities_tool(self, tmp_path: Path) -> None:
+        """Test get_related_entities tool."""
+        mcp = create_mcp_server()
+        
+        test_file = tmp_path / "related.py"
+        test_file.write_text("class A:\n    def method(self): pass")
+        await mcp.call_tool("parse_file", {"file_path": str(test_file)})
+        
+        result = await mcp.call_tool("get_related_entities", {"entity_id": "module_0001"})
+        assert result is not None
+
+    @pytest.mark.asyncio
+    async def test_search_entities_with_type(self, tmp_path: Path) -> None:
+        """Test search_entities with type filter."""
+        mcp = create_mcp_server()
+        
+        test_file = tmp_path / "typed.py"
+        test_file.write_text("class MyClass:\n    def method(self): pass")
+        await mcp.call_tool("parse_file", {"file_path": str(test_file)})
+        
+        result = await mcp.call_tool("search_entities", {
+            "query": "My",
+            "entity_type": "class",
+            "limit": 5
+        })
+        assert result is not None
+
+    @pytest.mark.asyncio
+    async def test_parse_directory_tool(self, tmp_path: Path) -> None:
+        """Test parse_directory tool."""
+        mcp = create_mcp_server()
+        
+        # Create test files
+        (tmp_path / "file1.py").write_text("def f1(): pass")
+        (tmp_path / "file2.py").write_text("def f2(): pass")
+        
+        result = await mcp.call_tool("parse_directory", {
+            "directory": str(tmp_path),
+            "patterns": ["**/*.py"]
+        })
+        assert result is not None
+
+
+class TestMcpFrameworkTools:
+    """Tests for framework knowledge tools."""
+
+    @pytest.mark.asyncio
+    async def test_list_frameworks_tool(self) -> None:
+        """Test list_frameworks tool."""
+        mcp = create_mcp_server()
+        result = await mcp.call_tool("list_frameworks", {})
+        assert result is not None
+
+
+class TestMcpUtilityTools:
+    """Tests for utility tools."""
+
+    @pytest.mark.asyncio
+    async def test_list_supported_languages_tool(self) -> None:
+        """Test list_supported_languages tool."""
+        mcp = create_mcp_server()
+        result = await mcp.call_tool("list_supported_languages", {})
+        assert result is not None
+
+    @pytest.mark.asyncio
+    async def test_save_and_load_graph_tool(self, tmp_path: Path) -> None:
+        """Test save_graph and load_graph tools."""
+        mcp = create_mcp_server()
+        
+        # First parse something
+        test_file = tmp_path / "graph.py"
+        test_file.write_text("def foo(): pass")
+        await mcp.call_tool("parse_file", {"file_path": str(test_file)})
+        
+        # Save graph
+        graph_file = tmp_path / "graph.json"
+        save_result = await mcp.call_tool("save_graph", {"file_path": str(graph_file)})
+        assert save_result is not None
+        
+        # Load graph
+        load_result = await mcp.call_tool("load_graph", {"file_path": str(graph_file)})
+        assert load_result is not None
+
+    @pytest.mark.asyncio
+    async def test_load_graph_not_found(self) -> None:
+        """Test load_graph with non-existent file."""
+        mcp = create_mcp_server()
+        result = await mcp.call_tool("load_graph", {"file_path": "/nonexistent/graph.json"})
+        assert result is not None
+
+    @pytest.mark.asyncio
+    async def test_get_entity_invalid(self) -> None:
+        """Test get_entity with invalid ID."""
+        mcp = create_mcp_server()
+        result = await mcp.call_tool("get_entity", {"entity_id": "invalid_id"})
+        assert result is not None
