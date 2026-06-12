@@ -62,6 +62,7 @@ from yata_core.application.usecases.framework_usecase import (
     APICompatibilityUseCase,
     CodeNavigationUseCase,
 )
+from yata_core.application.usecases.comp_usecase import LoadCompIndexUseCase
 
 # Default knowledge graphs directory
 DEFAULT_KNOWLEDGE_GRAPHS_DIR = Path(__file__).parent.parent.parent.parent.parent.parent.parent / "knowledge_graphs"
@@ -1304,14 +1305,15 @@ def create_mcp_server(name: str = "yata") -> FastMCP:
                 {
                     "name": m.name,
                     "value": m.value,
-                    "threshold": m.threshold,
+                    "threshold_good": m.threshold_good,
+                    "threshold_warning": m.threshold_warning,
                     "status": m.status,
                     "description": m.description,
                 }
                 for m in result.metrics
             ],
             "overall_score": result.overall_score,
-            "grade": result.grade,
+            "overall_status": result.overall_status,
             "recommendations": result.recommendations,
         }
     
@@ -1566,14 +1568,14 @@ def create_mcp_server(name: str = "yata") -> FastMCP:
         depth: int = 3,
     ) -> dict[str, Any]:
         """Get call graph data for visualization.
-        
+
         Returns graph data in D3-compatible format for visual rendering
         of code dependencies and call relationships.
-        
+
         Args:
             entity_name: Center entity name
             depth: Depth to explore (default: 3)
-            
+
         Returns:
             Graph data with nodes and links for visualization
         """
@@ -1581,7 +1583,90 @@ def create_mcp_server(name: str = "yata") -> FastMCP:
             entity_name=entity_name,
             depth=depth,
         )
-    
+
+    # ===== External Index Tools (comP Bridge) =====
+
+    load_comp_index_usecase = LoadCompIndexUseCase(knowledge_graph=knowledge_graph)
+
+    @mcp.tool()
+    def read_external_graph(path: str, mode: str = "replace") -> dict[str, Any]:
+        """Load an external comP index (.comp/index.db) into YATA's knowledge graph.
+
+        comP (https://github.com/tsucky230/comP) is a VSCode-based code indexer.
+        This tool imports its SQLite index so that all YATA tools
+        (search_entities, get_related_entities, analyze_impact, etc.)
+        can answer questions about the indexed project without re-parsing.
+
+        Args:
+            path: Workspace root containing .comp/index.db, the .comp directory,
+                  or a direct path to the .db file.
+            mode: "replace" (default) removes previously loaded entities from the
+                  same workspace before loading; "merge" adds on top.
+
+        Returns:
+            Load statistics: entities_loaded, relationships_loaded, alias, etc.
+        """
+        result = load_comp_index_usecase.execute(path, mode=mode)
+        return {
+            "success": result.success,
+            "alias": result.alias,
+            "db_path": result.db_path,
+            "entities_loaded": result.entities_loaded,
+            "relationships_loaded": result.relationships_loaded,
+            "entities_removed": result.entities_removed,
+            "skipped_edges": result.skipped_edges,
+            "comp_metadata": result.comp_metadata,
+            "errors": result.errors,
+        }
+
+    @mcp.tool()
+    def get_external_graph_info(path: str) -> dict[str, Any]:
+        """Inspect a comP index (.comp/index.db) without loading it.
+
+        Returns file/node/edge counts and comP metadata. Use this to check
+        whether an index exists and how fresh it is before calling
+        read_external_graph.
+        """
+        import sqlite3
+        import urllib.parse
+
+        from yata_core.infrastructure.storage.comp_index_reader import (
+            CompIndexNotFoundError,
+            resolve_db_path,
+        )
+
+        try:
+            db_path = resolve_db_path(path)
+        except CompIndexNotFoundError as e:
+            return {"exists": False, "error": str(e)}
+        uri = f"file:{urllib.parse.quote(db_path.as_posix())}?mode=ro"
+        try:
+            conn = sqlite3.connect(uri, uri=True)
+            try:
+                conn.execute("PRAGMA busy_timeout=5000")
+                files = conn.execute("SELECT COUNT(*) FROM files").fetchone()[0]
+                nodes = conn.execute("SELECT COUNT(*) FROM nodes").fetchone()[0]
+                edges = conn.execute("SELECT COUNT(*) FROM edges").fetchone()[0]
+                meta = dict(
+                    conn.execute("SELECT key, value FROM metadata").fetchall()
+                )
+                last_indexed = conn.execute(
+                    "SELECT MAX(last_indexed) FROM files"
+                ).fetchone()[0]
+            finally:
+                conn.close()
+        except sqlite3.Error as e:
+            return {"exists": True, "db_path": str(db_path), "error": str(e)}
+        return {
+            "exists": True,
+            "db_path": str(db_path),
+            "files": files,
+            "nodes": nodes,
+            "edges": edges,
+            "last_indexed": last_indexed,
+            "metadata": meta,
+        }
+
     return mcp
 
 

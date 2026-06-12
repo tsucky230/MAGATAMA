@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "comp": {
+      "command": "c:\\Users\\tsuck\\.vscode\\extensions\\tsucky230.comp-vscode-0.8.0\\daemon\\target\\release\\comp-daemon-win.exe",
+      "args": [],
+      "env": {
+        "COMP_WORKSPACE_ROOT": "e:\\dev\\MAGATAMA",
+        "RUST_LOG": "info"
+      }
+    }
+  }
+}

@@ -1,5 +1,9 @@
 """Use cases package."""
 
+from yata_core.application.usecases.comp_usecase import (
+    LoadCompIndexUseCase,
+    LoadCompIndexResult,
+)
 from yata_core.application.usecases.parse_usecase import (
     ParseFileUseCase,
     ParseDirectoryUseCase,
@@ -55,6 +59,8 @@ from yata_core.application.usecases.framework_usecase import (
 )
 
 __all__ = [
+    "LoadCompIndexUseCase",
+    "LoadCompIndexResult",
     "ParseFileUseCase",
     "ParseDirectoryUseCase",
     "ParseResult",

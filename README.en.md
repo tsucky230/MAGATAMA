@@ -1,31 +1,53 @@
-# YATA (八咫) - AI Coding Support MCP Server
+# MAGATAMA (勾玉) - YATA fork with comP Bridge
 
-[![CI](https://github.com/nahisaho/YATA/workflows/CI/badge.svg)](https://github.com/nahisaho/YATA/actions)
-[![Coverage](https://codecov.io/gh/nahisaho/YATA/branch/main/graph/badge.svg)](https://codecov.io/gh/nahisaho/YATA)
+[![CI](https://github.com/tsucky230/MAGATAMA/workflows/CI/badge.svg)](https://github.com/tsucky230/MAGATAMA/actions)
+[![Coverage](https://codecov.io/gh/tsucky230/MAGATAMA/branch/main/graph/badge.svg)](https://codecov.io/gh/tsucky230/MAGATAMA)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-**YATA** (八咫 - yata) is a Knowledge Graph MCP Server for AI coding support.
-
-By analyzing library source code and building a knowledge graph, it provides accurate context to AI tools such as Claude Desktop, GitHub Copilot, and Cursor.
-
 > 🇯🇵 [日本語版 README](README.md)
+
+**MAGATAMA** is a fork of [YATA (八咫)](https://github.com/nahisaho/YATA) (by nahisaho, MIT License)
+that adds **direct integration with the [comP](https://github.com/tsucky230/comP) code indexer**.
+
+It inherits all 34 MCP tools from YATA and adds a **comP Bridge (2 tools)** that imports comP's
+`.comp/index.db` SQLite index into YATA's knowledge graph — no re-parsing required.
+
+## What is the comP Bridge?
+
+[comP](https://github.com/tsucky230/comP) is a code indexer built as a VSCode extension + Rust daemon.
+It stores analysis results in `<workspace>/.comp/index.db` (SQLite, WAL mode).
+
+The MAGATAMA comP Bridge reads this SQLite database directly and converts it into YATA's NetworkX
+knowledge graph. This means **comP's pre-built index is immediately available to all YATA tools**
+such as `search_entities`, `hybrid_search`, and `analyze_impact`.
+
+```text
+[comP Rust Daemon] ──writes──> .comp/index.db (SQLite, WAL mode)
+                                    │ read-only connection
+                                    ▼
+                      [MAGATAMA CompIndexReader] ──converts──> NetworkXKnowledgeGraph
+                                    │
+                                    ▼
+                 [MAGATAMA MCP Server (FastMCP)] ──MCP──> Claude Desktop / Cursor / Copilot
+```
 
 ## ✨ Features
 
-- 🔍 **Code Analysis**: High-speed AST parsing via Tree-sitter (24 languages supported)
+- 🔌 **comP Bridge**: Import comP `.comp/index.db` into the knowledge graph without re-parsing
+- 🔍 **Code Analysis**: High-speed AST parsing via Tree-sitter (24 languages)
 - 🕸️ **Knowledge Graph**: Entity-relationship graph powered by NetworkX
-- 🔗 **Relationship Detection**: Automatic detection of CALLS/IMPORTS/INHERITS/CONTAINS relationships
-- 🤖 **MCP Compliant**: Full Model Context Protocol support (34 Tools, 3 Prompts, 1 Resource)
+- 🔗 **Relationship Detection**: Automatic detection of CALLS/IMPORTS/INHERITS/CONTAINS
+- 🤖 **MCP Compliant**: Full Model Context Protocol support (36 Tools, 3 Prompts, 1 Resource)
 - 📚 **Framework Knowledge**: Built-in knowledge graphs for 47 frameworks (457K+ entities)
-- 🔎 **Hybrid Search**: Keyword + Semantic integrated search
-- 📝 **Documentation Generation**: Automatic JSDoc/docstring generation
+- 🔎 **Hybrid Search**: Keyword + semantic integrated search
 - 🎯 **Pattern Detection**: Automatic detection of 10 design patterns
-- 🔄 **Compatibility Check**: API version compatibility analysis
-- 📈 **Quality Analysis**: Cyclomatic complexity, coupling, and cohesion metrics
-- 📊 **Evolution Tracking**: Code hotspot analysis from Git history
+- 📝 **Documentation Generation**: Automatic JSDoc/docstring generation
+- 📊 **Quality Analysis**: Cyclomatic complexity, coupling, and cohesion metrics
+- 📈 **Evolution Tracking**: Code hotspot analysis from Git history
 - 💾 **Persistence**: Save/load to JSON/SQLite
 - 🔒 **Privacy**: Fully local execution (no external data transmission)
+- 🔄 **Incremental Analysis**: Re-analyze only changed files
 
 ## 🚀 Quick Start
 
@@ -33,8 +55,8 @@ By analyzing library source code and building a knowledge graph, it provides acc
 
 ```bash
 # Clone the repository
-git clone https://github.com/nahisaho/YATA.git
-cd yata
+git clone https://github.com/tsucky230/MAGATAMA.git
+cd MAGATAMA
 
 # Install dependencies with uv (recommended)
 uv sync --all-packages
@@ -60,24 +82,30 @@ yata info
 
 # Search entities
 yata query "parse" --type function
+```
 
-# Display statistics
-yata stats --graph graph.json
+### Using with comP
 
-# Validate graph integrity
-yata validate --graph graph.json --repair
+```bash
+# 1. Index your project with comP (runs automatically via VSCode + comP extension)
 
-# Watch directory
-yata watch ./src --output graph.json
+# 2. Start MAGATAMA MCP server
+yata serve
+```
 
-# Run performance benchmark
-yata benchmark ./src
+Then from an MCP client (e.g., Claude Desktop):
 
-# Bulk update knowledge database (47 frameworks)
-python scripts/update_knowledge_db.py
+```python
+# Check the index without loading
+get_external_graph_info(path="e:/dev/myproject")
 
-# Update specific frameworks only
-python scripts/update_knowledge_db.py --frameworks react django fastapi
+# Load the index into the knowledge graph
+read_external_graph(path="e:/dev/myproject")
+
+# Use any YATA tool on the indexed code
+search_entities(query="MyClass")
+get_related_entities(entity_id="comp:myproject:n42")
+analyze_impact(entity_id="comp:myproject:n42")
 ```
 
 ### Integration with AI Tools
@@ -112,79 +140,93 @@ python scripts/update_knowledge_db.py --frameworks react django fastapi
 }
 ```
 
-## 🔧 MCP Tools (34 Tools)
+## 🔧 MCP Tools (36 Tools)
 
-### 📁 Basic Tools (10 Tools)
+### 🔌 comP Bridge (2 Tools)
+
+| Tool | Description |
+|------|-------------|
+| `read_external_graph` | Load a comP index into YATA's knowledge graph |
+| `get_external_graph_info` | Inspect comP index stats without loading |
+
+`read_external_graph` parameters:
+
+| Parameter | Description |
+| --------- | ----------- |
+| `path` | Workspace root, `.comp` directory, or direct path to `.db` file |
+| `mode` | `replace` (default): purge existing entries then load; `merge`: add on top |
+
+### 📁 Core Tools (10 Tools)
 
 | Tool | Description |
 |------|-------------|
 | `parse_file` | Parse a source file and extract entities |
-| `parse_directory` | Batch parse files in a directory |
+| `parse_directory` | Batch-parse all files in a directory |
 | `search_entities` | Search entities by name or type |
-| `get_entity` | Get details of a specific entity |
-| `get_related_entities` | Get related entities |
+| `get_entity` | Get details for a specific entity |
+| `get_related_entities` | Get adjacent nodes in the knowledge graph |
 | `get_graph_stats` | Get knowledge graph statistics |
-| `save_graph` | Save knowledge graph to JSON file |
-| `load_graph` | Load knowledge graph from JSON file |
-| `list_supported_languages` | Get list of 24 supported languages |
-| `get_language_for_file` | Detect language from file extension |
+| `save_graph` | Save the knowledge graph to a JSON file |
+| `load_graph` | Load a knowledge graph from a JSON file |
+| `list_supported_languages` | List all 24 supported languages |
+| `get_language_for_file` | Detect the language from a file extension |
 
-### 🧠 Framework Knowledge Graph Tools (7 Tools)
+### 🧠 Framework Knowledge Tools (7 Tools)
 
 | Tool | Description |
 |------|-------------|
-| `list_frameworks` | List available frameworks |
+| `list_frameworks` | List available framework knowledge graphs |
 | `search_framework_docs` | Search entities within a framework |
-| `search_all_frameworks` | Cross-search all frameworks |
-| `find_code_patterns` | Search common patterns across frameworks |
-| `get_framework_entity_context` | Get framework entity details |
-| `framework_semantic_search_tool` | Semantic search within framework |
-| `framework_find_by_pattern` | Pattern matching across frameworks |
+| `search_all_frameworks` | Cross-framework search |
+| `find_code_patterns` | Find common patterns across frameworks |
+| `get_framework_entity_context` | Get detailed context for a framework entity |
+| `framework_semantic_search_tool` | Semantic search within frameworks |
+| `framework_find_by_pattern` | Pattern matching across all frameworks |
 
-### � Search & Context Tools (4 Tools)
+### 🔍 Search & Context Tools (4 Tools)
 
 | Tool | Description |
 |------|-------------|
-| `semantic_search` | Semantic search in local code |
-| `find_by_pattern` | Search entities by naming pattern |
-| `get_code_context` | Get comprehensive entity context |
-| `find_usage_examples` | Search usage examples of entity |
+| `semantic_search` | Semantic search on local code |
+| `find_by_pattern` | Find entities by naming pattern |
+| `get_code_context` | Get comprehensive context for an entity |
+| `find_usage_examples` | Find usage examples for an entity |
 
 ### 📚 Documentation & Recommendation Tools (4 Tools)
 
 | Tool | Description |
 |------|-------------|
-| `generate_documentation` | Auto-generate entity documentation |
-| `recommend_code` | Recommend code snippets |
-| `analyze_impact` | Analyze change impact |
+| `generate_documentation` | Auto-generate documentation for an entity |
+| `recommend_code` | Suggest code snippets |
+| `analyze_impact` | Analyze the blast radius of a change |
 | `find_critical_paths` | Identify critical dependency paths |
 
-### 🔎 Hybrid Search & Quality Analysis Tools (4 Tools)
+### 🔎 Hybrid Search & Quality Tools (4 Tools)
 
 | Tool | Description |
-|------|-------------|
+| ------ | ----------- |
 | `hybrid_search` | Local + framework cross-search |
 | `analyze_quality` | Code quality metrics analysis |
 | `track_evolution` | Track code evolution from Git history |
-| `find_hotspots` | Identify frequently changed code |
+| `find_hotspots` | Identify frequently-changed code |
 
-### 🤖 AI Coding Support Tools (5 Tools)
+### 🤖 AI Coding Assistance Tools (5 Tools)
 
 | Tool | Description |
-|------|-------------|
+| ------ | ----------- |
 | `get_coding_guidance` | Generate AI coding guidance |
-| `detect_patterns` | Auto-detect design patterns |
-| `check_api_compatibility` | API version compatibility check |
-| `navigate_code` | Code relationship navigation |
-| `get_call_graph` | Get function call graph |
+| `detect_patterns` | Detect design patterns automatically |
+| `check_api_compatibility` | Check API version compatibility |
+| `navigate_code` | Navigate code relationships |
+| `get_call_graph` | Get the call graph for a function |
 
-## 💬 MCP Prompts
+## 💬 MCP Prompts (3 Prompts)
 
 | Prompt | Description |
 |--------|-------------|
 | `analyze_codebase` | Analyze codebase structure and provide insights |
 | `explain_entity` | Explain a specific code entity |
-| `find_dependencies` | Analyze entity dependencies |
+| `find_dependencies` | Analyze dependencies of an entity |
 
 ## 📚 MCP Resources
 
@@ -192,9 +234,9 @@ python scripts/update_knowledge_db.py --frameworks react django fastapi
 |-----|-------------|
 | `yata://graph/stats` | Knowledge graph statistics |
 
-## 💻 CLI Command Details
+## 💻 CLI Commands
 
-### parse - Source Code Analysis
+### parse — Source Code Analysis
 
 ```bash
 yata parse <PATH> [OPTIONS]
@@ -202,11 +244,11 @@ yata parse <PATH> [OPTIONS]
 
 | Option | Description |
 |--------|-------------|
-| `-p, --pattern` | Target file pattern (default: `**/*.py`) |
+| `-p, --pattern` | File glob pattern (default: `**/*.py`) |
 | `-e, --exclude` | Exclusion pattern |
-| `-o, --output` | Knowledge graph save path |
+| `-o, --output` | Output path for the knowledge graph |
 
-### query - Entity Search
+### query — Entity Search
 
 ```bash
 yata query <QUERY> [OPTIONS]
@@ -215,58 +257,11 @@ yata query <QUERY> [OPTIONS]
 | Option | Description |
 |--------|-------------|
 | `-t, --type` | Filter by entity type (function, class, method, etc.) |
-| `-n, --max-results` | Maximum number of results (default: 20) |
-| `-g, --graph` | Graph file path to load |
+| `-n, --max-results` | Maximum results (default: 20) |
+| `-g, --graph` | Graph file to load |
 | `--json` | Output in JSON format |
 
-### stats - Display Statistics
-
-```bash
-yata stats [OPTIONS]
-```
-
-| Option | Description |
-|--------|-------------|
-| `-g, --graph` | Graph file path to load |
-| `--json` | Output in JSON format |
-
-### validate - Integrity Validation
-
-```bash
-yata validate [OPTIONS]
-```
-
-| Option | Description |
-|--------|-------------|
-| `-g, --graph` | Graph file to validate |
-| `-r, --repair` | Auto-repair issues |
-| `--json` | Output in JSON format |
-
-### watch - File Monitoring
-
-```bash
-yata watch <DIRECTORY> [OPTIONS]
-```
-
-| Option | Description |
-|--------|-------------|
-| `-p, --pattern` | Watch pattern |
-| `-e, --exclude` | Exclusion pattern |
-| `-d, --debounce` | Debounce delay in seconds (default: 1.0) |
-| `-o, --output` | Auto-save path for graph |
-
-### benchmark - Performance Measurement
-
-```bash
-yata benchmark <DIRECTORY> [OPTIONS]
-```
-
-| Option | Description |
-|--------|-------------|
-| `-p, --pattern` | Target file pattern |
-| `--json` | Output in JSON format |
-
-### serve - Start MCP Server
+### serve — Start MCP Server
 
 ```bash
 yata serve [OPTIONS]
@@ -275,45 +270,43 @@ yata serve [OPTIONS]
 | Option | Description |
 |--------|-------------|
 | `-t, --transport` | Transport: `stdio` or `sse` (default: stdio) |
-| `-p, --port` | Port for SSE (default: 8080) |
+| `-p, --port` | SSE port (default: 8080) |
 
-## 🏗️ Supported Languages (24 Languages)
+## 🏗️ Supported Languages (24)
 
-| Language | Extension | Status |
-|----------|-----------|--------|
-| Python | `.py` | ✅ Supported |
-| TypeScript | `.ts`, `.tsx` | ✅ Supported |
-| JavaScript | `.js`, `.jsx` | ✅ Supported |
-| Rust | `.rs` | ✅ Supported |
-| Go | `.go` | ✅ Supported |
-| Java | `.java` | ✅ Supported |
-| Kotlin | `.kt` | ✅ Supported |
-| Scala | `.scala` | ✅ Supported |
-| C | `.c`, `.h` | ✅ Supported |
-| C++ | `.cpp`, `.hpp` | ✅ Supported |
-| C# | `.cs` | ✅ Supported |
-| Swift | `.swift` | ✅ Supported |
-| Objective-C | `.m` | ✅ Supported |
-| PHP | `.php` | ✅ Supported |
-| Ruby | `.rb` | ✅ Supported |
-| Dart | `.dart` | ✅ Supported |
-| Elixir | `.ex`, `.exs` | ✅ Supported |
-| Haskell | `.hs` | ✅ Supported |
-| Julia | `.jl` | ✅ Supported |
-| Lua | `.lua` | ✅ Supported |
-| Groovy | `.groovy` | ✅ Supported |
-| SQL | `.sql` | ✅ Supported |
-| Zig | `.zig` | ✅ Supported |
-| YAML | `.yaml`, `.yml` | ✅ Supported |
+| Language | Extensions | Status |
+|----------|------------|--------|
+| Python | `.py` | ✅ |
+| TypeScript | `.ts`, `.tsx` | ✅ |
+| JavaScript | `.js`, `.jsx` | ✅ |
+| Rust | `.rs` | ✅ |
+| Go | `.go` | ✅ |
+| Java | `.java` | ✅ |
+| Kotlin | `.kt` | ✅ |
+| Scala | `.scala` | ✅ |
+| C | `.c`, `.h` | ✅ |
+| C++ | `.cpp`, `.hpp` | ✅ |
+| C# | `.cs` | ✅ |
+| Swift | `.swift` | ✅ |
+| Objective-C | `.m` | ✅ |
+| PHP | `.php` | ✅ |
+| Ruby | `.rb` | ✅ |
+| Dart | `.dart` | ✅ |
+| Elixir | `.ex`, `.exs` | ✅ |
+| Haskell | `.hs` | ✅ |
+| Julia | `.jl` | ✅ |
+| Lua | `.lua` | ✅ |
+| Groovy | `.groovy` | ✅ |
+| SQL | `.sql` | ✅ |
+| Zig | `.zig` | ✅ |
+| YAML | `.yaml`, `.yml` | ✅ |
 
-## 📚 Supported Frameworks (26 Frameworks)
-
-YATA provides pre-learned knowledge graphs of major framework structures.
+## 📚 Supported Frameworks (26)
 
 ### Python
 
 | Framework | Category | Key Entities |
-|-----------|----------|--------------|
+|-----------|----------|-------------|
 | Django | Web Framework | Model, View, Template, Form, Middleware |
 | Flask | Web Framework | Blueprint, Route, Extension |
 | FastAPI | Web Framework | Router, Dependency, Pydantic Model |
@@ -329,7 +322,7 @@ YATA provides pre-learned knowledge graphs of major framework structures.
 ### JavaScript / TypeScript
 
 | Framework | Category | Key Entities |
-|-----------|----------|--------------|
+|-----------|----------|-------------|
 | React | UI Framework | Component, Hook, Context, Props |
 | Vue.js | UI Framework | Component, Composition API, Directive |
 | Angular | UI Framework | Component, Service, Module, Pipe |
@@ -350,7 +343,7 @@ YATA provides pre-learned knowledge graphs of major framework structures.
 ### Rust
 
 | Framework | Category | Key Entities |
-|-----------|----------|--------------|
+|-----------|----------|-------------|
 | Actix-web | Web Framework | App, Route, Handler, Middleware |
 | Tokio | Async Runtime | Runtime, Task, Channel, Stream |
 | Serde | Serialization | Serialize, Deserialize, Attribute |
@@ -361,79 +354,33 @@ YATA provides pre-learned knowledge graphs of major framework structures.
 ### Go
 
 | Framework | Category | Key Entities |
-|-----------|----------|--------------|
+|-----------|----------|-------------|
 | Gin | Web Framework | Router, Handler, Middleware, Context |
 | Echo | Web Framework | Router, Handler, Middleware, Context |
 | Fiber | Web Framework | App, Route, Handler, Middleware |
 | GORM | ORM | Model, DB, Query, Association |
 
-### Elixir
-
-| Framework | Category | Key Entities |
-|-----------|----------|--------------|
-| Phoenix | Web Framework | Controller, LiveView, Channel, Router |
-
-### Database/ORM
-
-| Framework | Language | Key Entities |
-|-----------|----------|--------------|
-| Prisma | TypeScript | Schema, Client, Query, Migration |
-| Drizzle | TypeScript | Schema, Query, Migration, Relation |
-
-### Mobile
-
-| Framework | Language | Key Entities |
-|-----------|----------|--------------|
-| SwiftUI | Swift | View, State, Binding, Environment |
-| Jetpack Compose | Kotlin | Composable, State, Modifier, Theme |
-
-### Others
+### Other
 
 | Framework | Language | Category |
 |-----------|----------|----------|
+| Phoenix | Elixir | Web Framework |
+| Prisma | TypeScript | ORM |
+| Drizzle | TypeScript | ORM |
+| SwiftUI | Swift | Mobile |
+| Jetpack Compose | Kotlin | Mobile |
 | Spring Boot | Java | Web Framework |
 | .NET Core | C# | Web Framework |
 | Ruby on Rails | Ruby | Web Framework |
 | Laravel | PHP | Web Framework |
-
-## 🎯 Detectable Design Patterns (10 Patterns)
-
-| Pattern | Category | Detection Criteria |
-|---------|----------|-------------------|
-| Singleton | Creational | `getInstance`, `__new__`, static instance |
-| Factory Method | Creational | `create*`, `build*`, `make*` methods |
-| Builder | Creational | `set*`, `with*`, `build` chain |
-| Adapter | Structural | `adapt`, `wrap`, interface conversion |
-| Decorator | Structural | `@decorator`, wrapper functions |
-| Facade | Structural | Unified interface for multiple services |
-| Observer | Behavioral | `subscribe`, `notify`, `on*` events |
-| Strategy | Behavioral | `execute`, `handle`, strategy interface |
-| Command | Behavioral | `execute`, `undo`, command objects |
-| Template Method | Behavioral | Abstract method + concrete implementation |
-
-## 🔗 Automatic Relationship Detection
-
-YATA automatically detects the following relationships:
-
-| Relationship Type | Description |
-|-------------------|-------------|
-| `CALLS` | Function/method call relationships |
-| `IMPORTS` | Module import relationships |
-| `CONTAINS` | Module→Class→Method containment relationships |
-| `INHERITS` | Class inheritance relationships |
-| `DEPENDS_ON` | Dependencies (packages, inter-module) |
-| `IMPLEMENTS` | Interface implementation relationships |
 
 ## 🛠️ Development
 
 ### Setup
 
 ```bash
-# Clone the repository
-git clone https://github.com/nahisaho/YATA.git
-cd yata
-
-# Install dependencies with uv
+git clone https://github.com/tsucky230/MAGATAMA.git
+cd MAGATAMA
 uv sync --all-packages
 
 # Run tests
@@ -442,68 +389,73 @@ uv run pytest
 # Run tests with coverage
 uv run pytest --cov=yata_core --cov=yata_mcp
 
-# Run linter
+# Run linters
 uv run ruff check .
 uv run mypy packages/
 ```
 
 ### Project Structure
 
-```
-yata/
+```text
+MAGATAMA/
 ├── packages/
-│   ├── yata-core/          # Knowledge graph engine (library)
+│   ├── yata-core/              # Knowledge graph engine (library)
 │   │   ├── src/yata_core/
-│   │   │   ├── domain/     # Domain layer (entities, value objects)
-│   │   │   ├── application/ # Application layer (use cases)
-│   │   │   └── infrastructure/ # Infrastructure layer (parsers, storage)
+│   │   │   ├── domain/         # Domain layer (entities, value objects)
+│   │   │   ├── application/    # Application layer (use cases)
+│   │   │   └── infrastructure/ # Infrastructure (parsers, storage, comP Bridge)
 │   │   └── tests/
-│   └── yata-mcp/           # MCP Server (application)
+│   └── yata-mcp/               # MCP Server (application)
 │       ├── src/yata_mcp/
-│       │   ├── server/     # MCP implementation (FastMCP)
-│       │   └── cli/        # CLI implementation (Click)
+│       │   ├── server/         # MCP implementation (FastMCP)
+│       │   └── cli/            # CLI implementation (Click)
 │       └── tests/
-├── steering/               # MUSUBI SDD project memory
-└── storage/specs/          # Design documents
+├── steering/                   # Project memory
+└── storage/specs/              # Design documents
 ```
 
 ### Architecture
 
-YATA is designed based on Clean Architecture:
+Built on Clean Architecture:
 
-- **Domain Layer**: Core entities (FunctionEntity, ClassEntity, etc.), value objects (EntityId, Location), repository interfaces
-- **Application Layer**: Use cases (ParseFileUseCase, ParseDirectoryUseCase)
-- **Infrastructure Layer**: Implementations (PythonParser, TypeScriptParser, NetworkXKnowledgeGraph)
-- **Interface Layer**: MCP server and CLI
+- **Domain Layer**: Core entities, value objects, repository interfaces
+- **Application Layer**: Use cases (ParseFileUseCase, LoadCompIndexUseCase, etc.)
+- **Infrastructure Layer**: Parsers, NetworkXKnowledgeGraph, **CompIndexReader (comP Bridge)**
+- **Interface Layer**: MCP server (FastMCP) and CLI (Click)
 
 ## 📊 Test Status
 
-- **Test Count**: 763 (663 yata-core + 100 yata-mcp)
+- **Tests**: 794 (694 yata-core + 100 yata-mcp)
 - **E2E Tests**: 42 (18 integration + 24 security)
 - **Coverage**: 76%
-- **Coverage Threshold**: 80% (target)
-- **Supported Language Parsers**: 24
-- **Framework Knowledge Graphs**: 47
+- **Languages**: 24 parsers
+- **Framework graphs**: 47 (457K+ entities)
 
 ## 📜 License
 
-MIT License - See [LICENSE](LICENSE) for details.
+MIT License
 
-## 🙏 Acknowledgments
+This project is a fork of [YATA](https://github.com/nahisaho/YATA)
+(Copyright (c) 2025 nahisaho) under the MIT License, with comP Bridge added.
+See [LICENSE](LICENSE) for full details.
 
-- [Model Context Protocol](https://modelcontextprotocol.io/) - Anthropic
-- [Tree-sitter](https://tree-sitter.github.io/tree-sitter/) - AST Parser
-- [NetworkX](https://networkx.org/) - Graph Library
-- [FastMCP](https://github.com/jlowin/fastmcp) - MCP SDK
+## 🙏 Credits
+
+- [YATA](https://github.com/nahisaho/YATA) by **nahisaho** — the foundation of this project
+- [comP](https://github.com/tsucky230/comP) by **tsucky230** — VSCode code indexer
+- [Model Context Protocol](https://modelcontextprotocol.io/) — Anthropic
+- [Tree-sitter](https://tree-sitter.github.io/tree-sitter/) — AST parser
+- [NetworkX](https://networkx.org/) — graph library
+- [FastMCP](https://github.com/jlowin/fastmcp) — MCP SDK
 
 ## 📖 Documentation
 
-- [AI Tools Setup Guide](docs/en/AI_TOOLS_SETUP.md) - Claude, Copilot, Cursor configuration
-- [Knowledge Database Update Guide](docs/en/KNOWLEDGE_UPDATE_GUIDE.md) - How to update framework knowledge
-- [Troubleshooting](docs/en/TROUBLESHOOTING.md) - Common issues and solutions
-- [YATA vs Context7](docs/en/YATA_vs_Context7.md) - Detailed comparison with Context7
-- [CHANGELOG](CHANGELOG.md) - Change history
+- [日本語 README](README.md)
+- [AI Tools Setup Guide](docs/AI_TOOLS_SETUP.md)
+- [Knowledge Database Update Guide](docs/KNOWLEDGE_UPDATE_GUIDE.md)
+- [Troubleshooting](docs/TROUBLESHOOTING.md)
+- [CHANGELOG](CHANGELOG.md)
 
 ---
 
-**YATA** - Like the Yata no Kagami, reflecting the truth of code 🪞
+**MAGATAMA** (勾玉) — one of the three imperial treasures of Japan, sibling to YATA (八咫鏡).

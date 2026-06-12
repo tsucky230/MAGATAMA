@@ -14,6 +14,12 @@ from yata_core.infrastructure.storage.sqlite_storage import (
     SQLiteEntityRepository,
     SQLiteRelationshipRepository,
 )
+from yata_core.infrastructure.storage.comp_index_reader import (
+    CompIndexReader,
+    CompIndexData,
+    CompIndexNotFoundError,
+    resolve_db_path,
+)
 
 __all__ = [
     "InMemoryEntityRepository",
@@ -22,4 +28,8 @@ __all__ = [
     "SQLiteKnowledgeGraph",
     "SQLiteEntityRepository",
     "SQLiteRelationshipRepository",
+    "CompIndexReader",
+    "CompIndexData",
+    "CompIndexNotFoundError",
+    "resolve_db_path",
 ]

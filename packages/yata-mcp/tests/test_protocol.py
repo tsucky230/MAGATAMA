@@ -238,6 +238,135 @@ class TestMcpFrameworkTools:
         assert result is not None
 
 
+class TestCompBridgeTools:
+    """Tests for comP bridge tools."""
+
+    def test_server_has_comp_tools(self) -> None:
+        """read_external_graph and get_external_graph_info are registered."""
+        mcp = create_mcp_server()
+        tool_names = list(mcp._tool_manager._tools.keys())
+        assert "read_external_graph" in tool_names
+        assert "get_external_graph_info" in tool_names
+
+    @pytest.mark.asyncio
+    async def test_get_external_graph_info_not_found(self, tmp_path: Path) -> None:
+        """get_external_graph_info returns exists=False for missing path."""
+        mcp = create_mcp_server()
+        result = await mcp.call_tool(
+            "get_external_graph_info", {"path": str(tmp_path / "no_such")}
+        )
+        assert result is not None
+
+    @pytest.mark.asyncio
+    async def test_read_external_graph_not_found(self, tmp_path: Path) -> None:
+        """read_external_graph returns success=False for missing path."""
+        mcp = create_mcp_server()
+        result = await mcp.call_tool(
+            "read_external_graph", {"path": str(tmp_path / "no_such")}
+        )
+        assert result is not None
+
+    @pytest.mark.asyncio
+    async def test_read_external_graph_success(self, tmp_path: Path) -> None:
+        """read_external_graph loads a valid comP index."""
+        import sqlite3
+
+        workspace = tmp_path / "proj"
+        comp_dir = workspace / ".comp"
+        comp_dir.mkdir(parents=True)
+        db_path = comp_dir / "index.db"
+        conn = sqlite3.connect(db_path)
+        conn.executescript("""
+            CREATE TABLE files (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                path TEXT NOT NULL UNIQUE,
+                hash TEXT NOT NULL,
+                language TEXT NOT NULL,
+                last_indexed INTEGER NOT NULL DEFAULT 0,
+                char_count INTEGER NOT NULL DEFAULT 0
+            );
+            CREATE TABLE nodes (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                file_id INTEGER NOT NULL,
+                name TEXT NOT NULL,
+                kind TEXT NOT NULL,
+                line INTEGER NOT NULL,
+                col INTEGER NOT NULL,
+                scope TEXT,
+                is_exported INTEGER DEFAULT 0,
+                signature TEXT
+            );
+            CREATE TABLE edges (
+                from_id INTEGER NOT NULL,
+                to_id INTEGER NOT NULL,
+                kind TEXT NOT NULL,
+                PRIMARY KEY (from_id, to_id, kind)
+            );
+            CREATE TABLE metadata (key TEXT PRIMARY KEY, value TEXT);
+        """)
+        conn.execute(
+            "INSERT INTO files (path, hash, language) VALUES ('a.py', 'h', 'python')"
+        )
+        conn.commit()
+        conn.close()
+
+        mcp = create_mcp_server()
+        result = await mcp.call_tool(
+            "read_external_graph", {"path": str(workspace)}
+        )
+        assert result is not None
+
+    @pytest.mark.asyncio
+    async def test_get_external_graph_info_success(self, tmp_path: Path) -> None:
+        """get_external_graph_info returns counts for valid index."""
+        import sqlite3
+
+        workspace = tmp_path / "proj2"
+        comp_dir = workspace / ".comp"
+        comp_dir.mkdir(parents=True)
+        db_path = comp_dir / "index.db"
+        conn = sqlite3.connect(db_path)
+        conn.executescript("""
+            CREATE TABLE files (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                path TEXT NOT NULL UNIQUE,
+                hash TEXT NOT NULL,
+                language TEXT NOT NULL,
+                last_indexed INTEGER NOT NULL DEFAULT 0,
+                char_count INTEGER NOT NULL DEFAULT 0
+            );
+            CREATE TABLE nodes (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                file_id INTEGER NOT NULL,
+                name TEXT NOT NULL,
+                kind TEXT NOT NULL,
+                line INTEGER NOT NULL,
+                col INTEGER NOT NULL,
+                scope TEXT,
+                is_exported INTEGER DEFAULT 0,
+                signature TEXT
+            );
+            CREATE TABLE edges (
+                from_id INTEGER NOT NULL,
+                to_id INTEGER NOT NULL,
+                kind TEXT NOT NULL,
+                PRIMARY KEY (from_id, to_id, kind)
+            );
+            CREATE TABLE metadata (key TEXT PRIMARY KEY, value TEXT);
+        """)
+        conn.execute(
+            "INSERT INTO files (path, hash, language) VALUES ('b.py', 'h', 'python')"
+        )
+        conn.commit()
+        conn.close()
+
+        mcp = create_mcp_server()
+        result = await mcp.call_tool(
+            "get_external_graph_info", {"path": str(workspace)}
+        )
+        assert result is not None
+
+
 class TestMcpUtilityTools:
     """Tests for utility tools."""
 

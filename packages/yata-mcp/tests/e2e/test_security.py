@@ -225,7 +225,7 @@ class TestNoTelemetry:
         for module in [yata_core, yata_mcp]:
             module_path = Path(module.__file__).parent
             for py_file in module_path.rglob("*.py"):
-                content = py_file.read_text()
+                content = py_file.read_text(encoding="utf-8")
                 for pattern in suspicious_patterns:
                     assert pattern.lower() not in content.lower(), \
                         f"Suspicious pattern '{pattern}' found in {py_file}"
@@ -497,7 +497,7 @@ class TestSecurityAudit:
         for module in [yata_core, yata_mcp]:
             module_path = Path(module.__file__).parent
             for py_file in module_path.rglob("*.py"):
-                content = py_file.read_text()
+                content = py_file.read_text(encoding="utf-8")
                 for pattern in dangerous_patterns:
                     # Allow in comments and strings for documentation
                     lines = content.split('\n')
@@ -523,7 +523,7 @@ class TestSecurityAudit:
         for module in [yata_core, yata_mcp]:
             module_path = Path(module.__file__).parent
             for py_file in module_path.rglob("*.py"):
-                content = py_file.read_text()
+                content = py_file.read_text(encoding="utf-8")
                 # pickle is a security risk for untrusted data
                 if "import pickle" in content or "from pickle" in content:
                     # Verify it's not used for untrusted data
@@ -538,7 +538,7 @@ class TestSecurityAudit:
         for module in [yata_core, yata_mcp]:
             module_path = Path(module.__file__).parent
             for py_file in module_path.rglob("*.py"):
-                content = py_file.read_text()
+                content = py_file.read_text(encoding="utf-8")
                 if "subprocess" in content:
                     # If subprocess is used, verify shell=True is not used with user input
                     assert "shell=True" not in content or "# nosec" in content, \

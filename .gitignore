@@ -114,3 +114,7 @@ frameworks/*
 # UV
 .uv/
 uv.lock
+
+# comP
+.comp/
+plan.md

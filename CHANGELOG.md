@@ -5,6 +5,42 @@ All notable changes to YATA (八咫) will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+#### 外部インデックス連携 (comP Bridge) — 新規MCPツール（34 → 36 Tools）
+
+- **`read_external_graph`** — comP (`e:/dev/comP`) の `.comp/index.db` を YATA 知識グラフに取り込む
+  - `mode="replace"`（デフォルト）: 同一ワークスペースの旧エンティティを削除してから投入
+  - `mode="merge"`: 既存グラフに追加投入（同一 ID は上書き）
+  - 戻り値: `entities_loaded`, `relationships_loaded`, `entities_removed`, `skipped_edges`, `comp_metadata`
+
+- **`get_external_graph_info`** — comP インデックスの統計情報を確認（ロードなし）
+  - ファイル数・ノード数・エッジ数・`last_indexed`・メタデータを返す
+  - インデックスの鮮度確認に使用
+
+#### 新規モジュール
+
+- `packages/yata-core/src/yata_core/infrastructure/storage/comp_index_reader.py`
+  - `CompIndexReader` — SQLite 読み取り専用接続 (WAL + `busy_timeout=5000`)
+  - `CompIndexData` — 読み取り結果の集約データクラス
+  - `CompIndexNotFoundError`, `resolve_db_path`, `derive_alias`
+  - comP `nodes.kind` → YATA `EntityType` / `edges.kind` → `RelationshipType` マッピング
+  - 未知の kind はフォールバック（エラーなし）
+
+- `packages/yata-core/src/yata_core/application/usecases/comp_usecase.py`
+  - `LoadCompIndexUseCase` — グラフへの投入・replace/merge モード制御
+  - `LoadCompIndexResult` — 結果サマリー
+
+#### テスト追加
+
+- `packages/yata-core/tests/infrastructure/test_comp_index_reader.py` — 18 テストケース
+- `packages/yata-core/tests/application/test_comp_usecase.py` — 8 テストケース
+- `packages/yata-mcp/tests/test_protocol.py` — comP Bridge ツールのテストクラス追加
+
+---
+
 ## [0.5.0] - 2026-01-01
 
 ### 🚀 Full Language Integration Release
