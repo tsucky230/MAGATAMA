@@ -314,6 +314,7 @@ def measure_indexing_performance(
     from magatama_core.application.usecases.parse_usecase import (
         ParseDirectoryUseCase,
         ParseFileUseCase,
+        Parser,
     )
     from magatama_core.infrastructure.parsers import GoParser, PythonParser, RustParser
     from magatama_core.infrastructure.parsers.javascript_parser import JavaScriptParser
@@ -325,7 +326,7 @@ def measure_indexing_performance(
 
     # Setup
     kg = NetworkXKnowledgeGraph()
-    parsers = {
+    parsers: dict[str, Parser] = {
         ".py": PythonParser(),
         ".ts": TypeScriptParser(),
         ".tsx": TypeScriptParser(),

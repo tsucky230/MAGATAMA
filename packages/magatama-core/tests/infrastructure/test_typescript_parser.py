@@ -54,11 +54,11 @@ const multiply = (a: number, b: number): number => {
         code = """
 class Person {
     private name: string;
-    
+
     constructor(name: string) {
         this.name = name;
     }
-    
+
     greet(): string {
         return `Hello, I'm ${this.name}`;
     }
@@ -160,7 +160,7 @@ interface Config {
 
 class App {
     constructor(private config: Config) {}
-    
+
     run(): void {
         console.log("Running...");
     }

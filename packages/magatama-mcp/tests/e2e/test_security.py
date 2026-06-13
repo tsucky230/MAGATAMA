@@ -303,7 +303,7 @@ class TestOfflineOperation:
                 # Query operations
                 neighbors = sql_graph.get_neighbors(cls.id, depth=1)
                 path = sql_graph.find_path(cls.id, func.id)
-                subgraph = sql_graph.get_subgraph([cls.id, func.id])
+                sql_graph.get_subgraph([cls.id, func.id])
 
                 assert len(neighbors) >= 0
                 assert path is not None
@@ -413,7 +413,7 @@ class TestInputValidation:
             server = MagatamaMcpServer()
             # Should handle gracefully (either parse or skip)
             try:
-                result = await server.call_tool("parse_file", {"file_path": str(large_file)})
+                await server.call_tool("parse_file", {"file_path": str(large_file)})
                 # If it parses, should complete without memory error
                 assert True
             except MemoryError:

@@ -63,7 +63,7 @@ level1:
 application:
   name: myapp
   version: 1.0.0
-  
+
 database:
   primary:
     host: localhost
@@ -99,7 +99,7 @@ services:
     image: nginx
     ports:
       - "80:80"
-  
+
   db:
     image: postgres
     environment:

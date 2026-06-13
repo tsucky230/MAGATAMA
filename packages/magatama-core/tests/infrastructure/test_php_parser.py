@@ -85,7 +85,7 @@ class MyClass {}
         code = """<?php
 abstract class AbstractHandler {
     abstract public function handle();
-    
+
     public function common() {}
 }
 """

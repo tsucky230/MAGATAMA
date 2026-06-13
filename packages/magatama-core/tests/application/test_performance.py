@@ -44,15 +44,15 @@ class TestIndexingPerformance:
                 f.write(f'''
 def function_{i}(arg1: int, arg2: str, arg3: float = 0.0) -> bool:
     """Function {i} with detailed docstring.
-    
+
     This function performs operation {i} on the given arguments.
     It includes validation, computation, and result formatting.
-    
+
     Args:
         arg1: First integer argument
         arg2: Second string argument
         arg3: Optional float argument
-        
+
     Returns:
         True if operation succeeds
     """
@@ -61,14 +61,14 @@ def function_{i}(arg1: int, arg2: str, arg3: float = 0.0) -> bool:
         raise ValueError("arg1 must be non-negative")
     if not arg2:
         raise ValueError("arg2 must not be empty")
-    
+
     # Computation block
     result = arg1 * len(arg2)
     for j in range({i + 1}):
         result += j * arg3
         if result > 1000000:
             break
-    
+
     # Additional processing
     processed = {{
         "input": {{
@@ -82,26 +82,26 @@ def function_{i}(arg1: int, arg2: str, arg3: float = 0.0) -> bool:
             "timestamp": "2025-01-01",
         }},
     }}
-    
+
     return result > 0
 
 
 class Class_{i}:
     """Class {i} with attributes and methods.
-    
+
     This class represents entity {i} in the system.
     """
-    
+
     def __init__(self, name: str, value: int) -> None:
         """Initialize instance."""
         self.name = name
         self.value = value
         self._cache: dict = {{}}
-    
+
     def process(self) -> str:
         """Process the entity."""
         return f"{{self.name}}: {{self.value}}"
-    
+
     def validate(self) -> bool:
         """Validate the entity."""
         return bool(self.name and self.value >= 0)
@@ -146,14 +146,14 @@ def function_{i}_b(x: int, y: int) -> int:
 
 class Entity_{i}:
     """Entity class in module {i}."""
-    
+
     def __init__(self, value: int) -> None:
         self.value = value
-    
+
     def compute(self) -> int:
         """Compute something."""
         return self.value ** 2
-    
+
     def validate(self) -> bool:
         """Validate."""
         return self.value >= 0
@@ -385,8 +385,8 @@ class TestMemoryUsage:
         from magatama_core.infrastructure.storage import NetworkXKnowledgeGraph
 
         # Create basic instances
-        parser = PythonParser()
-        graph = NetworkXKnowledgeGraph()
+        _parser = PythonParser()
+        _graph = NetworkXKnowledgeGraph()
 
         current, peak = tracemalloc.get_traced_memory()
         tracemalloc.stop()
@@ -493,7 +493,7 @@ class TestStartupTime:
         )
 
         # Initialize all parsers
-        parsers = [
+        _parsers = [
             PythonParser(),
             TypeScriptParser(),
             JavaScriptParser(),

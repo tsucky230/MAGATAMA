@@ -28,12 +28,12 @@ class TestCSharpParser:
 public class Person
 {
     private string name;
-    
+
     public Person(string name)
     {
         this.name = name;
     }
-    
+
     public string GetName()
     {
         return name;
@@ -136,7 +136,7 @@ public class MyClass : IDisposable, IComparable<MyClass>
     public void Dispose()
     {
     }
-    
+
     public int CompareTo(MyClass other)
     {
         return 0;
@@ -174,7 +174,7 @@ public class Utility
 public abstract class BaseClass
 {
     public abstract void DoSomething();
-    
+
     public void ConcreteMethod()
     {
     }
@@ -310,12 +310,12 @@ public class Person
 public class Box<T>
 {
     private T value;
-    
+
     public T GetValue()
     {
         return value;
     }
-    
+
     public void SetValue(T value)
     {
         this.value = value;
@@ -348,7 +348,7 @@ public class Container
     public void MethodOne()
     {
     }
-    
+
     public void MethodTwo()
     {
     }

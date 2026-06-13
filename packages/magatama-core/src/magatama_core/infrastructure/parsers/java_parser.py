@@ -365,7 +365,6 @@ class JavaParser:
 
         # Extract extended interfaces
         bases: list[str] = []
-        extends_node = node.child_by_field_name("type_parameters")
         for child in node.children:
             if child.type == "extends_interfaces":
                 for subchild in child.children:

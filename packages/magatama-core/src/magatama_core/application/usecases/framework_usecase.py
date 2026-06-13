@@ -7,7 +7,7 @@ enabling AI coding assistants to provide framework-specific guidance.
 import json
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
+from typing import Any, ClassVar
 
 from magatama_core.domain.entities import Entity, EntityType
 from magatama_core.domain.value_objects import EntityId
@@ -412,9 +412,6 @@ class CodeContextUseCase:
             entity = self._graph.entities.get(eid)
             if not entity:
                 return {"error": f"Entity '{entity_id}' not found"}
-
-            # Get neighbors
-            neighbors = self._graph.get_neighbors(eid, depth=1)
 
             # Get all relationships
             all_rels = list(self._graph.relationships.all())
@@ -2204,7 +2201,7 @@ class CodeQualityUseCase:
     """
 
     # Thresholds from requirements
-    THRESHOLDS = {
+    THRESHOLDS: ClassVar[dict[str, dict[str, float]]] = {
         "cyclomatic_complexity": {"good": 10, "warning": 20},
         "afferent_coupling": {"good": 10, "warning": 20},
         "efferent_coupling": {"good": 10, "warning": 15},
@@ -2483,7 +2480,7 @@ class CodeQualityUseCase:
         if entity.docstring and "Args:" in entity.docstring:
             # Count Args lines
             args_section = entity.docstring.split("Args:")[1].split("\n\n")[0]
-            return len([l for l in args_section.split("\n") if l.strip() and ":" in l])
+            return len([line for line in args_section.split("\n") if line.strip() and ":" in line])
         return 2  # Default estimate
 
     def _calculate_lcom(self, entity: Entity, contains: list[Any]) -> float:
@@ -2607,12 +2604,9 @@ class CodeEvolutionUseCase:
 
     def _check_git(self) -> bool:
         """Check if GitPython is available."""
-        try:
-            import git
+        import importlib.util
 
-            return True
-        except ImportError:
-            return False
+        return importlib.util.find_spec("git") is not None
 
     def track_evolution(
         self,
@@ -3011,7 +3005,7 @@ class CodingGuidanceUseCase:
         if not any(conventions.values()):
             return "PascalCase" if entity_type == "class" else "snake_case"
 
-        return max(conventions, key=conventions.get)
+        return max(conventions, key=lambda k: conventions[k])
 
     def _generate_name(self, task: str, convention: str, entity_type: str) -> str:
         """Generate a name based on task and convention."""
@@ -3034,18 +3028,18 @@ class CodingGuidanceUseCase:
         if entity_type == "class":
             return '''class {name}:
     """Description of the class."""
-    
+
     def __init__(self):
         """Initialize the instance."""
         pass
-    
+
     def execute(self):
         """Main method."""
         pass'''
         elif entity_type == "function":
             return '''def {name}():
     """Description of the function.
-    
+
     Returns:
         Result description.
     """
@@ -3053,7 +3047,7 @@ class CodingGuidanceUseCase:
         elif entity_type == "method":
             return '''def {name}(self):
     """Description of the method.
-    
+
     Returns:
         Result description.
     """
@@ -3090,7 +3084,7 @@ class CodingGuidanceUseCase:
                 directories[dir_path] = directories.get(dir_path, 0) + 1
 
         if directories:
-            return max(directories, key=directories.get)
+            return max(directories, key=lambda k: directories[k])
 
         # Default suggestions
         defaults = {
@@ -3259,7 +3253,7 @@ class PatternDetectionUseCase:
             if entity.type not in [EntityType.CLASS, EntityType.FUNCTION, EntityType.METHOD]:
                 continue
 
-            score = 0
+            score: float = 0
             matched_indicators: list[str] = []
 
             # Check name

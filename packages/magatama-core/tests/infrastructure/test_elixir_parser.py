@@ -156,7 +156,7 @@ defmodule Service do
   def public_method(x) do
     private_helper(x)
   end
-  
+
   defp private_helper(x), do: x * 2
 end
 """
@@ -189,7 +189,7 @@ defmodule Parent do
   defmodule Child do
     def child_func, do: :ok
   end
-  
+
   def parent_func, do: Child.child_func()
 end
 """
@@ -220,7 +220,7 @@ ExUnit.start()
 
 defmodule MyTest do
   use ExUnit.Case
-  
+
   test "example" do
     assert 1 + 1 == 2
   end

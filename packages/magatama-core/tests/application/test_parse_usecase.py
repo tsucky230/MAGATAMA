@@ -50,10 +50,10 @@ def greet(name: str) -> str:
 
 class Person:
     """A person."""
-    
+
     def __init__(self, name: str) -> None:
         self.name = name
-    
+
     def say_hello(self) -> str:
         return greet(self.name)
 ''')
@@ -124,19 +124,18 @@ def invalid_function(
 class Calculator:
     def add(self, a: int, b: int) -> int:
         return a + b
-    
+
     def subtract(self, a: int, b: int) -> int:
         return a - b
 """)
             f.flush()
             file_path = Path(f.name)
 
-        result = usecase.execute(file_path)
+        usecase.execute(file_path)
 
         # Find the class entity
         classes = [e for e in knowledge_graph.entities.all() if e.type == EntityType.CLASS]
         assert len(classes) == 1
-        calculator = classes[0]
 
         # Find method entities
         methods = [e for e in knowledge_graph.entities.all() if e.type == EntityType.METHOD]

@@ -100,7 +100,7 @@ enum Status {
         code = """
 trait Flyable {
     abstract void fly()
-    
+
     void land() {
         println "Landing"
     }
@@ -149,7 +149,7 @@ class Service {
     void process() {
         println "Processing"
     }
-    
+
     String getName() {
         return "Service"
     }
@@ -163,7 +163,7 @@ class Service {
         code = """
 enum Color {
     RED, GREEN, BLUE
-    
+
     String getHex() {
         return "#000000"
     }

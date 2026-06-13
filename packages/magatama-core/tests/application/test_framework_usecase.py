@@ -845,6 +845,35 @@ class TestFrameworkKnowledgeSearchExtra:
         assert result.total_count == 0
 
 
+class TestCodeEvolutionUseCase:
+    """Tests for CodeEvolutionUseCase (Git-history based)."""
+
+    def test_track_evolution_entity_not_found(self):
+        from magatama_core.application.usecases.framework_usecase import CodeEvolutionUseCase
+
+        usecase = CodeEvolutionUseCase(_relationship_graph())
+        result = usecase.track_evolution(entity_name="does_not_exist")
+        assert result.entity_name == "does_not_exist"
+        assert result.events == []
+        assert result.total_changes == 0
+
+    def test_track_evolution_known_entity(self):
+        from magatama_core.application.usecases.framework_usecase import CodeEvolutionUseCase
+
+        usecase = CodeEvolutionUseCase(_relationship_graph())
+        result = usecase.track_evolution(entity_name="helper")
+        # Without GitPython / outside a repo this still returns a result object.
+        assert result.entity_name == "helper"
+        assert isinstance(result.timeline_data, list)
+
+    def test_find_hotspots_returns_list(self):
+        from magatama_core.application.usecases.framework_usecase import CodeEvolutionUseCase
+
+        usecase = CodeEvolutionUseCase(_relationship_graph())
+        hotspots = usecase.find_hotspots(limit=5)
+        assert isinstance(hotspots, list)
+
+
 class TestFrameworkSemanticSearchUseCase:
     """Tests for FrameworkSemanticSearchUseCase (reads raw framework JSON)."""
 
@@ -902,6 +931,28 @@ class TestFrameworkSemanticSearchUseCase:
         self._build_dir(tmp_path)
         usecase = FrameworkSemanticSearchUseCase(tmp_path)
         result = usecase.search("zzz_nonexistent_term")
+        assert result.total_count == 0
+
+    def test_find_by_pattern_wildcard(self, tmp_path: Path):
+        from magatama_core.application.usecases.framework_usecase import (
+            FrameworkSemanticSearchUseCase,
+        )
+
+        self._build_dir(tmp_path)
+        usecase = FrameworkSemanticSearchUseCase(tmp_path)
+        result = usecase.find_by_pattern("use*")
+        names = [r["name"] for r in result.matches]
+        assert "useState" in names
+        assert "useEffect" in names
+
+    def test_find_by_pattern_no_match(self, tmp_path: Path):
+        from magatama_core.application.usecases.framework_usecase import (
+            FrameworkSemanticSearchUseCase,
+        )
+
+        self._build_dir(tmp_path)
+        usecase = FrameworkSemanticSearchUseCase(tmp_path)
+        result = usecase.find_by_pattern("Nonexistent*")
         assert result.total_count == 0
 
 

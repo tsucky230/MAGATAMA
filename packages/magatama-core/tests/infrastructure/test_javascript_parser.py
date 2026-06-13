@@ -80,11 +80,11 @@ class Calculator {
     constructor(value) {
         this.value = value;
     }
-    
+
     add(n) {
         return this.value + n;
     }
-    
+
     static create() {
         return new Calculator(0);
     }

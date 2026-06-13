@@ -267,9 +267,8 @@ class TestPatternDetectionUseCase:
 
         result = usecase.detect_patterns(min_confidence=0.3)
 
-        # Check if any creational patterns detected
-        categories = [p.category for p in result.patterns]
-        # May or may not detect depending on confidence
+        # May or may not detect creational patterns depending on confidence
+        assert isinstance(result.patterns, list)
 
     def test_detect_patterns_observer(self, graph_with_patterns):
         """Test Observer pattern detection."""
@@ -277,8 +276,8 @@ class TestPatternDetectionUseCase:
 
         result = usecase.detect_patterns(min_confidence=0.3)
 
-        # Check if behavioral patterns detected
-        categories = [p.category for p in result.patterns]
+        # May or may not detect behavioral patterns depending on confidence
+        assert isinstance(result.patterns, list)
 
     def test_detect_patterns_with_limit(self, graph_with_patterns):
         """Test pattern detection with limit."""
@@ -405,9 +404,8 @@ class TestAPICompatibilityUseCase:
 
         result = usecase.check_compatibility("react", "18.0")
 
-        # Should detect componentWillMount as removed
-        issue_apis = [i.api_used for i in result.issues]
-        # May or may not detect depending on exact matching
+        # Should detect componentWillMount as removed (depends on exact matching)
+        assert isinstance(result.issues, list)
 
     def test_check_compatibility_score(self, graph_with_django):
         """Test compatibility score calculation."""
@@ -434,7 +432,7 @@ class TestAPICompatibilityUseCase:
 
         result = usecase.check_compatibility("unknown_framework", "1.0")
 
-        assert result.compatible == True  # No issues found for unknown framework
+        assert result.compatible is True  # No issues found for unknown framework
         assert result.compatibility_score == 100.0
 
     def test_check_compatibility_empty_graph(self):
@@ -444,7 +442,7 @@ class TestAPICompatibilityUseCase:
 
         result = usecase.check_compatibility("django", "4.0")
 
-        assert result.compatible == True
+        assert result.compatible is True
         assert len(result.issues) == 0
 
 

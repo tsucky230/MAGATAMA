@@ -74,7 +74,7 @@ class User:
     id: int
     name: str
     email: str
-    
+
     def get_display_name(self) -> str:
         """Get display name."""
         return f"{self.name} <{self.email}>"
@@ -82,11 +82,11 @@ class User:
 
 class Admin(User):
     """Admin user with extra permissions."""
-    
+
     def __init__(self, id: int, name: str, email: str, permissions: list[str]):
         super().__init__(id, name, email)
         self.permissions = permissions
-    
+
     def has_permission(self, perm: str) -> bool:
         """Check if admin has permission."""
         return perm in self.permissions
@@ -101,21 +101,21 @@ from .utils import helper_function, format_string
 
 class UserService:
     """Service for user operations."""
-    
+
     def __init__(self):
         self.users: list[User] = []
-    
+
     def add_user(self, user: User) -> None:
         """Add a user."""
         self.users.append(user)
-    
+
     def get_user(self, user_id: int) -> User | None:
         """Get user by ID."""
         for user in self.users:
             if user.id == user_id:
                 return user
         return None
-    
+
     def format_user_name(self, user: User) -> str:
         """Format user name using utility."""
         return format_string(user.name)
@@ -167,7 +167,7 @@ export class User implements IUser {
         public name: string,
         public email: string
     ) {}
-    
+
     getDisplayName(): string {
         return `${this.name} <${this.email}>`;
     }
@@ -175,7 +175,7 @@ export class User implements IUser {
 
 export class Admin extends User {
     permissions: string[] = [];
-    
+
     hasPermission(perm: string): boolean {
         return this.permissions.includes(perm);
     }
@@ -194,15 +194,15 @@ import { User, Admin, IUser } from '../models/user';
 
 export class UserService {
     private users: User[] = [];
-    
+
     addUser(user: User): void {
         this.users.push(user);
     }
-    
+
     getUser(id: number): User | undefined {
         return this.users.find(u => u.id === id);
     }
-    
+
     async fetchUser(id: number): Promise<User | null> {
         // Simulated async fetch
         return null;
@@ -692,7 +692,7 @@ import pytest
 class TestUser:
     def test_create_user(self):
         pass
-    
+
     def test_update_user(self):
         pass
 

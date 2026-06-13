@@ -1356,23 +1356,22 @@ def create_mcp_server(name: str = "magatama") -> FastMCP:
         )
         return {
             "entity_name": result.entity_name,
-            "file_path": result.file_path,
+            "file_path": result.entity_file,
             "events": [
                 {
                     "commit_hash": e.commit_hash,
                     "author": e.author,
                     "date": e.date,
                     "message": e.message,
-                    "lines_added": e.lines_added,
-                    "lines_deleted": e.lines_deleted,
+                    "lines_changed": e.lines_changed,
                 }
                 for e in result.events
             ],
-            "total_commits": result.total_commits,
-            "authors": result.authors,
-            "change_frequency": result.change_frequency,
-            "first_seen": result.first_seen,
-            "last_modified": result.last_modified,
+            "total_commits": result.total_changes,
+            "unique_authors": result.unique_authors,
+            "hotspot_score": result.hotspot_score,
+            "is_hotspot": result.is_hotspot,
+            "timeline": result.timeline_data,
         }
 
     @mcp.tool()

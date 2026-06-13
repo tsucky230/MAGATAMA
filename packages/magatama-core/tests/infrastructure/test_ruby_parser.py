@@ -30,7 +30,7 @@ class Person
   def initialize(name)
     @name = name
   end
-  
+
   def greet
     puts "Hello, #{@name}"
   end
@@ -109,7 +109,7 @@ class Calculator
   def add(a, b)
     a + b
   end
-  
+
   def multiply(a, b = 1)
     a * b
   end
@@ -165,7 +165,7 @@ end
 class Container
   def method_one
   end
-  
+
   def method_two
   end
 end

@@ -251,7 +251,6 @@ class RustParser:
         is_public = self._is_public(node)
 
         # Get generic parameters
-        generics = self._extract_generics(node)
 
         entity = ClassEntity(
             id=EntityId(value=struct_id),
@@ -539,7 +538,6 @@ class RustParser:
         if body_node:
             # Inline module - extract contents
             mod_id = self._generate_id("mod")
-            is_public = self._is_public(node)
 
             entity = ModuleEntity(
                 id=EntityId(value=mod_id),

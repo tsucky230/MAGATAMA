@@ -27,11 +27,11 @@ class TestJavaParser:
         code = """
 public class Person {
     private String name;
-    
+
     public Person(String name) {
         this.name = name;
     }
-    
+
     public String getName() {
         return name;
     }
@@ -110,7 +110,7 @@ public class Child extends Parent {
 public class MyClass implements Runnable, Comparable<MyClass> {
     public void run() {
     }
-    
+
     public int compareTo(MyClass other) {
         return 0;
     }
@@ -143,7 +143,7 @@ public class Utility {
         code = """
 public abstract class BaseClass {
     public abstract void doSomething();
-    
+
     public void concreteMethod() {
     }
 }
@@ -177,7 +177,7 @@ public class Calculator {
         code = """
 public enum Color {
     RED, GREEN, BLUE;
-    
+
     public String getHex() {
         return "#000000";
     }
@@ -242,11 +242,11 @@ public class Person {
         code = """
 public class Box<T> {
     private T value;
-    
+
     public T getValue() {
         return value;
     }
-    
+
     public void setValue(T value) {
         this.value = value;
     }
@@ -275,7 +275,7 @@ public class Empty {
 public class Container {
     public void methodOne() {
     }
-    
+
     public void methodTwo() {
     }
 }

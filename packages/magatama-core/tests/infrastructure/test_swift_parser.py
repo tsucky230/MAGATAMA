@@ -147,7 +147,7 @@ class Container<T> {
 class Rectangle {
     var width: Double
     var height: Double
-    
+
     var area: Double {
         return width * height
     }

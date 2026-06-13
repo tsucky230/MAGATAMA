@@ -546,14 +546,8 @@ def validate(
                 console.print(
                     f"  Removed {repair_result.invalid_relationships_removed} invalid relationships"
                 )
-            if repair_result.orphaned_entities_removed > 0:
-                console.print(
-                    f"  Removed {repair_result.orphaned_entities_removed} orphaned entities"
-                )
-            if repair_result.duplicate_entities_removed > 0:
-                console.print(
-                    f"  Removed {repair_result.duplicate_entities_removed} duplicate entities"
-                )
+            if repair_result.orphaned_nodes_removed > 0:
+                console.print(f"  Removed {repair_result.orphaned_nodes_removed} orphaned entities")
 
             # Save repaired graph if path was specified
             if graph:
@@ -704,7 +698,7 @@ def watch(
     except ImportError:
         console.print("[red]✗[/red] watchdog package is required for watch command")
         console.print("  Install with: pip install watchdog")
-        raise SystemExit(1)
+        raise SystemExit(1) from None
 
     server: MagatamaMcpServer = ctx.obj["server"]
     dir_path = Path(directory).resolve()
@@ -755,9 +749,14 @@ def watch(
         def on_any_event(self, event: FileSystemEvent) -> None:
             if event.is_directory:
                 return
-            if not self._should_process(event.src_path):
+            src_path = (
+                event.src_path.decode("utf-8")
+                if isinstance(event.src_path, bytes)
+                else event.src_path
+            )
+            if not self._should_process(src_path):
                 return
-            pending_changes[event.src_path] = time.time()
+            pending_changes[src_path] = time.time()
 
     def process_changes() -> None:
         """Process pending changes after debounce."""

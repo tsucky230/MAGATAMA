@@ -78,7 +78,7 @@ class TestPythonParser:
         code = dedent('''
             class Calculator:
                 """A simple calculator."""
-                
+
                 def add(self, a: int, b: int) -> int:
                     return a + b
         ''').strip()
@@ -117,14 +117,14 @@ class TestPythonParser:
             class MyClass:
                 def __init__(self, value: int) -> None:
                     self.value = value
-                
+
                 def get_value(self) -> int:
                     return self.value
-                
+
                 @staticmethod
                 def static_method() -> str:
                     return "static"
-                
+
                 @classmethod
                 def class_method(cls) -> str:
                     return "class"
@@ -216,7 +216,7 @@ class TestPythonParser:
         """Test parse result includes module entity."""
         code = dedent('''
             """Module docstring."""
-            
+
             def func():
                 pass
         ''').strip()
@@ -237,7 +237,7 @@ class TestPythonParser:
         code = dedent("""
             def first_func():
                 pass
-            
+
             def second_func():
                 pass
         """).strip()
@@ -263,7 +263,7 @@ class TestPythonParser:
         code = dedent("""
             def helper():
                 return 42
-            
+
             def main():
                 result = helper()
                 return result
@@ -290,10 +290,10 @@ class TestPythonParser:
         code = dedent("""
             def foo():
                 pass
-            
+
             def bar():
                 pass
-            
+
             def baz():
                 foo()
                 bar()
@@ -324,7 +324,7 @@ class TestPythonParser:
         code = dedent("""
             def inner():
                 return 1
-            
+
             def outer():
                 return inner() + inner()
         """).strip()
@@ -353,7 +353,7 @@ class TestPythonParser:
             class MyClass:
                 def helper(self):
                     return 42
-                
+
                 def main(self):
                     return self.helper()
         """).strip()
@@ -397,7 +397,7 @@ class TestPythonParser:
         code = dedent("""
             import os
             import sys
-            
+
             def main():
                 pass
         """).strip()
