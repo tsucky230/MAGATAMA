@@ -19,7 +19,7 @@ members = ["packages/magatama-core", "packages/magatama-mcp"]
 
 [tool.uv.sources]
 magatama-core = { workspace = true }
-magatama-mcp = { workspace = true }
+magatama = { workspace = true }
 
 # Development dependencies (workspace-wide)
 [dependency-groups]

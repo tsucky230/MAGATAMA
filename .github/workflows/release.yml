@@ -45,7 +45,7 @@ jobs:
     needs: [verify]
     strategy:
       matrix:
-        package: [magatama-core, magatama-mcp]
+        package: [magatama-core, magatama]
     steps:
       - uses: actions/checkout@v4
 
@@ -71,7 +71,7 @@ jobs:
   #   - PyPI publishing is intentionally not configured for this fork: there is
   #     no `pypi` GitHub Environment / PyPI Trusted Publisher set up for
   #     tsucky230/MAGATAMA.
-  # To enable PyPI publishing: register the `magatama-core` / `magatama-mcp`
+  # To enable PyPI publishing: register the `magatama-core` / `magatama`
   # projects on PyPI, set up Trusted Publishing, create a `pypi` environment,
   # then uncomment this job and restore `needs: [publish-pypi]` on
   # github-release below.
@@ -81,7 +81,7 @@ jobs:
   #   needs: [build]
   #   strategy:
   #     matrix:
-  #       package: [magatama-core, magatama-mcp]
+  #       package: [magatama-core, magatama]
   #   environment: pypi
   #   permissions:
   #     id-token: write

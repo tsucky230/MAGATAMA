@@ -146,8 +146,8 @@ jobs:
       - name: Build magatama-core
         run: uv build --package magatama-core
 
-      - name: Build magatama-mcp
-        run: uv build --package magatama-mcp
+      - name: Build magatama
+        run: uv build --package magatama
 
       - name: Verify packages
         run: |

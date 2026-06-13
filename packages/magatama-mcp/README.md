@@ -1,11 +1,11 @@
-# magatama-mcp - AI Coding Support MCP Server
+# magatama - AI Coding Support MCP Server
 
-[![PyPI version](https://badge.fury.io/py/magatama-mcp.svg)](https://badge.fury.io/py/magatama-mcp)
+[![PyPI version](https://badge.fury.io/py/magatama.svg)](https://badge.fury.io/py/magatama)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 > [MAGATAMA](https://github.com/tsucky230/MAGATAMA)（[YATA](https://github.com/nahisaho/YATA) のフォーク）の
-> MCP サーバーパッケージです（パッケージ名 `magatama-mcp` / CLI コマンド `magatama`）。
+> MCP サーバーパッケージです（PyPI 配布名 `magatama` / import 名 `magatama_mcp` / CLI コマンド `magatama`）。
 
 Model Context Protocol (MCP) サーバーとして、AI コーディングツールに知識グラフコンテキストを提供します。
 
@@ -19,7 +19,7 @@ Model Context Protocol (MCP) サーバーとして、AI コーディングツー
 ## インストール
 
 ```bash
-pip install magatama-mcp
+pip install magatama
 ```
 
 ## 使用方法
