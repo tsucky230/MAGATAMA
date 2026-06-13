@@ -11,17 +11,17 @@
 フォークし、**[comP](https://github.com/tsucky230/comP) コードインデクサーとの直接連携**を追加した
 AI コーディング支援 MCP Server です。
 
-YATA が持つ 34 の MCP ツール群をそのまま継承しつつ、comP が `.comp/index.db` に蓄積した
-コードインデックスを再パース不要で YATA の知識グラフに取り込める **comP Bridge（2 ツール）** を追加しています。
+MAGATAMA は YATA 由来の MCP ツール群をそのまま継承しつつ、comP が `.comp/index.db` に蓄積した
+コードインデックスを再パース不要で知識グラフに取り込める **comP Bridge（2 ツール）** を追加しています。
 
 ## comP Bridge とは
 
 [comP](https://github.com/tsucky230/comP) は VSCode 拡張 + Rust デーモンで構成されるコードインデクサーです。
 ワークスペースを解析した結果を `<workspace>/.comp/index.db`（SQLite, WAL モード）に保存します。
 
-MAGATAMA の comP Bridge はこの SQLite を直接読み取り、YATA の NetworkX 知識グラフに変換します。
+MAGATAMA の comP Bridge はこの SQLite を直接読み取り、NetworkX 知識グラフ（YATA 由来）に変換します。
 これにより **comP が構築済みのインデックスを `search_entities` / `hybrid_search` / `analyze_impact`
-などの全 YATA ツールからそのまま利用**できます。
+などの全 MAGATAMA ツールからそのまま利用**できます。
 
 ```text
 [comP Rust Daemon] ──書込──> .comp/index.db (SQLite, WALモード)
@@ -66,34 +66,34 @@ uv sync --all-packages
 
 ```bash
 # ファイルを解析
-yata parse path/to/file.py
+magatama parse path/to/file.py
 
 # ディレクトリを解析
-yata parse path/to/project --pattern "**/*.py" --pattern "**/*.ts"
+magatama parse path/to/project --pattern "**/*.py" --pattern "**/*.ts"
 
 # MCP サーバーを起動（stdio モード）
-yata serve
+magatama serve
 
 # MCP サーバーを起動（SSE モード）
-yata serve --transport sse --port 8080
+magatama serve --transport sse --port 8080
 
 # サーバー情報を表示
-yata info
+magatama info
 
 # エンティティを検索
-yata query "parse" --type function
+magatama query "parse" --type function
 
 # 統計情報を表示
-yata stats --graph graph.json
+magatama stats --graph graph.json
 
 # グラフの整合性を検証
-yata validate --graph graph.json --repair
+magatama validate --graph graph.json --repair
 
 # ディレクトリを監視
-yata watch ./src --output graph.json
+magatama watch ./src --output graph.json
 
 # パフォーマンス計測
-yata benchmark ./src
+magatama benchmark ./src
 
 # 知識データベースを一括更新（47フレームワーク）
 python scripts/update_knowledge_db.py
@@ -105,7 +105,7 @@ python scripts/update_knowledge_db.py
 # 1. comP でプロジェクトをインデックス（VSCode + comP 拡張で自動実行されます）
 
 # 2. MAGATAMA MCP サーバーを起動
-yata serve
+magatama serve
 ```
 
 MCP 経由（Claude Desktop 等）で:
@@ -117,7 +117,7 @@ get_external_graph_info(path="e:/dev/myproject")
 # 知識グラフへ取り込み
 read_external_graph(path="e:/dev/myproject")
 
-# 取り込んだコードを通常の YATA ツールで検索
+# 取り込んだコードを通常の MAGATAMA ツールで検索
 search_entities(query="MyClass")
 get_related_entities(entity_id="comp:myproject:n42")
 analyze_impact(entity_id="comp:myproject:n42")
@@ -132,9 +132,9 @@ analyze_impact(entity_id="comp:myproject:n42")
 ```json
 {
   "mcpServers": {
-    "yata": {
+    "magatama": {
       "command": "uv",
-      "args": ["run", "yata", "serve"]
+      "args": ["run", "magatama", "serve"]
     }
   }
 }
@@ -147,9 +147,9 @@ analyze_impact(entity_id="comp:myproject:n42")
 ```json
 {
   "mcpServers": {
-    "yata": {
+    "magatama": {
       "command": "uv",
-      "args": ["run", "yata", "serve"]
+      "args": ["run", "magatama", "serve"]
     }
   }
 }
@@ -161,7 +161,7 @@ analyze_impact(entity_id="comp:myproject:n42")
 
 | Tool | 説明 |
 |------|------|
-| `read_external_graph` | comP インデックスを YATA 知識グラフに読み込む |
+| `read_external_graph` | comP インデックスを MAGATAMA 知識グラフに読み込む |
 | `get_external_graph_info` | comP インデックスの統計情報を確認（ロードなし） |
 
 `read_external_graph` のオプション:
@@ -247,14 +247,14 @@ analyze_impact(entity_id="comp:myproject:n42")
 
 | URI | 説明 |
 |-----|------|
-| `yata://graph/stats` | 知識グラフの統計情報 |
+| `magatama://graph/stats` | 知識グラフの統計情報 |
 
 ## 💻 CLI コマンド詳細
 
 ### parse - ソースコード解析
 
 ```bash
-yata parse <PATH> [OPTIONS]
+magatama parse <PATH> [OPTIONS]
 ```
 
 | オプション | 説明 |
@@ -266,7 +266,7 @@ yata parse <PATH> [OPTIONS]
 ### query - エンティティ検索
 
 ```bash
-yata query <QUERY> [OPTIONS]
+magatama query <QUERY> [OPTIONS]
 ```
 
 | オプション | 説明 |
@@ -279,7 +279,7 @@ yata query <QUERY> [OPTIONS]
 ### serve - MCP サーバー起動
 
 ```bash
-yata serve [OPTIONS]
+magatama serve [OPTIONS]
 ```
 
 | オプション | 説明 |
@@ -318,7 +318,7 @@ yata serve [OPTIONS]
 
 ## 📚 対応フレームワーク (26 フレームワーク)
 
-YATA は主要フレームワークの構造を事前学習済みの知識グラフとして提供します。
+MAGATAMA は主要フレームワークの構造を事前学習済みの知識グラフとして提供します（YATA 由来の機能）。
 
 ### Python
 
@@ -419,7 +419,7 @@ uv sync --all-packages
 uv run pytest
 
 # カバレッジ付きテスト
-uv run pytest --cov=yata_core --cov=yata_mcp
+uv run pytest --cov=magatama_core --cov=magatama_mcp
 
 # リンターを実行
 uv run ruff check .
@@ -431,14 +431,14 @@ uv run mypy packages/
 ```text
 MAGATAMA/
 ├── packages/
-│   ├── yata-core/          # 知識グラフエンジン（ライブラリ）
-│   │   ├── src/yata_core/
+│   ├── magatama-core/          # 知識グラフエンジン（ライブラリ）
+│   │   ├── src/magatama_core/
 │   │   │   ├── domain/         # ドメイン層（エンティティ、値オブジェクト）
 │   │   │   ├── application/    # アプリケーション層（ユースケース）
 │   │   │   └── infrastructure/ # インフラ層（パーサー、ストレージ、comP Bridge）
 │   │   └── tests/
-│   └── yata-mcp/           # MCP Server（アプリケーション）
-│       ├── src/yata_mcp/
+│   └── magatama-mcp/           # MCP Server（アプリケーション）
+│       ├── src/magatama_mcp/
 │       │   ├── server/     # MCP 実装（FastMCP）
 │       │   └── cli/        # CLI 実装（Click）
 │       └── tests/
@@ -457,7 +457,7 @@ Clean Architecture に基づいて設計されています：
 
 ## 📊 テスト状況
 
-- **テスト数**: 794 (694 yata-core + 100 yata-mcp)
+- **テスト数**: 794 (694 magatama-core + 100 magatama-mcp)
 - **E2E テスト**: 42 (18 統合 + 24 セキュリティ)
 - **カバレッジ**: 76%
 - **対応言語パーサー**: 24

@@ -1,4 +1,4 @@
-# YATA CI/CD Pipeline
+# MAGATAMA CI/CD Pipeline
 # Article III: Test-First Imperative - Automated testing
 # Article IX: Integration-First Testing
 
@@ -105,7 +105,7 @@ jobs:
         run: uv sync --all-packages
 
       - name: Run E2E tests
-        run: uv run pytest packages/yata-mcp/tests/e2e/ -v
+        run: uv run pytest packages/magatama-mcp/tests/e2e/ -v
 
   coverage-gate:
     name: Coverage Gate (≥80%)
@@ -127,6 +127,7 @@ jobs:
 
       - name: Run tests with coverage
         run: uv run pytest --cov --cov-fail-under=80
+        run: uv run pytest --cov --cov-fail-under=80
 
   build:
     name: Build Packages
@@ -143,11 +144,11 @@ jobs:
       - name: Set up Python
         run: uv python install ${{ env.PYTHON_VERSION }}
 
-      - name: Build yata-core
-        run: uv build --package yata-core
+      - name: Build magatama-core
+        run: uv build --package magatama-core
 
-      - name: Build yata-mcp
-        run: uv build --package yata-mcp
+      - name: Build magatama-mcp
+        run: uv build --package magatama-mcp
 
       - name: Verify packages
         run: |

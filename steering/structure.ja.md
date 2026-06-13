@@ -20,7 +20,7 @@
 ### Layer 1: Domain / Core
 
 **Purpose**: 知識グラフのコアロジックとエンティティ定義
-**Location**: `src/yata/core/`
+**Location**: `src/magatama/core/`
 **Rules**:
 
 - フレームワーク非依存の純粋なPythonコード
@@ -38,7 +38,7 @@
 ### Layer 2: Application / Use Cases
 
 **Purpose**: ユースケースの実装とサービスオーケストレーション
-**Location**: `src/yata/application/`
+**Location**: `src/magatama/application/`
 **Rules**:
 
 - Domain層のみに依存
@@ -56,7 +56,7 @@
 ### Layer 3: Infrastructure / Adapters
 
 **Purpose**: 外部システムとの統合（ストレージ、パーサー）
-**Location**: `src/yata/infrastructure/`
+**Location**: `src/magatama/infrastructure/`
 **Rules**:
 
 - Application層のPortsを実装
@@ -72,7 +72,7 @@
 ### Layer 4: Interface / Presentation
 
 **Purpose**: MCPプロトコルインターフェース、CLI
-**Location**: `src/yata/mcp/`, `src/yata/cli/`
+**Location**: `src/magatama/mcp/`, `src/magatama/cli/`
 **Rules**:
 
 - Application層のサービスを呼び出し
@@ -112,7 +112,7 @@ Domain layer has NO dependencies
 
 ```
 YATA/
-├── src/yata/              # メインパッケージ
+├── src/magatama/              # メインパッケージ
 │   ├── __init__.py
 │   ├── __main__.py        # CLI entry point
 │   ├── server.py          # MCP server main

@@ -1,22 +1,26 @@
-# YATA Troubleshooting Guide
+# MAGATAMA Troubleshooting Guide
 
 A compilation of common issues and solutions.
 
 ---
 
-## About YATA
+## About MAGATAMA / YATA
+
+**MAGATAMA (勾玉)** is a fork of [YATA (八咫)](https://github.com/nahisaho/YATA) that adds the comP Bridge feature.
+The lineage below describes the origin and background of YATA, the upstream project this fork is based on.
 
 **YATA (八咫)** was born as a system to enhance [MUSUBI](https://github.com/nahisaho/musubi) (Ultimate Specification Driven Development).
 
 YATA is the **second MCP Server** following [CodeGraph MCP Server](https://github.com/nahisaho/CodeGraphMCPServer). While CodeGraph MCP Server specializes in building knowledge graphs for codebases, YATA provides more advanced AI coding support features including framework knowledge graphs, design pattern detection, and code quality analysis.
 
-YATA implements features that surpass [Context7](https://context7.com/). See [YATA vs Context7](YATA_vs_Context7.md) for details.
+YATA implements features that surpass [Context7](https://context7.com/). See [YATA vs Context7](MAGATAMA_vs_Context7.md) for details.
 
 | Project | Role |
 |---------|------|
 | [MUSUBI](https://github.com/nahisaho/musubi) | Ultimate Specification Driven Development Framework |
 | [CodeGraph MCP Server](https://github.com/nahisaho/CodeGraphMCPServer) | Codebase Knowledge Graph MCP Server (1st) |
-| **YATA** | AI Coding Support MCP Server (2nd) |
+| [YATA](https://github.com/nahisaho/YATA) | AI Coding Support MCP Server (2nd, upstream of this fork) |
+| **MAGATAMA** | YATA fork + comP Bridge (this project) |
 | [Context7](https://context7.com/) | Library Documentation MCP Server (Comparison target) |
 
 ---
@@ -109,7 +113,7 @@ Error: Failed to start server
 ```bash
 lsof -i :8080
 # If in use, specify different port
-yata serve --transport sse --port 8081
+magatama serve --transport sse --port 8081
 ```
 
 2. Check if dependencies are correctly installed:
@@ -132,7 +136,7 @@ This is normal behavior. In stdio mode, the server communicates with MCP clients
 
 ```bash
 # Verify operation in another terminal
-echo '{"jsonrpc":"2.0","method":"initialize","id":1,"params":{}}' | yata serve | head -1
+echo '{"jsonrpc":"2.0","method":"initialize","id":1,"params":{}}' | magatama serve | head -1
 ```
 
 ### Cannot Connect in SSE Mode
@@ -172,16 +176,16 @@ No files matched pattern
 
 ```bash
 # Default pattern
-yata parse ./src --pattern "**/*.py"
+magatama parse ./src --pattern "**/*.py"
 
 # Multiple patterns
-yata parse ./src --pattern "**/*.py" --pattern "**/*.ts"
+magatama parse ./src --pattern "**/*.py" --pattern "**/*.ts"
 ```
 
 2. Try with absolute path:
 
 ```bash
-yata parse /absolute/path/to/project
+magatama parse /absolute/path/to/project
 ```
 
 ### Parsing Files with Syntax Errors
@@ -194,7 +198,7 @@ Parse error in file.py
 
 **Explanation:**
 
-YATA attempts to parse files even with syntax errors. Parts with errors are ignored, and only parseable parts are processed.
+MAGATAMA attempts to parse files even with syntax errors. Parts with errors are ignored, and only parseable parts are processed.
 
 **Solution:**
 
@@ -202,7 +206,7 @@ YATA attempts to parse files even with syntax errors. Parts with errors are igno
 2. Or exclude the file:
 
 ```bash
-yata parse ./src --exclude "**/broken_file.py"
+magatama parse ./src --exclude "**/broken_file.py"
 ```
 
 ### Encoding Error
@@ -219,7 +223,7 @@ UnicodeDecodeError: 'utf-8' codec can't decode byte
 2. Exclude binary files:
 
 ```bash
-yata parse ./src --exclude "**/*.bin" --exclude "**/*.exe"
+magatama parse ./src --exclude "**/*.bin" --exclude "**/*.exe"
 ```
 
 ---
@@ -237,7 +241,7 @@ Parsing takes several minutes or more.
 1. Exclude unnecessary directories:
 
 ```bash
-yata parse ./src \
+magatama parse ./src \
   --exclude "**/node_modules/**" \
   --exclude "**/.git/**" \
   --exclude "**/dist/**" \
@@ -249,17 +253,17 @@ yata parse ./src \
 
 ```bash
 # Specific extensions only
-yata parse ./src --pattern "**/*.py" --pattern "**/*.ts"
+magatama parse ./src --pattern "**/*.py" --pattern "**/*.ts"
 ```
 
 3. Save and reuse graph:
 
 ```bash
 # Initial parsing
-yata parse ./src --output graph.json
+magatama parse ./src --output graph.json
 
 # Load graph afterwards
-yata query "search_term" --graph graph.json
+magatama query "search_term" --graph graph.json
 ```
 
 ### High Memory Usage
@@ -274,8 +278,8 @@ Memory usage exceeds 500MB.
 
 ```bash
 # Parse by subdirectory
-yata parse ./src/module1 --output module1.json
-yata parse ./src/module2 --output module2.json
+magatama parse ./src/module1 --output module1.json
+magatama parse ./src/module2 --output module2.json
 ```
 
 2. Add exclude patterns to narrow scope
@@ -292,10 +296,10 @@ Search takes more than 1 second.
 
 ```bash
 # Specify type
-yata query "process" --type function
+magatama query "process" --type function
 
 # Limit results
-yata query "process" --max-results 10
+magatama query "process" --max-results 10
 ```
 
 ---
@@ -316,7 +320,7 @@ cat ~/Library/Application\ Support/Claude/claude_desktop_config.json | jq .
 3. Run command directly to verify:
 
 ```bash
-uv run --directory /path/to/yata yata serve
+uv run --directory /path/to/magatama magatama serve
 ```
 
 ### Not Recognized in VS Code Copilot
@@ -352,7 +356,7 @@ uv run --directory /path/to/yata yata serve
 **Solution:** Clear graph and re-parse:
 
 ```bash
-yata parse ./src --output graph.json  # Overwrite
+magatama parse ./src --output graph.json  # Overwrite
 ```
 
 ### `ParserNotFoundError: No parser for extension: .xxx`
@@ -387,22 +391,22 @@ yata parse ./src --output graph.json  # Overwrite
 
 ```bash
 # Set log level via environment variable
-export YATA_LOG_LEVEL=DEBUG
-yata parse ./src
+export MAGATAMA_LOG_LEVEL=DEBUG
+magatama parse ./src
 ```
 
 ### Debug MCP Communication
 
 ```bash
 # Use MCP Inspector
-npx @anthropic/mcp-inspector yata serve
+npx @anthropic/mcp-inspector magatama serve
 ```
 
 ### Profiling
 
 ```bash
 # Run benchmark
-yata benchmark ./src --json > benchmark.json
+magatama benchmark ./src --json > benchmark.json
 ```
 
 ---
@@ -411,10 +415,10 @@ yata benchmark ./src --json > benchmark.json
 
 If the issue isn't resolved:
 
-1. Report on [GitHub Issues](https://github.com/nahisaho/YATA/issues)
+1. Report on [GitHub Issues](https://github.com/tsucky230/MAGATAMA/issues)
 2. Include the following information:
    - OS and version
    - Python version
-   - YATA version (`yata info`)
+   - MAGATAMA version (`magatama info`)
    - Full error message
    - Steps to reproduce

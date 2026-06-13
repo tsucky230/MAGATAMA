@@ -52,7 +52,7 @@ from mcp import Server
 from mcp.transports import stdio, sse
 
 # サーバー作成
-server = Server(name="yata", version="1.0.0")
+server = Server(name="magatama", version="1.0.0")
 
 # ツール登録
 @server.tool()
@@ -73,13 +73,13 @@ async def query_docs(
     return {"docs": result.docs, "code_examples": result.examples}
 
 # リソース登録
-@server.resource("yata://libraries")
+@server.resource("magatama://libraries")
 async def list_libraries() -> dict:
     """登録済みライブラリ一覧"""
     libraries = await library_service.list_libraries()
     return {"libraries": [lib.to_dict() for lib in libraries]}
 
-@server.resource("yata://entities/{entity_id}")
+@server.resource("magatama://entities/{entity_id}")
 async def get_entity(entity_id: str) -> dict:
     """エンティティ詳細"""
     entity = await query_service.get_entity(entity_id)
@@ -203,9 +203,9 @@ async def query_docs(library_id: str, query: str) -> dict:
 
 | Resource URI | 説明 | REQ |
 |--------------|------|-----|
-| `yata://libraries` | ライブラリ一覧 | REQ-MCP-006 |
-| `yata://entities/{id}` | エンティティ詳細 | REQ-MCP-006 |
-| `yata://stats` | 統計情報 | REQ-MCP-006 |
+| `magatama://libraries` | ライブラリ一覧 | REQ-MCP-006 |
+| `magatama://entities/{id}` | エンティティ詳細 | REQ-MCP-006 |
+| `magatama://stats` | 統計情報 | REQ-MCP-006 |
 
 ### Prompts (4種)
 

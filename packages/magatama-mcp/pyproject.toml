@@ -1,0 +1,62 @@
+# MAGATAMA MCP - MCP Server Application
+# Depends on magatama-core library (Article I compliance)
+
+[project]
+name = "magatama-mcp"
+version = "0.5.0"
+description = "MAGATAMA MCP Server - AI Coding Support via Model Context Protocol"
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.11"
+authors = [{ name = "MAGATAMA Team" }]
+keywords = ["mcp", "ai-coding", "claude", "copilot", "knowledge-graph", "model-context-protocol"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = [
+    # Core library (Article I: Library-First)
+    "magatama-core",
+    # MCP Protocol (ADR-002)
+    "mcp>=1.0.0",
+    # CLI Framework
+    "click>=8.1.0",
+    # HTTP Server (for SSE transport)
+    "uvicorn>=0.27.0",
+    "httpx>=0.27.0",
+    # Progress display
+    "rich>=13.7.0",
+    # File watching (for watch command)
+    "watchdog>=4.0.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/tsucky230/MAGATAMA"
+Repository = "https://github.com/tsucky230/MAGATAMA"
+Documentation = "https://github.com/tsucky230/MAGATAMA#readme"
+Issues = "https://github.com/tsucky230/MAGATAMA/issues"
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-cov>=4.1.0",
+    "pytest-asyncio>=0.23.0",
+    "ruff>=0.4.0",
+    "mypy>=1.9.0",
+]
+
+[project.scripts]
+# Main CLI entry point (Article II compliance)
+magatama = "magatama_mcp.cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/magatama_mcp"]

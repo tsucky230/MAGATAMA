@@ -1,22 +1,26 @@
-# YATA トラブルシューティングガイド
+# MAGATAMA トラブルシューティングガイド
 
 よくある問題と解決方法をまとめています。
 
 ---
 
-## YATA について
+## MAGATAMA / YATA について
+
+**MAGATAMA（勾玉）** は [YATA（八咫）](https://github.com/nahisaho/YATA) のフォークで、comP Bridge 機能を追加したものです。
+以下の系譜は、フォーク元である YATA の出自・背景です。
 
 **YATA（八咫）** は、[MUSUBI](https://github.com/nahisaho/musubi)（Ultimate Specification Driven Development）を強化するシステムとして誕生しました。
 
 YATA は [CodeGraph MCP Server](https://github.com/nahisaho/CodeGraphMCPServer) に続く **2つ目の MCP Server** です。CodeGraph MCP Server がコードベースの知識グラフ構築に特化しているのに対し、YATA はフレームワーク知識グラフ、デザインパターン検出、コード品質分析など、より高度な AI コーディング支援機能を提供します。
 
-YATA は [Context7](https://context7.com/) を超える機能を実装しています。詳細は [YATA vs Context7](YATA_vs_Context7.md) を参照してください。
+YATA は [Context7](https://context7.com/) を超える機能を実装しています。詳細は [YATA vs Context7](MAGATAMA_vs_Context7.md) を参照してください。
 
 | プロジェクト | 役割 |
 |-------------|------|
 | [MUSUBI](https://github.com/nahisaho/musubi) | Ultimate Specification Driven Development フレームワーク |
 | [CodeGraph MCP Server](https://github.com/nahisaho/CodeGraphMCPServer) | コードベース知識グラフ構築 MCP Server（1st） |
-| **YATA** | AI コーディング支援 MCP Server（2nd） |
+| [YATA](https://github.com/nahisaho/YATA) | AI コーディング支援 MCP Server（2nd、本プロジェクトのフォーク元） |
+| **MAGATAMA** | YATA フォーク + comP Bridge（本プロジェクト） |
 | [Context7](https://context7.com/) | ライブラリドキュメント提供 MCP Server（比較対象） |
 
 ---
@@ -109,7 +113,7 @@ Error: Failed to start server
 ```bash
 lsof -i :8080
 # 使用中なら別ポートを指定
-yata serve --transport sse --port 8081
+magatama serve --transport sse --port 8081
 ```
 
 2. 依存関係が正しくインストールされているか：
@@ -132,7 +136,7 @@ uv run python -c "import fastmcp; print(fastmcp.__version__)"
 
 ```bash
 # 別ターミナルで動作確認
-echo '{"jsonrpc":"2.0","method":"initialize","id":1,"params":{}}' | yata serve | head -1
+echo '{"jsonrpc":"2.0","method":"initialize","id":1,"params":{}}' | magatama serve | head -1
 ```
 
 ### SSE モードで接続できない
@@ -172,16 +176,16 @@ No files matched pattern
 
 ```bash
 # デフォルトパターン
-yata parse ./src --pattern "**/*.py"
+magatama parse ./src --pattern "**/*.py"
 
 # 複数パターン
-yata parse ./src --pattern "**/*.py" --pattern "**/*.ts"
+magatama parse ./src --pattern "**/*.py" --pattern "**/*.ts"
 ```
 
 2. 絶対パスで試す：
 
 ```bash
-yata parse /absolute/path/to/project
+magatama parse /absolute/path/to/project
 ```
 
 ### 構文エラーがあるファイルの解析
@@ -194,7 +198,7 @@ Parse error in file.py
 
 **説明:**
 
-構文エラーがあるファイルでも、YATA は解析を試みます。エラーが発生した部分は無視され、解析可能な部分のみが処理されます。
+構文エラーがあるファイルでも、MAGATAMA は解析を試みます。エラーが発生した部分は無視され、解析可能な部分のみが処理されます。
 
 **対処方法:**
 
@@ -202,7 +206,7 @@ Parse error in file.py
 2. または、そのファイルを除外：
 
 ```bash
-yata parse ./src --exclude "**/broken_file.py"
+magatama parse ./src --exclude "**/broken_file.py"
 ```
 
 ### エンコーディングエラー
@@ -219,7 +223,7 @@ UnicodeDecodeError: 'utf-8' codec can't decode byte
 2. バイナリファイルを除外：
 
 ```bash
-yata parse ./src --exclude "**/*.bin" --exclude "**/*.exe"
+magatama parse ./src --exclude "**/*.bin" --exclude "**/*.exe"
 ```
 
 ---
@@ -237,7 +241,7 @@ yata parse ./src --exclude "**/*.bin" --exclude "**/*.exe"
 1. 不要なディレクトリを除外：
 
 ```bash
-yata parse ./src \
+magatama parse ./src \
   --exclude "**/node_modules/**" \
   --exclude "**/.git/**" \
   --exclude "**/dist/**" \
@@ -249,17 +253,17 @@ yata parse ./src \
 
 ```bash
 # 特定の拡張子のみ
-yata parse ./src --pattern "**/*.py" --pattern "**/*.ts"
+magatama parse ./src --pattern "**/*.py" --pattern "**/*.ts"
 ```
 
 3. グラフを保存して再利用：
 
 ```bash
 # 初回解析
-yata parse ./src --output graph.json
+magatama parse ./src --output graph.json
 
 # 以降はグラフをロード
-yata query "search_term" --graph graph.json
+magatama query "search_term" --graph graph.json
 ```
 
 ### メモリ使用量が高い
@@ -274,8 +278,8 @@ yata query "search_term" --graph graph.json
 
 ```bash
 # サブディレクトリごとに解析
-yata parse ./src/module1 --output module1.json
-yata parse ./src/module2 --output module2.json
+magatama parse ./src/module1 --output module1.json
+magatama parse ./src/module2 --output module2.json
 ```
 
 2. 除外パターンを追加して対象を絞る
@@ -292,10 +296,10 @@ yata parse ./src/module2 --output module2.json
 
 ```bash
 # 型を指定
-yata query "process" --type function
+magatama query "process" --type function
 
 # 結果数を制限
-yata query "process" --max-results 10
+magatama query "process" --max-results 10
 ```
 
 ---
@@ -316,7 +320,7 @@ cat ~/Library/Application\ Support/Claude/claude_desktop_config.json | jq .
 3. コマンドを直接実行して動作確認：
 
 ```bash
-uv run --directory /path/to/yata yata serve
+uv run --directory /path/to/magatama magatama serve
 ```
 
 ### VS Code Copilot で認識されない
@@ -352,7 +356,7 @@ uv run --directory /path/to/yata yata serve
 **対処:** グラフをクリアしてから再解析：
 
 ```bash
-yata parse ./src --output graph.json  # 上書き
+magatama parse ./src --output graph.json  # 上書き
 ```
 
 ### `ParserNotFoundError: No parser for extension: .xxx`
@@ -386,22 +390,22 @@ yata parse ./src --output graph.json  # 上書き
 
 ```bash
 # 環境変数でログレベルを設定
-export YATA_LOG_LEVEL=DEBUG
-yata parse ./src
+export MAGATAMA_LOG_LEVEL=DEBUG
+magatama parse ./src
 ```
 
 ### MCP 通信のデバッグ
 
 ```bash
 # MCP Inspector を使用
-npx @anthropic/mcp-inspector yata serve
+npx @anthropic/mcp-inspector magatama serve
 ```
 
 ### プロファイリング
 
 ```bash
 # ベンチマーク実行
-yata benchmark ./src --json > benchmark.json
+magatama benchmark ./src --json > benchmark.json
 ```
 
 ---
@@ -410,10 +414,10 @@ yata benchmark ./src --json > benchmark.json
 
 問題が解決しない場合：
 
-1. [GitHub Issues](https://github.com/nahisaho/YATA/issues) で報告
+1. [GitHub Issues](https://github.com/tsucky230/MAGATAMA/issues) で報告
 2. 以下の情報を含めてください：
    - OS とバージョン
    - Python バージョン
-   - YATA バージョン（`yata info`）
+   - MAGATAMA バージョン（`magatama info`）
    - エラーメッセージの全文
    - 再現手順

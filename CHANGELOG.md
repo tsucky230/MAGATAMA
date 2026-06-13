@@ -1,6 +1,10 @@
 # Changelog
 
-All notable changes to YATA (八咫) will be documented in this file.
+All notable changes to MAGATAMA (勾玉) will be documented in this file.
+
+MAGATAMA は [YATA (八咫)](https://github.com/nahisaho/YATA) のフォークです。
+**0.5.0 までのリリースは上流 YATA で行われた履歴**であり、当時の記録として原文のまま残しています。
+`[Unreleased]` 以降が MAGATAMA としての変更です。
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
@@ -11,7 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 #### 外部インデックス連携 (comP Bridge) — 新規MCPツール（34 → 36 Tools）
 
-- **`read_external_graph`** — comP (`e:/dev/comP`) の `.comp/index.db` を YATA 知識グラフに取り込む
+- **`read_external_graph`** — comP (`e:/dev/comP`) の `.comp/index.db` を MAGATAMA 知識グラフに取り込む
   - `mode="replace"`（デフォルト）: 同一ワークスペースの旧エンティティを削除してから投入
   - `mode="merge"`: 既存グラフに追加投入（同一 ID は上書き）
   - 戻り値: `entities_loaded`, `relationships_loaded`, `entities_removed`, `skipped_edges`, `comp_metadata`
@@ -22,22 +26,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 #### 新規モジュール
 
-- `packages/yata-core/src/yata_core/infrastructure/storage/comp_index_reader.py`
+- `packages/magatama-core/src/magatama_core/infrastructure/storage/comp_index_reader.py`
   - `CompIndexReader` — SQLite 読み取り専用接続 (WAL + `busy_timeout=5000`)
   - `CompIndexData` — 読み取り結果の集約データクラス
   - `CompIndexNotFoundError`, `resolve_db_path`, `derive_alias`
-  - comP `nodes.kind` → YATA `EntityType` / `edges.kind` → `RelationshipType` マッピング
+  - comP `nodes.kind` → `EntityType` / `edges.kind` → `RelationshipType` マッピング
   - 未知の kind はフォールバック（エラーなし）
 
-- `packages/yata-core/src/yata_core/application/usecases/comp_usecase.py`
+- `packages/magatama-core/src/magatama_core/application/usecases/comp_usecase.py`
   - `LoadCompIndexUseCase` — グラフへの投入・replace/merge モード制御
   - `LoadCompIndexResult` — 結果サマリー
 
 #### テスト追加
 
-- `packages/yata-core/tests/infrastructure/test_comp_index_reader.py` — 18 テストケース
-- `packages/yata-core/tests/application/test_comp_usecase.py` — 8 テストケース
-- `packages/yata-mcp/tests/test_protocol.py` — comP Bridge ツールのテストクラス追加
+- `packages/magatama-core/tests/infrastructure/test_comp_index_reader.py` — 18 テストケース
+- `packages/magatama-core/tests/application/test_comp_usecase.py` — 8 テストケース
+- `packages/magatama-mcp/tests/test_protocol.py` — comP Bridge ツールのテストクラス追加
 
 ---
 
@@ -70,8 +74,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- **`yata info` コマンド修正**
-  - `YataMcpServer` から `create_mcp_server()` に変更
+- **`magatama info` コマンド修正**
+  - `MagatamaMcpServer` から `create_mcp_server()` に変更
   - 実際のMCPツール数を正確に表示（34 Tools）
 
 ### Updated
@@ -79,7 +83,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **README.md / README.en.md**
   - MCP Tools: 32 → 34
   - フレームワーク数: 47 → 26（実際の知識グラフ数）
-  - テスト数: 683 (592 yata-core + 91 yata-mcp)
+  - テスト数: 683 (592 magatama-core + 91 magatama-mcp)
   - E2Eテスト: 42 (18 統合 + 24 セキュリティ)
   - カバレッジ: 75.65%
 
@@ -174,7 +178,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Documentation
 
 - [README.md](README.md) - 言語24、フレームワーク47に更新
-- [YATA_vs_Context7.md](docs/YATA_vs_Context7.md) - 最新メトリクスに更新
+- [MAGATAMA_vs_Context7.md](docs/MAGATAMA_vs_Context7.md) - 最新メトリクスに更新
 - [KNOWLEDGE_UPDATE_GUIDE.md](docs/KNOWLEDGE_UPDATE_GUIDE.md) - クイックスタートセクション追加
 - [TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md) - プロジェクト背景（MUSUBI, CodeGraph）追加
 - [steering/project.yml](steering/project.yml) - メトリクス更新
@@ -323,4 +327,4 @@ Go: Gin, Echo, Fiber, GORM
 
 ---
 
-**YATA** (八咫) - AI Coding Support MCP Server
+**MAGATAMA** (勾玉) - AI Coding Support MCP Server（[YATA (八咫)](https://github.com/nahisaho/YATA) のフォーク）

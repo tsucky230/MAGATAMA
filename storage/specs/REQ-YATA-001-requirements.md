@@ -331,9 +331,9 @@ Model Context Protocol (MCP) はAnthropicが開発したオープンスタンダ
 > - グラフ統計情報
 
 **Acceptance Criteria**:
-- [ ] `yata://libraries` - 登録済みライブラリ一覧
-- [ ] `yata://entities/{id}` - エンティティ詳細
-- [ ] `yata://stats` - グラフ統計情報
+- [ ] `magatama://libraries` - 登録済みライブラリ一覧
+- [ ] `magatama://entities/{id}` - エンティティ詳細
+- [ ] `magatama://stats` - グラフ統計情報
 - [ ] リソースURIスキーマが一貫している
 
 **Priority**: Medium
@@ -386,7 +386,7 @@ Model Context Protocol (MCP) はAnthropicが開発したオープンスタンダ
 **Type**: Event-driven
 
 **Requirement**:
-> WHEN ユーザーが`yata index <path>`コマンドを実行した時、
+> WHEN ユーザーが`magatama index <path>`コマンドを実行した時、
 > システムは指定されたパスのソースコードを解析し、
 > 知識グラフを構築しなければならない（SHALL）。
 
@@ -408,7 +408,7 @@ Model Context Protocol (MCP) はAnthropicが開発したオープンスタンダ
 **Type**: Event-driven
 
 **Requirement**:
-> WHEN ユーザーが`yata serve`コマンドを実行した時、
+> WHEN ユーザーが`magatama serve`コマンドを実行した時、
 > システムはMCPサーバーを起動しなければならない（SHALL）。
 
 **Acceptance Criteria**:
@@ -427,7 +427,7 @@ Model Context Protocol (MCP) はAnthropicが開発したオープンスタンダ
 **Type**: Event-driven
 
 **Requirement**:
-> WHEN ユーザーが`yata query <query>`コマンドを実行した時、
+> WHEN ユーザーが`magatama query <query>`コマンドを実行した時、
 > システムは知識グラフに対してクエリを実行し、
 > 結果を表示しなければならない（SHALL）。
 
@@ -447,7 +447,7 @@ Model Context Protocol (MCP) はAnthropicが開発したオープンスタンダ
 **Type**: Event-driven
 
 **Requirement**:
-> WHEN ユーザーが`yata stats`コマンドを実行した時、
+> WHEN ユーザーが`magatama stats`コマンドを実行した時、
 > システムは知識グラフの統計情報を表示しなければならない（SHALL）。
 
 **Acceptance Criteria**:
@@ -485,7 +485,7 @@ Model Context Protocol (MCP) はAnthropicが開発したオープンスタンダ
 **Type**: Event-driven
 
 **Requirement**:
-> WHEN ユーザーが`yata watch <path>`コマンドを実行した時、
+> WHEN ユーザーが`magatama watch <path>`コマンドを実行した時、
 > システムはファイル変更を監視し、
 > 変更検出時に自動的にインクリメンタルインデックスを実行しなければならない（SHALL）。
 
@@ -738,7 +738,7 @@ Model Context Protocol (MCP) はAnthropicが開発したオープンスタンダ
 - [ ] ネットワークアクセスは明示的に設定した場合のみ
 - [ ] ソースコードが外部に送信されない
 - [ ] オフラインでも基本機能が動作（ローカルインデックス済みデータ利用）
-- [ ] GitHub連携は`yata index <github-url>`実行時のみネットワークアクセス
+- [ ] GitHub連携は`magatama index <github-url>`実行時のみネットワークアクセス
 - [ ] テレメトリ/使用状況データの外部送信は行わない
 
 **Priority**: High

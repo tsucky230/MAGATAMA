@@ -7,6 +7,10 @@ updated_at: '2026-01-01'
 
 # YATA MCP Server vs Context7 - The Next Generation of AI Coding Support
 
+> **Note**: This article compares the upstream **YATA (八咫)** project with Context7. Its content and
+> figures are based on YATA's evaluation. [MAGATAMA](https://github.com/tsucky230/MAGATAMA), the fork,
+> inherits YATA's features and adds the comP Bridge, but this comparison is not a MAGATAMA-specific re-measurement.
+
 ## Introduction
 
 As AI coding support tools continue to evolve, context-providing servers using **MCP (Model Context Protocol)** are gaining attention.
@@ -60,10 +64,10 @@ YATA is a **fully local** knowledge graph-based MCP server.
 ```bash
 # YATA Setup
 git clone https://github.com/nahisaho/YATA.git
-cd yata && uv sync --all-packages
+cd magatama && uv sync --all-packages
 
 # Start MCP Server
-yata serve
+magatama serve
 ```
 
 ## 🏆 YATA's Advantages
@@ -109,7 +113,7 @@ YATA has **pre-learned** structures of major frameworks:
 
 ```python
 # Example of using framework knowledge
-yata search_framework --framework django --query "middleware"
+magatama search_framework --framework django --query "middleware"
 # → Instantly get Django middleware structure, best practices, usage examples
 ```
 
@@ -133,7 +137,7 @@ patterns = [
 ]
 
 # Usage
-result = yata detect_patterns --file app/services.py
+result = magatama detect_patterns --file app/services.py
 # → "Singleton pattern detected in DatabaseConnection (confidence: 0.95)"
 ```
 
@@ -143,7 +147,7 @@ result = yata detect_patterns --file app/services.py
 
 ```python
 # YATA Quality Analysis Tool
-result = yata analyze_quality --entity "UserService"
+result = magatama analyze_quality --entity "UserService"
 
 # Output Example
 {
@@ -164,7 +168,7 @@ Track **code evolution**:
 
 ```python
 # Identify frequently changed files
-hotspots = yata find_hotspots --repo ./my-project
+hotspots = magatama find_hotspots --repo ./my-project
 
 # Output Example
 [
@@ -180,7 +184,7 @@ hotspots = yata find_hotspots --repo ./my-project
 
 ```python
 # Django 4.0 → 4.2 compatibility check
-result = yata check_api_compatibility \
+result = magatama check_api_compatibility \
     --framework django \
     --from_version 4.0 \
     --to_version 4.2 \
@@ -205,7 +209,7 @@ result = yata check_api_compatibility \
 
 ```python
 # Discover semantically similar code, not just keyword search
-results = yata hybrid_search \
+results = magatama hybrid_search \
     --query "user authentication" \
     --keyword_weight 0.4 \
     --semantic_weight 0.6
@@ -219,7 +223,7 @@ results = yata hybrid_search \
 
 ```python
 # Endpoint implementation guidance for FastAPI
-guidance = yata get_coding_guidance \
+guidance = magatama get_coding_guidance \
     --framework fastapi \
     --task "create REST endpoint"
 
@@ -248,7 +252,7 @@ async def create_user(
 
 ```python
 # Get function call graph
-call_graph = yata get_call_graph --function "process_order"
+call_graph = magatama get_call_graph --function "process_order"
 
 # Output: Caller/callee relationship graph
 # process_order
@@ -308,9 +312,9 @@ call_graph = yata get_call_graph --function "process_order"
 // claude_desktop_config.json
 {
   "mcpServers": {
-    "yata": {
+    "magatama": {
       "command": "uv",
-      "args": ["run", "yata", "serve"]
+      "args": ["run", "magatama", "serve"]
     }
   }
 }
@@ -563,8 +567,8 @@ Total: 15 minutes
 ```bash
 # Try YATA now
 git clone https://github.com/nahisaho/YATA.git
-cd yata && uv sync --all-packages
-yata serve
+cd magatama && uv sync --all-packages
+magatama serve
 ```
 
 ---

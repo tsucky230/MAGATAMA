@@ -24,7 +24,7 @@
 │ User │          │ CLI  │          │IndexService│          │ParserPort  │          │StoragePort│
 └──┬───┘          └──┬───┘          └─────┬──────┘          └─────┬──────┘          └────┬────┘
    │                 │                    │                       │                      │
-   │ yata index ./lib│                    │                       │                      │
+   │ magatama index ./lib│                    │                       │                      │
    │────────────────>│                    │                       │                      │
    │                 │                    │                       │                      │
    │                 │ index_library(path)│                       │                      │
@@ -66,7 +66,7 @@
 │ User │     │ CLI  │     │IndexService│     │GitHubClient│     │ParserPort  │     │StoragePort│
 └──┬───┘     └──┬───┘     └─────┬──────┘     └─────┬──────┘     └─────┬──────┘     └────┬────┘
    │            │               │                  │                  │                  │
-   │ yata index │               │                  │                  │                  │
+   │ magatama index │               │                  │                  │                  │
    │ github.com/│               │                  │                  │                  │
    │ psf/requests               │                  │                  │                  │
    │───────────>│               │                  │                  │                  │
@@ -390,7 +390,7 @@
       │                 │                │                  │     None           │
       │                 │                │                  │<───────────────────│
       │                 │                │                  │                    │
-      │                 │                │ YataError(1001)  │                    │
+      │                 │                │ MagatamaError(1001)  │                    │
       │                 │                │<─────────────────│                    │
       │                 │                │                  │                    │
       │                 │                │ raise McpError(  │                    │

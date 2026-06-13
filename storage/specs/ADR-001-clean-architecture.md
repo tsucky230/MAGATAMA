@@ -116,7 +116,7 @@ Presentation → Business → Data Access
 ### Directory Structure
 
 ```
-src/yata/
+src/magatama/
 ├── core/                  # Domain Layer
 │   ├── entities.py
 │   ├── relations.py
@@ -146,7 +146,7 @@ src/yata/
 # main.py or server.py
 def create_app() -> MCPApp:
     # Infrastructure
-    storage = SQLiteStorage(db_path="~/.yata/db.sqlite")
+    storage = SQLiteStorage(db_path="~/.magatama/db.sqlite")
     parser_registry = ParserRegistry()
     parser_registry.register(PythonParser())
     parser_registry.register(TypeScriptParser())

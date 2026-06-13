@@ -7,6 +7,10 @@ updated_at: '2026-01-01'
 
 # YATA MCP Server Performance Evaluation Report
 
+> **Note**: This report evaluates the upstream **YATA (八咫)** project. The figures shown are
+> measured on YATA and are **not** specific to [MAGATAMA](https://github.com/tsucky230/MAGATAMA),
+> the fork. MAGATAMA builds on YATA and adds the comP Bridge.
+
 ## Introduction
 
 This article reports the performance evaluation of **YATA (八咫) MCP Server** conducted through a virtual project using the **MUSUBI (Ultimate Specification Driven Development)** framework.
@@ -622,7 +626,7 @@ flowchart TD
 - [MUSUBI GitHub Repository](https://github.com/nahisaho/musubi)
 - [CodeGraph MCP Server](https://github.com/nahisaho/CodeGraphMCPServer)
 - [Model Context Protocol](https://modelcontextprotocol.io/)
-- [YATA vs Context7 Detailed Comparison](YATA_vs_Context7.md)
+- [YATA vs Context7 Detailed Comparison](MAGATAMA_vs_Context7.md)
 
 ---
 

@@ -82,7 +82,7 @@ git commit -m "refactor(REQ-KGC-001): extract parser interface"
 ```python
 # tests/unit/core/test_entities.py
 import pytest
-from yata.core.entities import Entity, EntityKind
+from magatama.core.entities import Entity, EntityKind
 
 class TestEntity:
     """REQ-KGC-001: エンティティ抽出"""
@@ -115,8 +115,8 @@ class TestEntity:
 # tests/unit/application/test_library_service.py
 import pytest
 from unittest.mock import Mock
-from yata.application.library_service import LibraryService
-from yata.application.ports import StoragePort
+from magatama.application.library_service import LibraryService
+from magatama.application.ports import StoragePort
 
 class TestLibraryService:
     """REQ-MCP-002: ライブラリ検索"""
@@ -161,8 +161,8 @@ class TestLibraryService:
 import pytest
 import tempfile
 from pathlib import Path
-from yata.infrastructure.storage.sqlite import SQLiteStorage
-from yata.core.graph import KnowledgeGraph
+from magatama.infrastructure.storage.sqlite import SQLiteStorage
+from magatama.core.graph import KnowledgeGraph
 
 class TestSQLiteStorage:
     """REQ-KGC-003: グラフストレージ"""
@@ -197,7 +197,7 @@ class TestSQLiteStorage:
 ```python
 # tests/integration/parsers/test_python_parser.py
 import pytest
-from yata.infrastructure.parsers.python import PythonParser
+from magatama.infrastructure.parsers.python import PythonParser
 
 class TestPythonParser:
     """REQ-LANG-001: Python対応"""
@@ -242,7 +242,7 @@ def standalone_function(x: int, y: int) -> int:
 # tests/integration/github/test_github_client.py
 import pytest
 import os
-from yata.infrastructure.github.client import GitHubClient
+from magatama.infrastructure.github.client import GitHubClient
 
 # GitHub APIテストはCI環境でのみ実行（レートリミット考慮）
 @pytest.mark.skipif(
@@ -298,7 +298,7 @@ class TestMCPIntegration:
     def mcp_server(self):
         """実MCPサーバープロセス"""
         proc = subprocess.Popen(
-            ["python", "-m", "yata", "serve", "--transport", "stdio"],
+            ["python", "-m", "magatama", "serve", "--transport", "stdio"],
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
@@ -423,7 +423,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Run unit tests
-        run: pytest tests/unit -v --cov=yata
+        run: pytest tests/unit -v --cov=magatama
   
   integration:
     runs-on: ubuntu-latest

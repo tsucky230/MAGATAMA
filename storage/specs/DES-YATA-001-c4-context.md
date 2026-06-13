@@ -143,7 +143,7 @@ AI Developer                AI Coding Tool              YATA
 ```
 Library Author               YATA CLI                 GitHub / Local FS
      │                          │                           │
-     │ 1. yata index <path>     │                           │
+     │ 1. magatama index <path>     │                           │
      │─────────────────────────►│                           │
      │                          │                           │
      │                          │ 2. ソースコード取得       │

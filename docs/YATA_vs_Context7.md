@@ -7,6 +7,10 @@ updated_at: '2026-01-01'
 
 # YATA MCP Server vs Context7 - AIコーディング支援の次世代へ
 
+> **注記**: 本記事はフォーク元である **YATA（八咫）本体** と Context7 を比較したものです。
+> 記載内容・数値は YATA の評価に基づきます。フォークである [MAGATAMA](https://github.com/tsucky230/MAGATAMA)
+> は YATA の機能を継承しつつ comP Bridge を追加していますが、本比較は MAGATAMA 固有の再測定ではありません。
+
 ## はじめに
 
 AIコーディング支援ツールの進化が加速する中、**MCP（Model Context Protocol）** を活用したコンテキスト提供サーバーが注目を集めています。
@@ -60,10 +64,10 @@ YATA は **完全ローカル実行** の知識グラフベースMCPサーバー
 ```bash
 # YATAのセットアップ
 git clone https://github.com/nahisaho/YATA.git
-cd yata && uv sync --all-packages
+cd magatama && uv sync --all-packages
 
 # MCPサーバー起動
-yata serve
+magatama serve
 ```
 
 ## 🏆 YATAの優位性
@@ -109,7 +113,7 @@ YATAは主要フレームワークの構造を**事前学習済み**：
 
 ```python
 # フレームワーク知識の活用例
-yata search_framework --framework django --query "middleware"
+magatama search_framework --framework django --query "middleware"
 # → Django middlewareの構造、ベストプラクティス、使用例を即座に取得
 ```
 
@@ -133,7 +137,7 @@ patterns = [
 ]
 
 # 使用例
-result = yata detect_patterns --file app/services.py
+result = magatama detect_patterns --file app/services.py
 # → "Singleton pattern detected in DatabaseConnection (confidence: 0.95)"
 ```
 
@@ -143,7 +147,7 @@ Context7にはない**定量的品質分析**：
 
 ```python
 # YATA品質分析ツール
-result = yata analyze_quality --entity "UserService"
+result = magatama analyze_quality --entity "UserService"
 
 # 出力例
 {
@@ -164,7 +168,7 @@ result = yata analyze_quality --entity "UserService"
 
 ```python
 # 変更頻度の高いファイルを特定
-hotspots = yata find_hotspots --repo ./my-project
+hotspots = magatama find_hotspots --repo ./my-project
 
 # 出力例
 [
@@ -180,7 +184,7 @@ hotspots = yata find_hotspots --repo ./my-project
 
 ```python
 # Django 4.0 → 4.2 互換性チェック
-result = yata check_api_compatibility \
+result = magatama check_api_compatibility \
     --framework django \
     --from_version 4.0 \
     --to_version 4.2 \
@@ -205,7 +209,7 @@ result = yata check_api_compatibility \
 
 ```python
 # 従来のキーワード検索だけでなく、意味的に類似したコードも発見
-results = yata hybrid_search \
+results = magatama hybrid_search \
     --query "user authentication" \
     --keyword_weight 0.4 \
     --semantic_weight 0.6
@@ -219,7 +223,7 @@ results = yata hybrid_search \
 
 ```python
 # FastAPIでのエンドポイント実装ガイダンス
-guidance = yata get_coding_guidance \
+guidance = magatama get_coding_guidance \
     --framework fastapi \
     --task "create REST endpoint"
 
@@ -248,7 +252,7 @@ async def create_user(
 
 ```python
 # 関数の呼び出しグラフを取得
-call_graph = yata get_call_graph --function "process_order"
+call_graph = magatama get_call_graph --function "process_order"
 
 # 出力: 呼び出し元・呼び出し先の関係性グラフ
 # process_order
@@ -308,9 +312,9 @@ call_graph = yata get_call_graph --function "process_order"
 // claude_desktop_config.json
 {
   "mcpServers": {
-    "yata": {
+    "magatama": {
       "command": "uv",
-      "args": ["run", "yata", "serve"]
+      "args": ["run", "magatama", "serve"]
     }
   }
 }
@@ -563,8 +567,8 @@ def calculate_total(items, include_tax=True):  # 後方互換性を維持
 ```bash
 # 今すぐYATAを試す
 git clone https://github.com/nahisaho/YATA.git
-cd yata && uv sync --all-packages
-yata serve
+cd magatama && uv sync --all-packages
+magatama serve
 ```
 
 ---

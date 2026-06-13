@@ -177,7 +177,7 @@
 ## 5. ディレクトリ構造
 
 ```
-src/yata/
+src/magatama/
 ├── __init__.py
 ├── __main__.py              # CLI entry point
 ├── server.py                # MCP server main
@@ -258,9 +258,9 @@ src/yata/
 
 | URI | Description |
 |-----|-------------|
-| `yata://libraries` | 登録済みライブラリ一覧 |
-| `yata://entities/{id}` | エンティティ詳細 |
-| `yata://stats` | グラフ統計情報 |
+| `magatama://libraries` | 登録済みライブラリ一覧 |
+| `magatama://entities/{id}` | エンティティ詳細 |
+| `magatama://stats` | グラフ統計情報 |
 
 ### 6.3 MCP Prompts (4種)
 
@@ -275,11 +275,11 @@ src/yata/
 
 | Command | Options | Description |
 |---------|---------|-------------|
-| `yata index <path>` | --version, --tag, --branch, --token | ライブラリインデックス作成 |
-| `yata serve` | --port, --transport | MCPサーバー起動 |
-| `yata query <query>` | --format, --max-results | クエリ実行 |
-| `yata stats` | --library | 統計情報表示 |
-| `yata watch <path>` | --debounce | ファイル監視 |
+| `magatama index <path>` | --version, --tag, --branch, --token | ライブラリインデックス作成 |
+| `magatama serve` | --port, --transport | MCPサーバー起動 |
+| `magatama query <query>` | --format, --max-results | クエリ実行 |
+| `magatama stats` | --library | 統計情報表示 |
+| `magatama watch <path>` | --debounce | ファイル監視 |
 
 ---
 
@@ -334,17 +334,17 @@ class Library:
 
 設計フェーズ完了後、以下のフェーズに進みます：
 
-1. **タスク分解** (`#sdd-tasks yata`)
+1. **タスク分解** (`#sdd-tasks magatama`)
    - 設計をタスクに分解
    - 優先度と依存関係の定義
    - スプリント計画
 
-2. **実装** (`#sdd-implement yata`)
+2. **実装** (`#sdd-implement magatama`)
    - Test-First開発（Article III）
    - 段階的な機能実装
    - コードレビュー
 
-3. **検証** (`#sdd-validate yata`)
+3. **検証** (`#sdd-validate magatama`)
    - 憲法準拠チェック
    - 統合テスト
    - パフォーマンステスト

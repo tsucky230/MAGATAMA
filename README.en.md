@@ -10,17 +10,17 @@
 **MAGATAMA** is a fork of [YATA (八咫)](https://github.com/nahisaho/YATA) (by nahisaho, MIT License)
 that adds **direct integration with the [comP](https://github.com/tsucky230/comP) code indexer**.
 
-It inherits all 34 MCP tools from YATA and adds a **comP Bridge (2 tools)** that imports comP's
-`.comp/index.db` SQLite index into YATA's knowledge graph — no re-parsing required.
+MAGATAMA inherits the full MCP tool suite from YATA and adds a **comP Bridge (2 tools)** that imports
+comP's `.comp/index.db` SQLite index into the knowledge graph — no re-parsing required.
 
 ## What is the comP Bridge?
 
 [comP](https://github.com/tsucky230/comP) is a code indexer built as a VSCode extension + Rust daemon.
 It stores analysis results in `<workspace>/.comp/index.db` (SQLite, WAL mode).
 
-The MAGATAMA comP Bridge reads this SQLite database directly and converts it into YATA's NetworkX
-knowledge graph. This means **comP's pre-built index is immediately available to all YATA tools**
-such as `search_entities`, `hybrid_search`, and `analyze_impact`.
+The MAGATAMA comP Bridge reads this SQLite database directly and converts it into the NetworkX
+knowledge graph (inherited from YATA). This means **comP's pre-built index is immediately available
+to all MAGATAMA tools** such as `search_entities`, `hybrid_search`, and `analyze_impact`.
 
 ```text
 [comP Rust Daemon] ──writes──> .comp/index.db (SQLite, WAL mode)
@@ -66,22 +66,22 @@ uv sync --all-packages
 
 ```bash
 # Parse a file
-yata parse path/to/file.py
+magatama parse path/to/file.py
 
 # Parse a directory
-yata parse path/to/project --pattern "**/*.py" --pattern "**/*.ts"
+magatama parse path/to/project --pattern "**/*.py" --pattern "**/*.ts"
 
 # Start MCP server (stdio mode)
-yata serve
+magatama serve
 
 # Start MCP server (SSE mode)
-yata serve --transport sse --port 8080
+magatama serve --transport sse --port 8080
 
 # Display server info
-yata info
+magatama info
 
 # Search entities
-yata query "parse" --type function
+magatama query "parse" --type function
 ```
 
 ### Using with comP
@@ -90,7 +90,7 @@ yata query "parse" --type function
 # 1. Index your project with comP (runs automatically via VSCode + comP extension)
 
 # 2. Start MAGATAMA MCP server
-yata serve
+magatama serve
 ```
 
 Then from an MCP client (e.g., Claude Desktop):
@@ -102,7 +102,7 @@ get_external_graph_info(path="e:/dev/myproject")
 # Load the index into the knowledge graph
 read_external_graph(path="e:/dev/myproject")
 
-# Use any YATA tool on the indexed code
+# Use any MAGATAMA tool on the indexed code
 search_entities(query="MyClass")
 get_related_entities(entity_id="comp:myproject:n42")
 analyze_impact(entity_id="comp:myproject:n42")
@@ -117,9 +117,9 @@ analyze_impact(entity_id="comp:myproject:n42")
 ```json
 {
   "mcpServers": {
-    "yata": {
+    "magatama": {
       "command": "uv",
-      "args": ["run", "yata", "serve"]
+      "args": ["run", "magatama", "serve"]
     }
   }
 }
@@ -132,9 +132,9 @@ analyze_impact(entity_id="comp:myproject:n42")
 ```json
 {
   "mcpServers": {
-    "yata": {
+    "magatama": {
       "command": "uv",
-      "args": ["run", "yata", "serve"]
+      "args": ["run", "magatama", "serve"]
     }
   }
 }
@@ -146,7 +146,7 @@ analyze_impact(entity_id="comp:myproject:n42")
 
 | Tool | Description |
 |------|-------------|
-| `read_external_graph` | Load a comP index into YATA's knowledge graph |
+| `read_external_graph` | Load a comP index into MAGATAMA's knowledge graph |
 | `get_external_graph_info` | Inspect comP index stats without loading |
 
 `read_external_graph` parameters:
@@ -232,14 +232,14 @@ analyze_impact(entity_id="comp:myproject:n42")
 
 | URI | Description |
 |-----|-------------|
-| `yata://graph/stats` | Knowledge graph statistics |
+| `magatama://graph/stats` | Knowledge graph statistics |
 
 ## 💻 CLI Commands
 
 ### parse — Source Code Analysis
 
 ```bash
-yata parse <PATH> [OPTIONS]
+magatama parse <PATH> [OPTIONS]
 ```
 
 | Option | Description |
@@ -251,7 +251,7 @@ yata parse <PATH> [OPTIONS]
 ### query — Entity Search
 
 ```bash
-yata query <QUERY> [OPTIONS]
+magatama query <QUERY> [OPTIONS]
 ```
 
 | Option | Description |
@@ -264,7 +264,7 @@ yata query <QUERY> [OPTIONS]
 ### serve — Start MCP Server
 
 ```bash
-yata serve [OPTIONS]
+magatama serve [OPTIONS]
 ```
 
 | Option | Description |
@@ -387,7 +387,7 @@ uv sync --all-packages
 uv run pytest
 
 # Run tests with coverage
-uv run pytest --cov=yata_core --cov=yata_mcp
+uv run pytest --cov=magatama_core --cov=magatama_mcp
 
 # Run linters
 uv run ruff check .
@@ -399,14 +399,14 @@ uv run mypy packages/
 ```text
 MAGATAMA/
 ├── packages/
-│   ├── yata-core/              # Knowledge graph engine (library)
-│   │   ├── src/yata_core/
+│   ├── magatama-core/              # Knowledge graph engine (library)
+│   │   ├── src/magatama_core/
 │   │   │   ├── domain/         # Domain layer (entities, value objects)
 │   │   │   ├── application/    # Application layer (use cases)
 │   │   │   └── infrastructure/ # Infrastructure (parsers, storage, comP Bridge)
 │   │   └── tests/
-│   └── yata-mcp/               # MCP Server (application)
-│       ├── src/yata_mcp/
+│   └── magatama-mcp/               # MCP Server (application)
+│       ├── src/magatama_mcp/
 │       │   ├── server/         # MCP implementation (FastMCP)
 │       │   └── cli/            # CLI implementation (Click)
 │       └── tests/
@@ -425,7 +425,7 @@ Built on Clean Architecture:
 
 ## 📊 Test Status
 
-- **Tests**: 794 (694 yata-core + 100 yata-mcp)
+- **Tests**: 794 (694 magatama-core + 100 magatama-mcp)
 - **E2E Tests**: 42 (18 integration + 24 security)
 - **Coverage**: 76%
 - **Languages**: 24 parsers

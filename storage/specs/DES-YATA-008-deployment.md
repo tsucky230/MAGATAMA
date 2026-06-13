@@ -56,7 +56,7 @@
 │  │                              Local Storage                                   │  │
 │  │                                                                              │  │
 │  │  ┌────────────────┐    ┌────────────────┐    ┌────────────────┐            │  │
-│  │  │  ~/.yata/      │    │  ~/.yata/      │    │  ~/.yata/      │            │  │
+│  │  │  ~/.magatama/      │    │  ~/.magatama/      │    │  ~/.magatama/      │            │  │
 │  │  │  db.sqlite     │    │  cache/repos/  │    │  config.toml   │            │  │
 │  │  │                │    │                │    │                │            │  │
 │  │  │  [SQLite DB]   │    │  [Git Clones]  │    │  [Settings]    │            │  │
@@ -88,9 +88,9 @@
 ```json
 {
   "mcpServers": {
-    "yata": {
+    "magatama": {
       "command": "python",
-      "args": ["-m", "yata", "serve"],
+      "args": ["-m", "magatama", "serve"],
       "env": {
         "GITHUB_TOKEN": "${GITHUB_TOKEN}"
       }
@@ -103,9 +103,9 @@
 ```json
 {
   "mcpServers": {
-    "yata": {
+    "magatama": {
       "command": "uv",
-      "args": ["run", "--with", "yata", "yata", "serve"],
+      "args": ["run", "--with", "magatama", "magatama", "serve"],
       "env": {
         "GITHUB_TOKEN": "${GITHUB_TOKEN}"
       }
@@ -121,9 +121,9 @@
 ```json
 {
   "servers": {
-    "yata": {
+    "magatama": {
       "command": "python",
-      "args": ["-m", "yata", "serve"],
+      "args": ["-m", "magatama", "serve"],
       "env": {
         "GITHUB_TOKEN": "${env:GITHUB_TOKEN}"
       }
@@ -139,9 +139,9 @@
 ```json
 {
   "mcpServers": {
-    "yata": {
+    "magatama": {
       "command": "python",
-      "args": ["-m", "yata", "serve"],
+      "args": ["-m", "magatama", "serve"],
       "env": {
         "GITHUB_TOKEN": "${GITHUB_TOKEN}"
       }
@@ -157,9 +157,9 @@
 ```json
 {
   "mcpServers": {
-    "yata": {
+    "magatama": {
       "command": "python",
-      "args": ["-m", "yata", "serve"],
+      "args": ["-m", "magatama", "serve"],
       "env": {
         "GITHUB_TOKEN": "${GITHUB_TOKEN}"
       }
@@ -190,9 +190,9 @@
 
 **起動コマンド**:
 ```bash
-python -m yata serve
+python -m magatama serve
 # or
-yata serve
+magatama serve
 ```
 
 ### 4.2 SSE トランスポート（HTTP）
@@ -215,14 +215,14 @@ yata serve
 
 **起動コマンド**:
 ```bash
-yata serve --transport sse --port 8080
+magatama serve --transport sse --port 8080
 ```
 
 **クライアント設定（SSE）**:
 ```json
 {
   "mcpServers": {
-    "yata": {
+    "magatama": {
       "url": "http://127.0.0.1:8080/mcp/v1/sse"
     }
   }
@@ -237,7 +237,7 @@ yata serve --transport sse --port 8080
 
 ```bash
 # PyPIから（公開後）
-pip install yata
+pip install magatama
 
 # GitHubから
 pip install git+https://github.com/nahisaho/YATA.git
@@ -252,10 +252,10 @@ pip install -e ".[dev]"
 
 ```bash
 # uvx で直接実行
-uvx yata serve
+uvx magatama serve
 
 # プロジェクトに追加
-uv add yata
+uv add magatama
 ```
 
 ### 5.3 Docker（将来対応）
@@ -268,13 +268,13 @@ WORKDIR /app
 COPY . .
 RUN pip install .
 
-ENTRYPOINT ["python", "-m", "yata", "serve"]
+ENTRYPOINT ["python", "-m", "magatama", "serve"]
 ```
 
 ```bash
 # ビルド & 実行
-docker build -t yata .
-docker run -v ~/.yata:/root/.yata yata
+docker build -t magatama .
+docker run -v ~/.magatama:/root/.magatama magatama
 ```
 
 ---
@@ -284,7 +284,7 @@ docker run -v ~/.yata:/root/.yata yata
 ### 6.1 インストール後のファイル配置
 
 ```
-~/.yata/                          # YATA_HOME
+~/.magatama/                          # MAGATAMA_HOME
 ├── config.toml                   # 設定ファイル
 ├── db.sqlite                     # メインDB
 ├── cache/                        # キャッシュ
@@ -293,7 +293,7 @@ docker run -v ~/.yata:/root/.yata yata
 │       ├── tiangolo_fastapi/     # github.com/tiangolo/fastapi
 │       └── ...
 └── logs/                         # ログファイル
-    └── yata.log
+    └── magatama.log
 
 ~/Library/Application Support/Claude/   # macOS
 ├── claude_desktop_config.json          # Claude Desktop設定
@@ -309,9 +309,9 @@ docker run -v ~/.yata:/root/.yata yata
 
 | 変数 | 説明 | デフォルト |
 |------|------|------------|
-| `YATA_HOME` | YATAホームディレクトリ | `~/.yata` |
+| `MAGATAMA_HOME` | YATAホームディレクトリ | `~/.magatama` |
 | `GITHUB_TOKEN` | GitHub Personal Access Token | (none) |
-| `YATA_LOG_LEVEL` | ログレベル | `INFO` |
+| `MAGATAMA_LOG_LEVEL` | ログレベル | `INFO` |
 
 ---
 
@@ -368,7 +368,7 @@ no_proxy = ["localhost", "127.0.0.1"]
 
 ### 8.2 ローカル実行の保証
 
-- データは `~/.yata/` 内にのみ保存
+- データは `~/.magatama/` 内にのみ保存
 - テレメトリ/使用状況データの外部送信なし
 - GitHub 連携は明示的なコマンド実行時のみ
 

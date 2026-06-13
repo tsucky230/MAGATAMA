@@ -95,7 +95,7 @@
 │  │  │  - キャッシュ            │         │  - TypeScript Parser     │             │    │
 │  │  │  - バージョン管理        │         │  - JavaScript Parser     │             │    │
 │  │  │                          │         │  - Rust Parser           │             │    │
-│  │  │  File: ~/.yata/db.sqlite │         │  - Go Parser             │             │    │
+│  │  │  File: ~/.magatama/db.sqlite │         │  - Go Parser             │             │    │
 │  │  │                          │         │                          │             │    │
 │  │  └──────────────────────────┘         └──────────────────────────┘             │    │
 │  │                                                                                  │    │
@@ -137,7 +137,7 @@
 | **名前** | MCP Server |
 | **技術** | Python + mcp ^1.0.0 |
 | **責務** | MCPプロトコルを介してAI Coding Toolにコンテキストを提供 |
-| **エントリポイント** | `src/yata/server.py` |
+| **エントリポイント** | `src/magatama/server.py` |
 
 **提供機能**:
 
@@ -154,17 +154,17 @@
 | **名前** | CLI Application |
 | **技術** | Python + click ^8.1.0 |
 | **責務** | コマンドラインからのYATA操作 |
-| **エントリポイント** | `src/yata/__main__.py` |
+| **エントリポイント** | `src/magatama/__main__.py` |
 
 **提供コマンド**:
 
 | コマンド | 説明 | 関連要件 |
 |----------|------|----------|
-| `yata index <path>` | ライブラリインデックス作成 | REQ-CLI-001 |
-| `yata serve` | MCPサーバー起動 | REQ-CLI-002 |
-| `yata query <query>` | クエリ実行 | REQ-CLI-003 |
-| `yata stats` | 統計情報表示 | REQ-CLI-004 |
-| `yata watch <path>` | ファイル監視 | REQ-CLI-006 |
+| `magatama index <path>` | ライブラリインデックス作成 | REQ-CLI-001 |
+| `magatama serve` | MCPサーバー起動 | REQ-CLI-002 |
+| `magatama query <query>` | クエリ実行 | REQ-CLI-003 |
+| `magatama stats` | 統計情報表示 | REQ-CLI-004 |
+| `magatama watch <path>` | ファイル監視 | REQ-CLI-006 |
 
 ---
 
@@ -176,7 +176,7 @@
 |------|-----|
 | **名前** | Library Service |
 | **責務** | ライブラリ管理（登録、検索、削除） |
-| **場所** | `src/yata/application/library_service.py` |
+| **場所** | `src/magatama/application/library_service.py` |
 
 **メソッド**:
 - `resolve_library(query: str) -> list[Library]`
@@ -190,7 +190,7 @@
 |------|-----|
 | **名前** | Query Service |
 | **責務** | 知識グラフに対するクエリ実行 |
-| **場所** | `src/yata/application/query_service.py` |
+| **場所** | `src/magatama/application/query_service.py` |
 
 **メソッド**:
 - `query_docs(library_id: str, query: str, version: str) -> list[Doc]`
@@ -207,7 +207,7 @@
 |------|-----|
 | **名前** | Index Service |
 | **責務** | ライブラリのインデックス作成・更新 |
-| **場所** | `src/yata/application/index_service.py` |
+| **場所** | `src/magatama/application/index_service.py` |
 
 **メソッド**:
 - `index_library(path: str, name: str, version: str) -> IndexResult`
@@ -225,7 +225,7 @@
 | **名前** | Knowledge Graph Engine |
 | **技術** | Python + NetworkX ^3.2.0 |
 | **責務** | 知識グラフのコアロジック |
-| **場所** | `src/yata/core/` |
+| **場所** | `src/magatama/core/` |
 
 **モジュール構成**:
 
@@ -247,8 +247,8 @@
 | **名前** | Storage Adapter |
 | **技術** | SQLite (stdlib) |
 | **責務** | 知識グラフの永続化 |
-| **場所** | `src/yata/infrastructure/storage/` |
-| **データファイル** | `~/.yata/db.sqlite` |
+| **場所** | `src/magatama/infrastructure/storage/` |
+| **データファイル** | `~/.magatama/db.sqlite` |
 
 **機能**:
 - グラフデータの保存・読み込み
@@ -262,7 +262,7 @@
 | **名前** | Parser Adapter |
 | **技術** | Tree-sitter ^0.21.0 |
 | **責務** | ソースコードのAST解析 |
-| **場所** | `src/yata/infrastructure/parsers/` |
+| **場所** | `src/magatama/infrastructure/parsers/` |
 
 **サポート言語**:
 
@@ -281,7 +281,7 @@
 | **名前** | GitHub Adapter |
 | **技術** | httpx ^0.25.0, subprocess (git) |
 | **責務** | GitHubリポジトリの取得 |
-| **場所** | `src/yata/infrastructure/github/` |
+| **場所** | `src/magatama/infrastructure/github/` |
 
 **機能**:
 - `git clone --depth 1` による浅いクローン
@@ -296,7 +296,7 @@
 | **名前** | FileSystem Adapter |
 | **技術** | Python stdlib (os, pathlib, watchdog) |
 | **責務** | ローカルファイルシステム操作 |
-| **場所** | `src/yata/infrastructure/filesystem/` |
+| **場所** | `src/magatama/infrastructure/filesystem/` |
 
 **機能**:
 - ファイル/ディレクトリ走査

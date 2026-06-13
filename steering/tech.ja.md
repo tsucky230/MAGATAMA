@@ -100,8 +100,8 @@ YATAは、AI Codingを支援するMCP Serverです。CodeGraphMCPServerの技術
 ## Project Structure
 
 ```
-yata/
-├── src/yata/
+magatama/
+├── src/magatama/
 │   ├── __init__.py
 │   ├── __main__.py          # CLI entry point
 │   ├── server.py            # MCP server
@@ -169,13 +169,13 @@ pip install -e ".[dev]"
 
 | 変数 | デフォルト | 説明 |
 |------|-----------|------|
-| YATA_DATA_DIR | ~/.yata | データディレクトリ |
-| YATA_LOG_LEVEL | INFO | ログレベル |
-| YATA_MAX_FILE_SIZE | 10485760 | 最大ファイルサイズ(bytes) |
+| MAGATAMA_DATA_DIR | ~/.magatama | データディレクトリ |
+| MAGATAMA_LOG_LEVEL | INFO | ログレベル |
+| MAGATAMA_MAX_FILE_SIZE | 10485760 | 最大ファイルサイズ(bytes) |
 
 ### Configuration File
 
-`~/.yata/config.toml`:
+`~/.magatama/config.toml`:
 
 ```toml
 [server]
@@ -214,7 +214,7 @@ FROM python:3.11-slim
 WORKDIR /app
 COPY . .
 RUN pip install -e .
-ENTRYPOINT ["yata", "serve"]
+ENTRYPOINT ["magatama", "serve"]
 ```
 
 ---

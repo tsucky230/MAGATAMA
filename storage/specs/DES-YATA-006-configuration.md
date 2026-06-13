@@ -22,7 +22,7 @@ CLI Arguments  (最高優先)
      ↓
 Environment Variables
      ↓
-Config File (~/.yata/config.toml)
+Config File (~/.magatama/config.toml)
      ↓
 Default Values (最低優先)
 ```
@@ -35,25 +35,25 @@ Default Values (最低優先)
 
 | OS | Path |
 |----|------|
-| Linux/macOS | `~/.yata/config.toml` |
-| Windows | `%USERPROFILE%\.yata\config.toml` |
+| Linux/macOS | `~/.magatama/config.toml` |
+| Windows | `%USERPROFILE%\.magatama\config.toml` |
 
 ### 3.2 ディレクトリ構造
 
 ```
-~/.yata/
+~/.magatama/
 ├── config.toml          # 設定ファイル
 ├── db.sqlite            # メインDB
 ├── cache/               # キャッシュディレクトリ
 │   └── repos/           # クローンしたリポジトリ
 └── logs/                # ログファイル
-    └── yata.log
+    └── magatama.log
 ```
 
 ### 3.3 設定ファイルスキーマ
 
 ```toml
-# ~/.yata/config.toml
+# ~/.magatama/config.toml
 # YATA Configuration File
 
 #==============================================================================
@@ -67,7 +67,7 @@ log_level = "INFO"
 log_output = "console"
 
 # ログファイルパス（log_output = "file" or "both" の場合）
-log_file = "~/.yata/logs/yata.log"
+log_file = "~/.magatama/logs/magatama.log"
 
 # JSONフォーマットログ出力
 log_json = false
@@ -77,10 +77,10 @@ log_json = false
 #==============================================================================
 [storage]
 # SQLite データベースパス
-db_path = "~/.yata/db.sqlite"
+db_path = "~/.magatama/db.sqlite"
 
 # キャッシュディレクトリ
-cache_dir = "~/.yata/cache"
+cache_dir = "~/.magatama/cache"
 
 # グラフキャッシュサイズ（LRU、ライブラリ数）
 graph_cache_size = 10
@@ -200,25 +200,25 @@ min_community_size = 3
 
 | 環境変数 | 設定項目 | デフォルト |
 |----------|----------|------------|
-| `YATA_LOG_LEVEL` | general.log_level | INFO |
-| `YATA_LOG_OUTPUT` | general.log_output | console |
-| `YATA_LOG_FILE` | general.log_file | ~/.yata/logs/yata.log |
-| `YATA_LOG_JSON` | general.log_json | false |
-| `YATA_DB_PATH` | storage.db_path | ~/.yata/db.sqlite |
-| `YATA_CACHE_DIR` | storage.cache_dir | ~/.yata/cache |
-| `YATA_GRAPH_CACHE_SIZE` | storage.graph_cache_size | 10 |
-| `YATA_PARSER_TIMEOUT` | parser.timeout | 30 |
-| `YATA_MAX_FILE_SIZE` | parser.max_file_size | 10 |
-| `YATA_MCP_TRANSPORT` | mcp.transport | stdio |
-| `YATA_MCP_PORT` | mcp.sse_port | 8080 |
-| `YATA_MCP_HOST` | mcp.sse_host | 127.0.0.1 |
+| `MAGATAMA_LOG_LEVEL` | general.log_level | INFO |
+| `MAGATAMA_LOG_OUTPUT` | general.log_output | console |
+| `MAGATAMA_LOG_FILE` | general.log_file | ~/.magatama/logs/magatama.log |
+| `MAGATAMA_LOG_JSON` | general.log_json | false |
+| `MAGATAMA_DB_PATH` | storage.db_path | ~/.magatama/db.sqlite |
+| `MAGATAMA_CACHE_DIR` | storage.cache_dir | ~/.magatama/cache |
+| `MAGATAMA_GRAPH_CACHE_SIZE` | storage.graph_cache_size | 10 |
+| `MAGATAMA_PARSER_TIMEOUT` | parser.timeout | 30 |
+| `MAGATAMA_MAX_FILE_SIZE` | parser.max_file_size | 10 |
+| `MAGATAMA_MCP_TRANSPORT` | mcp.transport | stdio |
+| `MAGATAMA_MCP_PORT` | mcp.sse_port | 8080 |
+| `MAGATAMA_MCP_HOST` | mcp.sse_host | 127.0.0.1 |
 | `GITHUB_TOKEN` | github.token | (none) |
-| `YATA_CLONE_DEPTH` | github.clone_depth | 1 |
+| `MAGATAMA_CLONE_DEPTH` | github.clone_depth | 1 |
 
 ### 4.2 環境変数の命名規則
 
 ```
-YATA_<SECTION>_<KEY>
+MAGATAMA_<SECTION>_<KEY>
 ```
 
 - セクション名とキー名はアンダースコアで連結
@@ -231,10 +231,10 @@ YATA_<SECTION>_<KEY>
 ### 5.1 グローバルオプション
 
 ```bash
-yata [OPTIONS] COMMAND [ARGS]...
+magatama [OPTIONS] COMMAND [ARGS]...
 
 Options:
-  --config PATH        設定ファイルパス [default: ~/.yata/config.toml]
+  --config PATH        設定ファイルパス [default: ~/.magatama/config.toml]
   --log-level LEVEL    ログレベル [DEBUG|INFO|WARNING|ERROR]
   --log-json           JSON形式でログ出力
   -v, --verbose        詳細出力（--log-level DEBUG と同等）
@@ -247,7 +247,7 @@ Options:
 
 ```bash
 # index コマンド
-yata index <PATH> [OPTIONS]
+magatama index <PATH> [OPTIONS]
   --name TEXT          ライブラリ名
   --version TEXT       バージョン文字列
   --tag TEXT           Gitタグ（GitHub URL時）
@@ -256,19 +256,19 @@ yata index <PATH> [OPTIONS]
   --timeout INT        パースタイムアウト秒
 
 # serve コマンド
-yata serve [OPTIONS]
+magatama serve [OPTIONS]
   --transport TEXT     トランスポート [stdio|sse]
   --port INT           SSEポート
   --host TEXT          SSEホスト
 
 # query コマンド
-yata query <QUERY> [OPTIONS]
+magatama query <QUERY> [OPTIONS]
   --library TEXT       対象ライブラリID
   --format TEXT        出力形式 [json|text|table]
   --max-results INT    最大結果数
 
 # watch コマンド
-yata watch <PATH> [OPTIONS]
+magatama watch <PATH> [OPTIONS]
   --debounce INT       デバウンス秒数
 ```
 
@@ -279,7 +279,7 @@ yata watch <PATH> [OPTIONS]
 ### 6.1 設定モデル
 
 ```python
-# src/yata/config.py
+# src/magatama/config.py
 from __future__ import annotations
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -291,13 +291,13 @@ import tomllib
 class GeneralConfig:
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR"] = "INFO"
     log_output: Literal["console", "file", "both"] = "console"
-    log_file: Path = field(default_factory=lambda: Path.home() / ".yata/logs/yata.log")
+    log_file: Path = field(default_factory=lambda: Path.home() / ".magatama/logs/magatama.log")
     log_json: bool = False
 
 @dataclass
 class StorageConfig:
-    db_path: Path = field(default_factory=lambda: Path.home() / ".yata/db.sqlite")
-    cache_dir: Path = field(default_factory=lambda: Path.home() / ".yata/cache")
+    db_path: Path = field(default_factory=lambda: Path.home() / ".magatama/db.sqlite")
+    cache_dir: Path = field(default_factory=lambda: Path.home() / ".magatama/cache")
     graph_cache_size: int = 10
     max_libraries: int = 100
 
@@ -351,7 +351,7 @@ class GraphRAGConfig:
     min_community_size: int = 3
 
 @dataclass
-class YataConfig:
+class MagatamaConfig:
     general: GeneralConfig = field(default_factory=GeneralConfig)
     storage: StorageConfig = field(default_factory=StorageConfig)
     parser: ParserConfig = field(default_factory=ParserConfig)
@@ -364,13 +364,13 @@ class YataConfig:
 ### 6.2 設定ローダー
 
 ```python
-# src/yata/config.py (continued)
+# src/magatama/config.py (continued)
 from typing import Any
 
 def load_config(
     config_path: Path | None = None,
     cli_overrides: dict[str, Any] | None = None,
-) -> YataConfig:
+) -> MagatamaConfig:
     """
     Load configuration with priority:
     1. CLI arguments (cli_overrides)
@@ -378,11 +378,11 @@ def load_config(
     3. Config file
     4. Defaults
     """
-    config = YataConfig()
+    config = MagatamaConfig()
     
     # Load from file
     if config_path is None:
-        config_path = Path.home() / ".yata" / "config.toml"
+        config_path = Path.home() / ".magatama" / "config.toml"
     
     if config_path.exists():
         with open(config_path, "rb") as f:
@@ -401,22 +401,22 @@ def load_config(
     
     return config
 
-def _apply_env_vars(config: YataConfig) -> YataConfig:
+def _apply_env_vars(config: MagatamaConfig) -> MagatamaConfig:
     """Apply environment variable overrides"""
     env_mapping = {
-        "YATA_LOG_LEVEL": ("general", "log_level"),
-        "YATA_LOG_OUTPUT": ("general", "log_output"),
-        "YATA_LOG_JSON": ("general", "log_json", _parse_bool),
-        "YATA_DB_PATH": ("storage", "db_path", Path),
-        "YATA_CACHE_DIR": ("storage", "cache_dir", Path),
-        "YATA_GRAPH_CACHE_SIZE": ("storage", "graph_cache_size", int),
-        "YATA_PARSER_TIMEOUT": ("parser", "timeout", int),
-        "YATA_MAX_FILE_SIZE": ("parser", "max_file_size", int),
-        "YATA_MCP_TRANSPORT": ("mcp", "transport"),
-        "YATA_MCP_PORT": ("mcp", "sse_port", int),
-        "YATA_MCP_HOST": ("mcp", "sse_host"),
+        "MAGATAMA_LOG_LEVEL": ("general", "log_level"),
+        "MAGATAMA_LOG_OUTPUT": ("general", "log_output"),
+        "MAGATAMA_LOG_JSON": ("general", "log_json", _parse_bool),
+        "MAGATAMA_DB_PATH": ("storage", "db_path", Path),
+        "MAGATAMA_CACHE_DIR": ("storage", "cache_dir", Path),
+        "MAGATAMA_GRAPH_CACHE_SIZE": ("storage", "graph_cache_size", int),
+        "MAGATAMA_PARSER_TIMEOUT": ("parser", "timeout", int),
+        "MAGATAMA_MAX_FILE_SIZE": ("parser", "max_file_size", int),
+        "MAGATAMA_MCP_TRANSPORT": ("mcp", "transport"),
+        "MAGATAMA_MCP_PORT": ("mcp", "sse_port", int),
+        "MAGATAMA_MCP_HOST": ("mcp", "sse_host"),
         "GITHUB_TOKEN": ("github", "token"),
-        "YATA_CLONE_DEPTH": ("github", "clone_depth", int),
+        "MAGATAMA_CLONE_DEPTH": ("github", "clone_depth", int),
     }
     
     for env_var, mapping in env_mapping.items():
@@ -431,7 +431,7 @@ def _apply_env_vars(config: YataConfig) -> YataConfig:
 def _parse_bool(value: str) -> bool:
     return value.lower() in ("true", "1", "yes", "on")
 
-def _ensure_directories(config: YataConfig) -> None:
+def _ensure_directories(config: MagatamaConfig) -> None:
     """Ensure required directories exist"""
     config.storage.db_path.parent.mkdir(parents=True, exist_ok=True)
     config.storage.cache_dir.mkdir(parents=True, exist_ok=True)
@@ -442,10 +442,10 @@ def _ensure_directories(config: YataConfig) -> None:
 ### 6.3 CLI統合（click）
 
 ```python
-# src/yata/cli/commands.py
+# src/magatama/cli/commands.py
 import click
 from pathlib import Path
-from yata.config import load_config, YataConfig
+from magatama.config import load_config, MagatamaConfig
 
 @click.group()
 @click.option("--config", type=click.Path(path_type=Path), help="Config file path")
@@ -476,7 +476,7 @@ def cli(ctx, config, log_level, log_json, verbose, quiet):
 @click.option("--version", help="Version string")
 @click.option("--token", help="GitHub token", envvar="GITHUB_TOKEN")
 @click.pass_obj
-def index(config: YataConfig, path, name, version, token):
+def index(config: MagatamaConfig, path, name, version, token):
     """Index a library from local path or GitHub URL"""
     if token:
         config.github.token = token
@@ -488,12 +488,12 @@ def index(config: YataConfig, path, name, version, token):
 ## 7. 初期設定ウィザード
 
 ```bash
-$ yata init
+$ magatama init
 
 YATA 初期設定
 ============
 
-設定ファイルの場所: ~/.yata/config.toml
+設定ファイルの場所: ~/.magatama/config.toml
 
 [1/4] ログレベルを選択してください:
   1. DEBUG (詳細)
@@ -503,7 +503,7 @@ YATA 初期設定
 > 2
 
 [2/4] データベースの場所:
-  [デフォルト: ~/.yata/db.sqlite]
+  [デフォルト: ~/.magatama/db.sqlite]
 > 
 
 [3/4] GitHub Token を設定しますか？ (公開リポジトリのみなら不要)
@@ -515,7 +515,7 @@ YATA 初期設定
   [デフォルト: すべて]
 > python,typescript
 
-設定を保存しました: ~/.yata/config.toml
+設定を保存しました: ~/.magatama/config.toml
 ```
 
 ---

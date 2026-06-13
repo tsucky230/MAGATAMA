@@ -388,7 +388,7 @@
 │  │  │  Implements: StoragePort                                                 │  │  │
 │  │  │                                                                          │  │  │
 │  │  │  Attributes:                                                             │  │  │
-│  │  │    - db_path: str (default: ~/.yata/db.sqlite)                           │  │  │
+│  │  │    - db_path: str (default: ~/.magatama/db.sqlite)                           │  │  │
 │  │  │    - connection: sqlite3.Connection                                      │  │  │
 │  │  │                                                                          │  │  │
 │  │  │  Tables:                                                                 │  │  │
@@ -440,7 +440,7 @@
 │  │  │    - token: str | None (from GITHUB_TOKEN env)                           │  │  │
 │  │  │    - http_client: httpx.AsyncClient                                      │  │  │
 │  │  │    - rate_limit_remaining: int                                           │  │  │
-│  │  │    - cache_dir: str (default: ~/.yata/repos/)                            │  │  │
+│  │  │    - cache_dir: str (default: ~/.magatama/repos/)                            │  │  │
 │  │  │                                                                          │  │  │
 │  │  │  Methods:                                                                │  │  │
 │  │  │    + clone_repo(url: str, ref: str?) -> str                              │  │  │

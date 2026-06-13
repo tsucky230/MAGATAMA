@@ -1,6 +1,7 @@
 # AI Tools Setup Guide
 
-This guide explains how to integrate YATA MCP Server with various AI coding tools.
+This guide explains how to integrate the MAGATAMA MCP Server with various AI coding tools.
+(MAGATAMA is a fork of [YATA](https://github.com/nahisaho/YATA); the CLI command is `magatama`.)
 
 ## Table of Contents
 
@@ -28,16 +29,16 @@ code ~/Library/Application\ Support/Claude/claude_desktop_config.json
 ```json
 {
   "mcpServers": {
-    "yata": {
+    "magatama": {
       "command": "uv",
-      "args": ["run", "--directory", "/path/to/yata", "yata", "serve"],
+      "args": ["run", "--directory", "/path/to/MAGATAMA", "magatama", "serve"],
       "env": {}
     }
   }
 }
 ```
 
-> **Note**: Replace `/path/to/yata` with your actual YATA installation path.
+> **Note**: Replace `/path/to/MAGATAMA` with your actual MAGATAMA installation path.
 
 ### Windows
 
@@ -52,9 +53,9 @@ code ~/Library/Application\ Support/Claude/claude_desktop_config.json
 ```json
 {
   "mcpServers": {
-    "yata": {
+    "magatama": {
       "command": "uv",
-      "args": ["run", "--directory", "C:\\path\\to\\yata", "yata", "serve"]
+      "args": ["run", "--directory", "C:\\path\\to\\MAGATAMA", "magatama", "serve"]
     }
   }
 }
@@ -75,8 +76,8 @@ code ~/.config/Claude/claude_desktop_config.json
 ```json
 {
   "mcpServers": {
-    "yata": {
-      "command": "yata",
+    "magatama": {
+      "command": "magatama",
       "args": ["serve"]
     }
   }
@@ -94,9 +95,9 @@ code ~/.config/Claude/claude_desktop_config.json
 ```json
 {
   "mcpServers": {
-    "yata": {
+    "magatama": {
       "command": "uv",
-      "args": ["run", "--directory", "${workspaceFolder}", "yata", "serve"]
+      "args": ["run", "--directory", "${workspaceFolder}", "magatama", "serve"]
     }
   }
 }
@@ -109,8 +110,8 @@ Add to VS Code `settings.json`:
 ```json
 {
   "github.copilot.chat.experimental.mcpServers": {
-    "yata": {
-      "command": "yata",
+    "magatama": {
+      "command": "magatama",
       "args": ["serve"]
     }
   }
@@ -124,7 +125,7 @@ Convenient for development verification:
 ```json
 {
   "mcpServers": {
-    "yata": {
+    "magatama": {
       "type": "sse",
       "url": "http://localhost:8080"
     }
@@ -135,7 +136,7 @@ Convenient for development verification:
 Start the server in a separate terminal:
 
 ```bash
-yata serve --transport sse --port 8080
+magatama serve --transport sse --port 8080
 ```
 
 ---
@@ -151,8 +152,8 @@ yata serve --transport sse --port 8080
 ```json
 {
   "mcpServers": {
-    "yata": {
-      "command": "yata",
+    "magatama": {
+      "command": "magatama",
       "args": ["serve"]
     }
   }
@@ -164,9 +165,9 @@ Or create `.cursor/mcp.json` at the project root:
 ```json
 {
   "mcpServers": {
-    "yata": {
+    "magatama": {
       "command": "uv",
-      "args": ["run", "--directory", ".", "yata", "serve"]
+      "args": ["run", "--directory", ".", "magatama", "serve"]
     }
   }
 }
@@ -184,8 +185,8 @@ Or create `.cursor/mcp.json` at the project root:
 {
   "mcpServers": [
     {
-      "name": "yata",
-      "command": "yata",
+      "name": "magatama",
+      "command": "magatama",
       "args": ["serve"]
     }
   ]
@@ -200,27 +201,27 @@ Or create `.cursor/mcp.json` at the project root:
 
 ```bash
 # Basic operation check
-yata serve --help
+magatama serve --help
 
 # Display server information
-yata info
+magatama info
 ```
 
 ### Testing with MCP Inspector
 
 ```bash
 # Test server with MCP Inspector
-npx @anthropic/mcp-inspector yata serve
+npx @anthropic/mcp-inspector magatama serve
 ```
 
 Open http://localhost:5173 in your browser to interactively test tools.
 
 ### Verification Checklist
 
-- [ ] `yata info` displays version and tool list
-- [ ] `yata parse <file>` can parse files
+- [ ] `magatama info` displays version and tool list
+- [ ] `magatama parse <file>` can parse files
 - [ ] AI tool can connect to MCP server
-- [ ] YATA tools are available in AI tool
+- [ ] MAGATAMA tools are available in AI tool
 
 ---
 
@@ -238,11 +239,11 @@ which uv
 curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
 
-**Cause 2: YATA not installed**
+**Cause 2: MAGATAMA not installed**
 
 ```bash
 # For development version
-cd /path/to/yata
+cd /path/to/MAGATAMA
 uv sync --all-packages
 ```
 
@@ -258,19 +259,19 @@ uv sync --all-packages
 
 ```bash
 # Run command directly
-uv run --directory /path/to/yata yata serve
+uv run --directory /path/to/MAGATAMA magatama serve
 
 # Check error logs
-yata serve 2>&1 | head -50
+magatama serve 2>&1 | head -50
 ```
 
 ### "Unknown tool" Error
 
-If the AI tool doesn't recognize YATA tools:
+If the AI tool doesn't recognize MAGATAMA tools:
 
 1. Restart the AI tool
 2. Reload MCP server configuration
-3. Check tool list with `yata info`
+3. Check tool list with `magatama info`
 
 ### Slow Performance
 
@@ -279,14 +280,14 @@ If the AI tool doesn't recognize YATA tools:
 1. Set exclude patterns:
 
 ```bash
-yata parse ./src --exclude "**/node_modules/**" --exclude "**/.git/**"
+magatama parse ./src --exclude "**/node_modules/**" --exclude "**/.git/**"
 ```
 
 2. Save and reuse graph:
 
 ```bash
-yata parse ./src --output graph.json
-yata query "ClassName" --graph graph.json
+magatama parse ./src --output graph.json
+magatama query "ClassName" --graph graph.json
 ```
 
 ### Out of Memory
@@ -307,7 +308,7 @@ A: Python, TypeScript/TSX, JavaScript/JSX, Rust, Go, and 19 more languages (24 t
 
 ### Q: Is private code sent externally?
 
-A: No. YATA runs completely locally and does not send code or data externally.
+A: No. MAGATAMA runs completely locally and does not send code or data externally.
 
 ### Q: Can I handle multiple projects simultaneously?
 

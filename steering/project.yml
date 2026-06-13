@@ -1,5 +1,5 @@
 # MUSUBI Project Configuration
-name: YATA
+name: MAGATAMA
 description: AI Coding Support MCP Server - 知識グラフベースのAIコーディング支援
 locale: ja
 version: "0.5.0"

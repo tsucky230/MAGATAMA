@@ -1,6 +1,7 @@
-# YATA 知識データベース更新ガイド
+# MAGATAMA 知識データベース更新ガイド
 
-新しいバージョンのプログラミング言語やフレームワークがリリースされた際に、YATAの知識データベースを更新する方法を説明します。
+新しいバージョンのプログラミング言語やフレームワークがリリースされた際に、MAGATAMAの知識データベースを更新する方法を説明します。
+（MAGATAMA は [YATA](https://github.com/nahisaho/YATA) のフォークで、フレームワーク知識機能は YATA 由来です。CLI コマンドは `magatama` です。）
 
 ## 目次
 
@@ -19,7 +20,7 @@
 
 ## 概要
 
-YATAの知識データベースは以下の2種類で構成されています：
+MAGATAMAの知識データベースは以下の2種類で構成されています：
 
 | 種類 | 説明 | 更新頻度 |
 |------|------|---------|
@@ -28,7 +29,7 @@ YATAの知識データベースは以下の2種類で構成されています：
 
 ```
 ┌─────────────────────────────────────────────────┐
-│                  YATA Knowledge DB              │
+│                MAGATAMA Knowledge DB            │
 ├─────────────────────────────────────────────────┤
 │  ┌─────────────┐    ┌─────────────────────────┐ │
 │  │  言語パーサー │    │ フレームワーク知識グラフ │ │
@@ -47,7 +48,7 @@ YATAの知識データベースは以下の2種類で構成されています：
 
 ```bash
 # 仮想環境を有効化
-cd /home/nahisaho/GitHub/YATA
+cd /path/to/MAGATAMA
 source .venv/bin/activate
 
 # 全フレームワークを一括更新（git pull + 知識グラフ再構築）
@@ -80,10 +81,10 @@ python scripts/update_knowledge_db.py --parallel 8
 
 ```
 ================================================================================
-🔄 YATA Knowledge Database Updater
+🔄 MAGATAMA Knowledge Database Updater
 ================================================================================
 Frameworks: 47
-Base path: /home/nahisaho/GitHub/YATA/frameworks
+Base path: /path/to/MAGATAMA/frameworks
 
 📥 Updating repositories...
   ✅ React: Already up to date
@@ -104,7 +105,7 @@ Frameworks analyzed: 47
 Total entities: 89,234
 Total relationships: 45,678
 
-📄 Summary saved to: /home/nahisaho/GitHub/YATA/knowledge_graphs/update_summary.json
+📄 Summary saved to: /path/to/MAGATAMA/knowledge_graphs/update_summary.json
 ```
 
 ---
@@ -114,12 +115,12 @@ Total relationships: 45,678
 ### 必要なツール
 
 ```bash
-# YATA環境
-cd /path/to/yata
+# MAGATAMA環境
+cd /path/to/MAGATAMA
 source .venv/bin/activate
 
 # 必要なパッケージ確認
-pip list | grep -E "yata|tree-sitter|networkx"
+pip list | grep -E "magatama|tree-sitter|networkx"
 ```
 
 ### 必要な権限
@@ -135,8 +136,8 @@ pip list | grep -E "yata|tree-sitter|networkx"
 
 ```bash
 # 作業ディレクトリの作成
-mkdir -p ~/yata-knowledge-update
-cd ~/yata-knowledge-update
+mkdir -p ~/magatama-knowledge-update
+cd ~/magatama-knowledge-update
 
 # フレームワークのソースコードを取得
 # 例: Django 5.0
@@ -276,18 +277,18 @@ done
 
 ## Step 2: ソースコード解析
 
-### 2.1 YATAパーサーでディレクトリ解析
+### 2.1 MAGATAMAパーサーでディレクトリ解析
 
 ```bash
-# YATAのCLIを使用
-yata parse ./frameworks/django-5.0 \
+# MAGATAMAのCLIを使用
+magatama parse ./frameworks/django-5.0 \
     --pattern "**/*.py" \
     --exclude "**/tests/**" \
     --exclude "**/migrations/**" \
     --output django-5.0-graph.json
 
 # TypeScript/JavaScriptプロジェクトの場合
-yata parse ./frameworks/react-19 \
+magatama parse ./frameworks/react-19 \
     --pattern "**/*.js" \
     --pattern "**/*.jsx" \
     --pattern "**/*.ts" \
@@ -305,9 +306,9 @@ yata parse ./frameworks/react-19 \
 parse_framework.py - フレームワーク解析スクリプト
 """
 from pathlib import Path
-from yata_core.application.usecases import ParseDirectoryUseCase, ParseFileUseCase
-from yata_core.infrastructure.parsers import PythonParser, TypeScriptParser
-from yata_core.infrastructure.graph import NetworkXKnowledgeGraph
+from magatama_core.application.usecases import ParseDirectoryUseCase, ParseFileUseCase
+from magatama_core.infrastructure.parsers import PythonParser, TypeScriptParser
+from magatama_core.infrastructure.graph import NetworkXKnowledgeGraph
 
 def parse_framework(
     source_dir: str,
@@ -400,13 +401,13 @@ python parse_framework.py ./frameworks/react-19 react 19.0 javascript
 
 ```bash
 # 統計情報を表示
-yata stats --graph django-5.0-knowledge-graph.json
+magatama stats --graph django-5.0-knowledge-graph.json
 
 # エンティティを検索
-yata query "Model" --type class --graph django-5.0-knowledge-graph.json
+magatama query "Model" --type class --graph django-5.0-knowledge-graph.json
 
 # 整合性検証
-yata validate --graph django-5.0-knowledge-graph.json
+magatama validate --graph django-5.0-knowledge-graph.json
 ```
 
 ---
@@ -488,8 +489,8 @@ DJANGO_DOCS = {
 """
 enhance_relationships.py - 関係性の強化
 """
-from yata_core.infrastructure.graph import NetworkXKnowledgeGraph
-from yata_core.domain.entities import RelationshipType
+from magatama_core.infrastructure.graph import NetworkXKnowledgeGraph
+from magatama_core.domain.entities import RelationshipType
 
 def add_framework_specific_relationships(graph: NetworkXKnowledgeGraph, framework: str):
     """フレームワーク固有の関係性を追加"""
@@ -522,15 +523,15 @@ def add_framework_specific_relationships(graph: NetworkXKnowledgeGraph, framewor
 
 ## Step 4: フレームワーク知識グラフの登録
 
-### 4.1 YATAへの登録
+### 4.1 MAGATAMAへの登録
 
 ```python
 #!/usr/bin/env python3
 """
 register_framework.py - フレームワーク知識グラフの登録
 """
-from yata_core.application.usecases import RegisterFrameworkUseCase
-from yata_core.infrastructure.graph import NetworkXKnowledgeGraph
+from magatama_core.application.usecases import RegisterFrameworkUseCase
+from magatama_core.infrastructure.graph import NetworkXKnowledgeGraph
 
 def register_framework(
     graph_file: str,
@@ -539,7 +540,7 @@ def register_framework(
     category: str,
     description: str
 ):
-    """フレームワーク知識グラフをYATAに登録"""
+    """フレームワーク知識グラフをMAGATAMAに登録"""
     
     # グラフ読み込み
     graph = NetworkXKnowledgeGraph()
@@ -606,8 +607,8 @@ if __name__ == "__main__":
 ### 4.2 MCPツールでの登録
 
 ```bash
-# YATAサーバーが起動している状態で
-yata register-framework \
+# MAGATAMAサーバーが起動している状態で
+magatama register-framework \
     --graph django-5.0-knowledge-graph.json \
     --name django \
     --version 5.0 \
@@ -616,19 +617,19 @@ yata register-framework \
 
 ### 4.3 組み込みフレームワークとして追加
 
-YATAの組み込みフレームワークとして追加する場合:
+MAGATAMAの組み込みフレームワークとして追加する場合:
 
 ```python
-# packages/yata-core/src/yata_core/infrastructure/frameworks/django_5_0.py
+# packages/magatama-core/src/magatama_core/infrastructure/frameworks/django_5_0.py
 
 """Django 5.0 フレームワーク知識グラフ"""
 
-from yata_core.domain.entities import (
+from magatama_core.domain.entities import (
     ClassEntity,
     FunctionEntity,
     ModuleEntity,
 )
-from yata_core.domain.value_objects import EntityId, Location
+from magatama_core.domain.value_objects import EntityId, Location
 
 DJANGO_5_0_ENTITIES = [
     ClassEntity(
@@ -657,7 +658,7 @@ DJANGO_5_0_RELATIONSHIPS = [
 
 def get_django_5_0_graph():
     """Django 5.0の知識グラフを返す"""
-    from yata_core.infrastructure.graph import NetworkXKnowledgeGraph
+    from magatama_core.infrastructure.graph import NetworkXKnowledgeGraph
     
     graph = NetworkXKnowledgeGraph()
     
@@ -678,10 +679,10 @@ def get_django_5_0_graph():
 
 ```bash
 # 整合性チェック
-yata validate --graph django-5.0-knowledge-graph.json --repair
+magatama validate --graph django-5.0-knowledge-graph.json --repair
 
 # 統計情報確認
-yata stats --graph django-5.0-knowledge-graph.json --json
+magatama stats --graph django-5.0-knowledge-graph.json --json
 ```
 
 ### 5.2 機能テスト
@@ -692,7 +693,7 @@ yata stats --graph django-5.0-knowledge-graph.json --json
 test_framework_knowledge.py - フレームワーク知識のテスト
 """
 import pytest
-from yata_core.application.usecases import (
+from magatama_core.application.usecases import (
     SearchFrameworkUseCase,
     GetFrameworkEntityUseCase,
     GetCodingGuidanceUseCase,
@@ -703,7 +704,7 @@ class TestDjango50Knowledge:
     
     @pytest.fixture
     def framework_graph(self):
-        from yata_core.infrastructure.frameworks.django_5_0 import get_django_5_0_graph
+        from magatama_core.infrastructure.frameworks.django_5_0 import get_django_5_0_graph
         return get_django_5_0_graph()
     
     def test_model_class_exists(self, framework_graph):
@@ -742,11 +743,11 @@ class TestDjango50Knowledge:
 
 ```bash
 # 全テスト実行
-cd /path/to/yata
-python -m pytest packages/yata-core/tests/ -v
+cd /path/to/MAGATAMA
+python -m pytest packages/magatama-core/tests/ -v
 
 # フレームワーク関連のみ
-python -m pytest packages/yata-core/tests/ -k "framework" -v
+python -m pytest packages/magatama-core/tests/ -k "framework" -v
 ```
 
 ---
@@ -819,7 +820,7 @@ jobs:
       
       - name: Run tests
         run: |
-          python -m pytest packages/yata-core/tests/ -k "framework" -v
+          python -m pytest packages/magatama-core/tests/ -k "framework" -v
       
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v6
@@ -905,21 +906,21 @@ if __name__ == "__main__":
 ```bash
 # エラー: UnicodeDecodeError
 # 解決: エンコーディング指定
-yata parse ./framework --encoding utf-8
+magatama parse ./framework --encoding utf-8
 
 # エラー: 大きすぎるファイル
 # 解決: 最大ファイルサイズを増加
-export YATA_MAX_FILE_SIZE=52428800  # 50MB
+export MAGATAMA_MAX_FILE_SIZE=52428800  # 50MB
 ```
 
 #### 2. 知識グラフの不整合
 
 ```bash
 # 検証して修復
-yata validate --graph framework.json --repair
+magatama validate --graph framework.json --repair
 
 # 手動で確認
-yata query "*" --type class --graph framework.json | head -20
+magatama query "*" --type class --graph framework.json | head -20
 ```
 
 #### 3. 登録失敗
@@ -929,7 +930,7 @@ yata query "*" --type class --graph framework.json | head -20
 import logging
 logging.basicConfig(level=logging.DEBUG)
 
-from yata_core.application.usecases import RegisterFrameworkUseCase
+from magatama_core.application.usecases import RegisterFrameworkUseCase
 # ...
 ```
 
@@ -937,15 +938,16 @@ from yata_core.application.usecases import RegisterFrameworkUseCase
 
 ```bash
 # 詳細ログを有効化
-export YATA_LOG_LEVEL=DEBUG
-yata parse ./framework --output graph.json 2>&1 | tee parse.log
+export MAGATAMA_LOG_LEVEL=DEBUG
+magatama parse ./framework --output graph.json 2>&1 | tee parse.log
 ```
 
 ---
 
 ## 参考リンク
 
-- [YATA GitHub Repository](https://github.com/nahisaho/YATA)
+- [MAGATAMA GitHub Repository](https://github.com/tsucky230/MAGATAMA)
+- [YATA GitHub Repository](https://github.com/nahisaho/YATA)（フォーク元）
 - [Tree-sitter Documentation](https://tree-sitter.github.io/tree-sitter/)
 - [GitHub API Documentation](https://docs.github.com/en/rest)
 

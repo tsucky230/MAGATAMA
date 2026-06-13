@@ -1,25 +1,25 @@
-# YATA Workspace - Monorepo Configuration
-# Project: YATA (八咫) - AI Coding Support MCP Server
-# Article I: Library-First Principle - yata-core as independent library
+# MAGATAMA Workspace - Monorepo Configuration
+# Project: MAGATAMA (勾玉) - AI Coding Support MCP Server
+# Article I: Library-First Principle - magatama-core as independent library
 
 [project]
-name = "yata-workspace"
+name = "magatama-workspace"
 version = "0.5.0"
-description = "YATA (八咫) - Knowledge Graph MCP Server for AI Coding Support"
+description = "MAGATAMA (勾玉) - Knowledge Graph MCP Server for AI Coding Support"
 readme = "README.md"
 license = { text = "MIT" }
 requires-python = ">=3.11"
-authors = [{ name = "YATA Team" }]
+authors = [{ name = "MAGATAMA Team" }]
 dependencies = [
     "tree-sitter-typescript>=0.23.2",
 ]
 
 [tool.uv.workspace]
-members = ["packages/yata-core", "packages/yata-mcp"]
+members = ["packages/magatama-core", "packages/magatama-mcp"]
 
 [tool.uv.sources]
-yata-core = { workspace = true }
-yata-mcp = { workspace = true }
+magatama-core = { workspace = true }
+magatama-mcp = { workspace = true }
 
 # Development dependencies (workspace-wide)
 [dependency-groups]
@@ -36,7 +36,7 @@ dev = [
 [tool.ruff]
 target-version = "py311"
 line-length = 100
-src = ["packages/yata-core/src", "packages/yata-mcp/src"]
+src = ["packages/magatama-core/src", "packages/magatama-mcp/src"]
 
 [tool.ruff.lint]
 select = [
@@ -61,7 +61,7 @@ ignore = [
 ]
 
 [tool.ruff.lint.isort]
-known-first-party = ["yata_core", "yata_mcp"]
+known-first-party = ["magatama_core", "magatama_mcp"]
 
 # MyPy configuration (type checker)
 [tool.mypy]
@@ -94,7 +94,7 @@ ignore_missing_imports = true
 
 # Pytest configuration
 [tool.pytest.ini_options]
-testpaths = ["packages/yata-core/tests", "packages/yata-mcp/tests"]
+testpaths = ["packages/magatama-core/tests", "packages/magatama-mcp/tests"]
 python_files = ["test_*.py"]
 python_functions = ["test_*"]
 addopts = [
@@ -113,7 +113,7 @@ markers = [
 
 # Coverage configuration
 [tool.coverage.run]
-source = ["packages/yata-core/src", "packages/yata-mcp/src"]
+source = ["packages/magatama-core/src", "packages/magatama-mcp/src"]
 branch = true
 omit = ["*/tests/*", "*/__pycache__/*"]
 

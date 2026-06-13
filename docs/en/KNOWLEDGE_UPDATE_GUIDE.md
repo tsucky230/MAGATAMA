@@ -1,6 +1,7 @@
-# YATA Knowledge Database Update Guide
+# MAGATAMA Knowledge Database Update Guide
 
-This guide explains how to update YATA's knowledge database when new versions of programming languages or frameworks are released.
+This guide explains how to update MAGATAMA's knowledge database when new versions of programming languages or frameworks are released.
+(MAGATAMA is a fork of [YATA](https://github.com/nahisaho/YATA); the framework-knowledge feature is inherited from YATA. The CLI command is `magatama`.)
 
 ## Table of Contents
 
@@ -19,7 +20,7 @@ This guide explains how to update YATA's knowledge database when new versions of
 
 ## Overview
 
-YATA's knowledge database consists of two types:
+MAGATAMA's knowledge database consists of two types:
 
 | Type | Description | Update Frequency |
 |------|-------------|------------------|
@@ -28,7 +29,7 @@ YATA's knowledge database consists of two types:
 
 ```mermaid
 flowchart LR
-    subgraph DB["YATA Knowledge DB"]
+    subgraph DB["MAGATAMA Knowledge DB"]
         LP["Language Parsers<br/>(24 languages)"]
         FKG["Framework Knowledge Graphs<br/>(47 frameworks)"]
     end
@@ -44,7 +45,7 @@ Using the `update_knowledge_db.py` script, you can automatically update all 47 f
 
 ```bash
 # Activate virtual environment
-cd /home/nahisaho/GitHub/YATA
+cd /path/to/MAGATAMA
 source .venv/bin/activate
 
 # Bulk update all frameworks (git pull + rebuild knowledge graphs)
@@ -77,10 +78,10 @@ python scripts/update_knowledge_db.py --parallel 8
 
 ```
 ================================================================================
-🔄 YATA Knowledge Database Updater
+🔄 MAGATAMA Knowledge Database Updater
 ================================================================================
 Frameworks: 47
-Base path: /home/nahisaho/GitHub/YATA/frameworks
+Base path: /path/to/MAGATAMA/frameworks
 
 📥 Updating repositories...
   ✅ React: Already up to date
@@ -101,7 +102,7 @@ Frameworks analyzed: 47
 Total entities: 89,234
 Total relationships: 45,678
 
-📄 Summary saved to: /home/nahisaho/GitHub/YATA/knowledge_graphs/update_summary.json
+📄 Summary saved to: /path/to/MAGATAMA/knowledge_graphs/update_summary.json
 ```
 
 ---
@@ -111,12 +112,12 @@ Total relationships: 45,678
 ### Required Tools
 
 ```bash
-# YATA environment
-cd /path/to/yata
+# MAGATAMA environment
+cd /path/to/magatama
 source .venv/bin/activate
 
 # Check required packages
-pip list | grep -E "yata|tree-sitter|networkx"
+pip list | grep -E "magatama|tree-sitter|networkx"
 ```
 
 ### Required Permissions
@@ -132,8 +133,8 @@ pip list | grep -E "yata|tree-sitter|networkx"
 
 ```bash
 # Create working directory
-mkdir -p ~/yata-knowledge-update
-cd ~/yata-knowledge-update
+mkdir -p ~/magatama-knowledge-update
+cd ~/magatama-knowledge-update
 
 # Get framework source code
 # Example: Django 5.0
@@ -273,18 +274,18 @@ done
 
 ## Step 2: Source Code Analysis
 
-### 2.1 Parse Directory with YATA Parser
+### 2.1 Parse Directory with MAGATAMA Parser
 
 ```bash
-# Use YATA CLI
-yata parse ./frameworks/django-5.0 \
+# Use MAGATAMA CLI
+magatama parse ./frameworks/django-5.0 \
     --pattern "**/*.py" \
     --exclude "**/tests/**" \
     --exclude "**/migrations/**" \
     --output django-5.0-graph.json
 
 # For TypeScript/JavaScript projects
-yata parse ./frameworks/react-19 \
+magatama parse ./frameworks/react-19 \
     --pattern "**/*.js" \
     --pattern "**/*.jsx" \
     --pattern "**/*.ts" \
@@ -302,9 +303,9 @@ yata parse ./frameworks/react-19 \
 parse_framework.py - Framework analysis script
 """
 from pathlib import Path
-from yata_core.application.usecases import ParseDirectoryUseCase, ParseFileUseCase
-from yata_core.infrastructure.parsers import PythonParser, TypeScriptParser
-from yata_core.infrastructure.graph import NetworkXKnowledgeGraph
+from magatama_core.application.usecases import ParseDirectoryUseCase, ParseFileUseCase
+from magatama_core.infrastructure.parsers import PythonParser, TypeScriptParser
+from magatama_core.infrastructure.graph import NetworkXKnowledgeGraph
 
 def parse_framework(
     source_dir: str,
@@ -397,13 +398,13 @@ python parse_framework.py ./frameworks/react-19 react 19.0 javascript
 
 ```bash
 # Display statistics
-yata stats --graph django-5.0-knowledge-graph.json
+magatama stats --graph django-5.0-knowledge-graph.json
 
 # Search entities
-yata query "Model" --type class --graph django-5.0-knowledge-graph.json
+magatama query "Model" --type class --graph django-5.0-knowledge-graph.json
 
 # Validate integrity
-yata validate --graph django-5.0-knowledge-graph.json
+magatama validate --graph django-5.0-knowledge-graph.json
 ```
 
 ---
@@ -482,15 +483,15 @@ DJANGO_DOCS = {
 
 ## Step 4: Registering Framework Knowledge Graph
 
-### 4.1 Registration to YATA
+### 4.1 Registration to MAGATAMA
 
 ```python
 #!/usr/bin/env python3
 """
 register_framework.py - Framework knowledge graph registration
 """
-from yata_core.application.usecases import RegisterFrameworkUseCase
-from yata_core.infrastructure.graph import NetworkXKnowledgeGraph
+from magatama_core.application.usecases import RegisterFrameworkUseCase
+from magatama_core.infrastructure.graph import NetworkXKnowledgeGraph
 
 def register_framework(
     graph_file: str,
@@ -499,7 +500,7 @@ def register_framework(
     category: str,
     description: str
 ):
-    """Register framework knowledge graph to YATA"""
+    """Register framework knowledge graph to MAGATAMA"""
     
     # Load graph
     graph = NetworkXKnowledgeGraph()
@@ -543,8 +544,8 @@ if __name__ == "__main__":
 ### 4.2 Registration via MCP Tool
 
 ```bash
-# With YATA server running
-yata register-framework \
+# With MAGATAMA server running
+magatama register-framework \
     --graph django-5.0-knowledge-graph.json \
     --name django \
     --version 5.0 \
@@ -559,10 +560,10 @@ yata register-framework \
 
 ```bash
 # Integrity check
-yata validate --graph django-5.0-knowledge-graph.json --repair
+magatama validate --graph django-5.0-knowledge-graph.json --repair
 
 # Check statistics
-yata stats --graph django-5.0-knowledge-graph.json --json
+magatama stats --graph django-5.0-knowledge-graph.json --json
 ```
 
 ### 5.2 Functional Testing
@@ -573,7 +574,7 @@ yata stats --graph django-5.0-knowledge-graph.json --json
 test_framework_knowledge.py - Framework knowledge tests
 """
 import pytest
-from yata_core.application.usecases import (
+from magatama_core.application.usecases import (
     SearchFrameworkUseCase,
     GetFrameworkEntityUseCase,
     GetCodingGuidanceUseCase,
@@ -584,7 +585,7 @@ class TestDjango50Knowledge:
     
     @pytest.fixture
     def framework_graph(self):
-        from yata_core.infrastructure.frameworks.django_5_0 import get_django_5_0_graph
+        from magatama_core.infrastructure.frameworks.django_5_0 import get_django_5_0_graph
         return get_django_5_0_graph()
     
     def test_model_class_exists(self, framework_graph):
@@ -623,11 +624,11 @@ class TestDjango50Knowledge:
 
 ```bash
 # Run all tests
-cd /path/to/yata
-python -m pytest packages/yata-core/tests/ -v
+cd /path/to/magatama
+python -m pytest packages/magatama-core/tests/ -v
 
 # Framework-related only
-python -m pytest packages/yata-core/tests/ -k "framework" -v
+python -m pytest packages/magatama-core/tests/ -k "framework" -v
 ```
 
 ---
@@ -700,7 +701,7 @@ jobs:
       
       - name: Run tests
         run: |
-          python -m pytest packages/yata-core/tests/ -k "framework" -v
+          python -m pytest packages/magatama-core/tests/ -k "framework" -v
       
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v6
@@ -726,21 +727,21 @@ jobs:
 ```bash
 # Error: UnicodeDecodeError
 # Solution: Specify encoding
-yata parse ./framework --encoding utf-8
+magatama parse ./framework --encoding utf-8
 
 # Error: File too large
 # Solution: Increase max file size
-export YATA_MAX_FILE_SIZE=52428800  # 50MB
+export MAGATAMA_MAX_FILE_SIZE=52428800  # 50MB
 ```
 
 #### 2. Knowledge Graph Inconsistency
 
 ```bash
 # Validate and repair
-yata validate --graph framework.json --repair
+magatama validate --graph framework.json --repair
 
 # Check manually
-yata query "*" --type class --graph framework.json | head -20
+magatama query "*" --type class --graph framework.json | head -20
 ```
 
 #### 3. Registration Failure
@@ -750,7 +751,7 @@ yata query "*" --type class --graph framework.json | head -20
 import logging
 logging.basicConfig(level=logging.DEBUG)
 
-from yata_core.application.usecases import RegisterFrameworkUseCase
+from magatama_core.application.usecases import RegisterFrameworkUseCase
 # ...
 ```
 
@@ -758,15 +759,16 @@ from yata_core.application.usecases import RegisterFrameworkUseCase
 
 ```bash
 # Enable verbose logging
-export YATA_LOG_LEVEL=DEBUG
-yata parse ./framework --output graph.json 2>&1 | tee parse.log
+export MAGATAMA_LOG_LEVEL=DEBUG
+magatama parse ./framework --output graph.json 2>&1 | tee parse.log
 ```
 
 ---
 
 ## Reference Links
 
-- [YATA GitHub Repository](https://github.com/nahisaho/YATA)
+- [MAGATAMA GitHub Repository](https://github.com/tsucky230/MAGATAMA)
+- [YATA GitHub Repository](https://github.com/nahisaho/YATA) (upstream / fork source)
 - [Tree-sitter Documentation](https://tree-sitter.github.io/tree-sitter/)
 - [GitHub API Documentation](https://docs.github.com/en/rest)
 

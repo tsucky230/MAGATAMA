@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-YATA Knowledge Database Updater
+MAGATAMA Knowledge Database Updater
 
 Updates cloned framework repositories and rebuilds knowledge graphs.
 
@@ -29,12 +29,12 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import Optional
 
 # Add parent directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent / "packages" / "yata-core" / "src"))
+sys.path.insert(0, str(Path(__file__).parent.parent / "packages" / "magatama-core" / "src"))
 
-from yata_core.infrastructure.parsers import (
+from magatama_core.application.usecases.parse_usecase import ParseFileUseCase
+from magatama_core.infrastructure.parsers import (
     CParser,
     CppParser,
     CSharpParser,
@@ -53,29 +53,41 @@ from yata_core.infrastructure.parsers import (
     TypeScriptParser,
     ZigParser,
 )
-from yata_core.infrastructure.storage import NetworkXKnowledgeGraph
-from yata_core.application.usecases.parse_usecase import ParseFileUseCase
-
+from magatama_core.infrastructure.storage import NetworkXKnowledgeGraph
 
 # =============================================================================
 # Framework Configuration
 # =============================================================================
 
+
 @dataclass
 class FrameworkConfig:
     """Configuration for a framework repository."""
+
     name: str
     directory: str
     language: str
     patterns: list[str]
     repo_url: str
-    branch: Optional[str] = None
-    exclude_patterns: list[str] = field(default_factory=lambda: [
-        "**/__pycache__/**", "**/node_modules/**", "**/vendor/**",
-        "**/dist/**", "**/build/**", "**/.git/**", "**/test/**",
-        "**/tests/**", "**/spec/**", "**/examples/**", "**/docs/**",
-        "**/fixtures/**", "**/mocks/**", "**/coverage/**",
-    ])
+    branch: str | None = None
+    exclude_patterns: list[str] = field(
+        default_factory=lambda: [
+            "**/__pycache__/**",
+            "**/node_modules/**",
+            "**/vendor/**",
+            "**/dist/**",
+            "**/build/**",
+            "**/.git/**",
+            "**/test/**",
+            "**/tests/**",
+            "**/spec/**",
+            "**/examples/**",
+            "**/docs/**",
+            "**/fixtures/**",
+            "**/mocks/**",
+            "**/coverage/**",
+        ]
+    )
 
 
 # Complete framework registry (47 frameworks)
@@ -179,7 +191,6 @@ FRAMEWORKS: list[FrameworkConfig] = [
         patterns=["packages/**/*.ts", "packages/**/*.tsx"],
         repo_url="https://github.com/QwikDev/qwik.git",
     ),
-
     # === Backend JavaScript/TypeScript ===
     FrameworkConfig(
         name="Express",
@@ -230,7 +241,6 @@ FRAMEWORKS: list[FrameworkConfig] = [
         patterns=["src/**/*.ts", "packages/**/*.ts"],
         repo_url="https://github.com/oven-sh/bun.git",
     ),
-
     # === Python ===
     FrameworkConfig(
         name="Django",
@@ -281,7 +291,6 @@ FRAMEWORKS: list[FrameworkConfig] = [
         patterns=["libs/**/*.py"],
         repo_url="https://github.com/langchain-ai/langgraph.git",
     ),
-
     # === Ruby ===
     FrameworkConfig(
         name="Rails",
@@ -290,7 +299,6 @@ FRAMEWORKS: list[FrameworkConfig] = [
         patterns=["**/*.rb"],
         repo_url="https://github.com/rails/rails.git",
     ),
-
     # === PHP ===
     FrameworkConfig(
         name="Laravel",
@@ -313,7 +321,6 @@ FRAMEWORKS: list[FrameworkConfig] = [
         patterns=["system/**/*.php"],
         repo_url="https://github.com/codeigniter4/CodeIgniter4.git",
     ),
-
     # === Java ===
     FrameworkConfig(
         name="Spring Boot",
@@ -322,7 +329,6 @@ FRAMEWORKS: list[FrameworkConfig] = [
         patterns=["**/*.java"],
         repo_url="https://github.com/spring-projects/spring-boot.git",
     ),
-
     # === Go ===
     FrameworkConfig(
         name="Gin",
@@ -345,7 +351,6 @@ FRAMEWORKS: list[FrameworkConfig] = [
         patterns=["**/*.go"],
         repo_url="https://github.com/gofiber/fiber.git",
     ),
-
     # === Rust ===
     FrameworkConfig(
         name="Actix-web",
@@ -368,7 +373,6 @@ FRAMEWORKS: list[FrameworkConfig] = [
         patterns=["**/*.rs"],
         repo_url="https://github.com/tauri-apps/tauri.git",
     ),
-
     # === Elixir ===
     FrameworkConfig(
         name="Phoenix",
@@ -377,7 +381,6 @@ FRAMEWORKS: list[FrameworkConfig] = [
         patterns=["lib/**/*.ex"],
         repo_url="https://github.com/phoenixframework/phoenix.git",
     ),
-
     # === Database/ORM ===
     FrameworkConfig(
         name="Prisma",
@@ -393,7 +396,6 @@ FRAMEWORKS: list[FrameworkConfig] = [
         patterns=["drizzle-orm/**/*.ts"],
         repo_url="https://github.com/drizzle-team/drizzle-orm.git",
     ),
-
     # === Mobile ===
     FrameworkConfig(
         name="React Native",
@@ -437,32 +439,33 @@ FRAMEWORKS: list[FrameworkConfig] = [
 # Parser Registry
 # =============================================================================
 
+
 def get_parsers() -> dict:
     """Initialize all available language parsers."""
     return {
-        '.py': PythonParser(),
-        '.ts': TypeScriptParser(),
-        '.tsx': TypeScriptParser(),
-        '.js': JavaScriptParser(),
-        '.jsx': JavaScriptParser(),
-        '.rs': RustParser(),
-        '.go': GoParser(),
-        '.rb': RubyParser(),
-        '.java': JavaParser(),
-        '.cs': CSharpParser(),
-        '.php': PhpParser(),
-        '.swift': SwiftParser(),
-        '.kt': KotlinParser(),
-        '.kts': KotlinParser(),
-        '.dart': DartParser(),
-        '.ex': ElixirParser(),
-        '.exs': ElixirParser(),
-        '.scala': ScalaParser(),
-        '.c': CParser(),
-        '.h': CParser(),
-        '.cpp': CppParser(),
-        '.hpp': CppParser(),
-        '.zig': ZigParser(),
+        ".py": PythonParser(),
+        ".ts": TypeScriptParser(),
+        ".tsx": TypeScriptParser(),
+        ".js": JavaScriptParser(),
+        ".jsx": JavaScriptParser(),
+        ".rs": RustParser(),
+        ".go": GoParser(),
+        ".rb": RubyParser(),
+        ".java": JavaParser(),
+        ".cs": CSharpParser(),
+        ".php": PhpParser(),
+        ".swift": SwiftParser(),
+        ".kt": KotlinParser(),
+        ".kts": KotlinParser(),
+        ".dart": DartParser(),
+        ".ex": ElixirParser(),
+        ".exs": ElixirParser(),
+        ".scala": ScalaParser(),
+        ".c": CParser(),
+        ".h": CParser(),
+        ".cpp": CppParser(),
+        ".hpp": CppParser(),
+        ".zig": ZigParser(),
     }
 
 
@@ -470,19 +473,20 @@ def get_parsers() -> dict:
 # Git Operations
 # =============================================================================
 
+
 def git_pull(repo_path: Path, dry_run: bool = False) -> tuple[bool, str]:
     """
     Update a git repository with git pull.
-    
+
     Returns:
         (success, message)
     """
     if not (repo_path / ".git").exists():
         return False, "Not a git repository"
-    
+
     if dry_run:
         return True, "[DRY RUN] Would run: git pull"
-    
+
     try:
         result = subprocess.run(
             ["git", "pull", "--ff-only"],
@@ -491,7 +495,7 @@ def git_pull(repo_path: Path, dry_run: bool = False) -> tuple[bool, str]:
             text=True,
             timeout=120,
         )
-        
+
         if result.returncode == 0:
             if "Already up to date" in result.stdout:
                 return True, "Already up to date"
@@ -504,32 +508,34 @@ def git_pull(repo_path: Path, dry_run: bool = False) -> tuple[bool, str]:
         return False, str(e)
 
 
-def git_clone(repo_url: str, target_path: Path, branch: Optional[str] = None, dry_run: bool = False) -> tuple[bool, str]:
+def git_clone(
+    repo_url: str, target_path: Path, branch: str | None = None, dry_run: bool = False
+) -> tuple[bool, str]:
     """
     Clone a git repository.
-    
+
     Returns:
         (success, message)
     """
     if target_path.exists():
         return False, "Directory already exists"
-    
+
     if dry_run:
         return True, f"[DRY RUN] Would clone: {repo_url}"
-    
+
     try:
         cmd = ["git", "clone", "--depth", "1"]
         if branch:
             cmd.extend(["--branch", branch])
         cmd.extend([repo_url, str(target_path)])
-        
+
         result = subprocess.run(
             cmd,
             capture_output=True,
             text=True,
             timeout=300,
         )
-        
+
         if result.returncode == 0:
             return True, "Cloned successfully"
         else:
@@ -544,46 +550,56 @@ def git_clone(repo_url: str, target_path: Path, branch: Optional[str] = None, dr
 # Knowledge Graph Building
 # =============================================================================
 
+
 def analyze_framework(fw: FrameworkConfig, base_path: Path, dry_run: bool = False) -> dict:
     """
     Analyze a framework and build its knowledge graph.
-    
+
     Returns:
         Dictionary with analysis results
     """
     fw_path = base_path / fw.directory
-    
+
     if not fw_path.exists():
         return {"name": fw.name, "directory": fw.directory, "error": "Directory not found"}
-    
+
     if dry_run:
         return {
             "name": fw.name,
             "directory": fw.directory,
             "dry_run": True,
-            "message": "[DRY RUN] Would analyze framework"
+            "message": "[DRY RUN] Would analyze framework",
         }
-    
+
     # Create fresh parsers for each framework
     parsers = get_parsers()
-    
+
     # Create knowledge graph
     graph = NetworkXKnowledgeGraph()
     parse_file_usecase = ParseFileUseCase(parsers=parsers, knowledge_graph=graph)
-    
+
     files_processed = 0
     errors = []
-    
+
     try:
         # Find all matching files
         all_files = []
         for pattern in fw.patterns:
             all_files.extend(fw_path.glob(pattern))
-        
+
         # Filter out excluded patterns
         filtered_files = []
-        exclude_keywords = ['__pycache__', 'node_modules', 'test', 'tests', 'spec', '.git', 'fixtures', 'mocks']
-        
+        exclude_keywords = [
+            "__pycache__",
+            "node_modules",
+            "test",
+            "tests",
+            "spec",
+            ".git",
+            "fixtures",
+            "mocks",
+        ]
+
         for f in all_files:
             excluded = False
             for keyword in exclude_keywords:
@@ -592,7 +608,7 @@ def analyze_framework(fw: FrameworkConfig, base_path: Path, dry_run: bool = Fals
                     break
             if not excluded and f.is_file():
                 filtered_files.append(f)
-        
+
         # Parse files
         for file_path in filtered_files:
             try:
@@ -601,27 +617,27 @@ def analyze_framework(fw: FrameworkConfig, base_path: Path, dry_run: bool = Fals
             except Exception as e:
                 if "already exists" not in str(e):
                     errors.append(f"{file_path.name}: {str(e)[:50]}")
-        
+
         # Get statistics
         all_entities = graph.entities.all()
         all_rels = graph.relationships.all()
-        
+
         type_counts = {}
         for e in all_entities:
             t = e.type.value
             type_counts[t] = type_counts.get(t, 0) + 1
-        
+
         rel_counts = {}
         for r in all_rels:
             t = r.type.value
             rel_counts[t] = rel_counts.get(t, 0) + 1
-        
+
         # Save knowledge graph
         output_dir = base_path.parent / "knowledge_graphs"
         output_dir.mkdir(exist_ok=True)
         graph_file = output_dir / f"{fw.directory}.json"
         graph.save(graph_file)
-        
+
         return {
             "name": fw.name,
             "directory": fw.directory,
@@ -642,6 +658,7 @@ def analyze_framework(fw: FrameworkConfig, base_path: Path, dry_run: bool = Fals
 # Main Functions
 # =============================================================================
 
+
 def update_repositories(
     frameworks: list[FrameworkConfig],
     base_path: Path,
@@ -651,15 +668,15 @@ def update_repositories(
 ) -> list[dict]:
     """
     Update all framework repositories.
-    
+
     Returns:
         List of update results
     """
     results = []
-    
+
     def process_framework(fw: FrameworkConfig) -> dict:
         fw_path = base_path / fw.directory
-        
+
         if fw_path.exists():
             success, message = git_pull(fw_path, dry_run=dry_run)
             return {
@@ -686,19 +703,19 @@ def update_repositories(
                 "success": False,
                 "message": "Directory not found (use --clone-missing to clone)",
             }
-    
+
     # Process in parallel
     with ThreadPoolExecutor(max_workers=parallel) as executor:
         futures = {executor.submit(process_framework, fw): fw for fw in frameworks}
-        
+
         for future in as_completed(futures):
             result = future.result()
             results.append(result)
-            
+
             # Print progress
             status = "✅" if result["success"] else "❌"
             print(f"  {status} {result['name']}: {result['message']}")
-    
+
     return results
 
 
@@ -709,25 +726,25 @@ def rebuild_knowledge_graphs(
 ) -> list[dict]:
     """
     Rebuild knowledge graphs for all frameworks.
-    
+
     Returns:
         List of analysis results
     """
     results = []
-    
+
     for i, fw in enumerate(frameworks, 1):
         print(f"  [{i:2d}/{len(frameworks)}] {fw.name}...", end=" ", flush=True)
-        
+
         result = analyze_framework(fw, base_path, dry_run=dry_run)
         results.append(result)
-        
+
         if "error" in result:
             print(f"❌ {result['error']}")
         elif result.get("dry_run"):
-            print(f"[DRY RUN]")
+            print("[DRY RUN]")
         else:
             print(f"✅ {result['entities']:,} entities, {result['relationships']:,} relationships")
-    
+
     return results
 
 
@@ -738,7 +755,7 @@ def save_summary(results: dict, output_path: Path):
         "version": "0.4.0",
         **results,
     }
-    
+
     output_path.write_text(json.dumps(summary, indent=2, ensure_ascii=False))
     print(f"\n📄 Summary saved to: {output_path}")
 
@@ -749,37 +766,38 @@ def print_summary(update_results: list[dict], analysis_results: list[dict]):
     print("=" * 80)
     print("📊 Summary")
     print("=" * 80)
-    
+
     # Update summary
     if update_results:
         updated = len([r for r in update_results if r["success"] and r["action"] == "pull"])
         cloned = len([r for r in update_results if r["success"] and r["action"] == "clone"])
         failed = len([r for r in update_results if not r["success"]])
-        
+
         print(f"Git operations: {updated} updated, {cloned} cloned, {failed} failed")
-    
+
     # Analysis summary
     if analysis_results:
         successful = [r for r in analysis_results if "error" not in r and not r.get("dry_run")]
         total_entities = sum(r.get("entities", 0) for r in successful)
         total_relationships = sum(r.get("relationships", 0) for r in successful)
-        
+
         print(f"Frameworks analyzed: {len(successful)}")
         print(f"Total entities: {total_entities:,}")
         print(f"Total relationships: {total_relationships:,}")
-    
+
     print()
 
 
 def main():
     """Main entry point."""
     parser = argparse.ArgumentParser(
-        description="Update YATA knowledge database",
+        description="Update MAGATAMA knowledge database",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=__doc__,
     )
     parser.add_argument(
-        "--frameworks", "-f",
+        "--frameworks",
+        "-f",
         nargs="+",
         help="Specific frameworks to update (by directory name)",
     )
@@ -804,7 +822,8 @@ def main():
         help="Show what would be done without making changes",
     )
     parser.add_argument(
-        "--parallel", "-p",
+        "--parallel",
+        "-p",
         type=int,
         default=4,
         help="Number of parallel git operations (default: 4)",
@@ -812,12 +831,12 @@ def main():
     parser.add_argument(
         "--base-path",
         type=Path,
-        default=Path("/home/nahisaho/GitHub/YATA/frameworks"),
+        default=Path("/home/nahisaho/GitHub/MAGATAMA/frameworks"),
         help="Base path for framework repositories",
     )
-    
+
     args = parser.parse_args()
-    
+
     # Filter frameworks if specified
     if args.frameworks:
         frameworks = [fw for fw in FRAMEWORKS if fw.directory in args.frameworks]
@@ -827,19 +846,19 @@ def main():
             sys.exit(1)
     else:
         frameworks = FRAMEWORKS
-    
+
     print("=" * 80)
-    print("🔄 YATA Knowledge Database Updater")
+    print("🔄 MAGATAMA Knowledge Database Updater")
     print("=" * 80)
     print(f"Frameworks: {len(frameworks)}")
     print(f"Base path: {args.base_path}")
     if args.dry_run:
         print("Mode: DRY RUN")
     print()
-    
+
     update_results = []
     analysis_results = []
-    
+
     # Step 1: Update repositories
     if not args.no_update:
         print("📥 Updating repositories...")
@@ -851,7 +870,7 @@ def main():
             parallel=args.parallel,
         )
         print()
-    
+
     # Step 2: Rebuild knowledge graphs
     if not args.no_analyze:
         print("🧠 Rebuilding knowledge graphs...")
@@ -860,15 +879,15 @@ def main():
             args.base_path,
             dry_run=args.dry_run,
         )
-    
+
     # Print summary
     print_summary(update_results, analysis_results)
-    
+
     # Save summary
     if not args.dry_run and analysis_results:
         output_dir = args.base_path.parent / "knowledge_graphs"
         output_dir.mkdir(exist_ok=True)
-        
+
         save_summary(
             {
                 "frameworks_count": len(frameworks),

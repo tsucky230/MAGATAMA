@@ -7,6 +7,10 @@ updated_at: '2026-01-01'
 
 # YATA MCP Server 性能評価レポート
 
+> **注記**: 本レポートはフォーク元である **YATA（八咫）本体** を対象に実施した評価です。
+> 掲載している測定値は YATA の実測値であり、フォークである [MAGATAMA](https://github.com/tsucky230/MAGATAMA)
+> 固有の数値ではありません。MAGATAMA は YATA をベースに comP Bridge を追加したものです。
+
 ## はじめに
 
 本記事では、**YATA（八咫）MCP Server** の性能評価を、**MUSUBI（Ultimate Specification Driven Development）** フレームワークを用いた仮想プロジェクトで実施した結果を報告します。
@@ -622,7 +626,7 @@ flowchart TD
 - [MUSUBI GitHub Repository](https://github.com/nahisaho/musubi)
 - [CodeGraph MCP Server](https://github.com/nahisaho/CodeGraphMCPServer)
 - [Model Context Protocol](https://modelcontextprotocol.io/)
-- [YATA vs Context7 詳細比較](YATA_vs_Context7.md)
+- [YATA vs Context7 詳細比較](MAGATAMA_vs_Context7.md)
 
 ---
 

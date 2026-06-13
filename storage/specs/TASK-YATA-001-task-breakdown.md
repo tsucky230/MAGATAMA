@@ -19,8 +19,8 @@
 
 | プロジェクト | 説明 | 独立デプロイ |
 |-------------|------|-------------|
-| `yata-core` | 知識グラフエンジン（ライブラリ） | ✅ pip install |
-| `yata-mcp` | MCP Server（アプリケーション） | ✅ CLI/Server |
+| `magatama-core` | 知識グラフエンジン（ライブラリ） | ✅ pip install |
+| `magatama-mcp` | MCP Server（アプリケーション） | ✅ CLI/Server |
 
 **※ 2プロジェクト構成でArticle VII制約をクリア**
 
@@ -54,7 +54,7 @@
 - Article VI (Project Memory)
 
 **Acceptance Criteria**:
-- [ ] monorepo構造（`yata-core/`, `yata-mcp/`）
+- [ ] monorepo構造（`magatama-core/`, `magatama-mcp/`）
 - [ ] pyproject.toml（両プロジェクト）
 - [ ] 開発環境設定（uv, ruff, mypy, pytest）
 - [ ] CI/CD設定（GitHub Actions）
@@ -64,9 +64,9 @@
 **Priority**: P0
 
 ```
-yata/
-├── yata-core/                    # ライブラリ（Article I）
-│   ├── src/yata_core/
+magatama/
+├── magatama-core/                    # ライブラリ（Article I）
+│   ├── src/magatama_core/
 │   │   ├── domain/              # Domain Layer
 │   │   │   ├── entities/
 │   │   │   ├── value_objects/
@@ -80,8 +80,8 @@ yata/
 │   │   └── __init__.py
 │   ├── tests/
 │   └── pyproject.toml
-├── yata-mcp/                     # アプリケーション
-│   ├── src/yata_mcp/
+├── magatama-mcp/                     # アプリケーション
+│   ├── src/magatama_mcp/
 │   │   ├── server/
 │   │   ├── cli/
 │   │   └── __init__.py
@@ -192,7 +192,7 @@ class LibraryRepository(Protocol):
 **Design Reference**: [DES-YATA-005](DES-YATA-005-error-codes.md)
 
 **Acceptance Criteria**:
-- [ ] `YataError`基底クラス
+- [ ] `MagatamaError`基底クラス
 - [ ] エラーカテゴリ別サブクラス（Library, Parser, Storage, GitHub, Query）
 - [ ] エラーコード定数（1000-5999）
 - [ ] MCP準拠フォーマット変換
@@ -214,7 +214,7 @@ class LibraryRepository(Protocol):
 **Design Reference**: [DES-YATA-006](DES-YATA-006-configuration.md)
 
 **Acceptance Criteria**:
-- [ ] `~/.yata/config.toml`読み込み
+- [ ] `~/.magatama/config.toml`読み込み
 - [ ] 環境変数オーバーライド
 - [ ] pydantic-settings統合
 - [ ] デフォルト値設定
@@ -686,9 +686,9 @@ class Calculator:
 - REQ-MCP-006 (MCPリソース)
 
 **Acceptance Criteria**:
-- [ ] `yata://libraries` - ライブラリ一覧
-- [ ] `yata://entities/{id}` - エンティティ詳細
-- [ ] `yata://stats` - グラフ統計
+- [ ] `magatama://libraries` - ライブラリ一覧
+- [ ] `magatama://entities/{id}` - エンティティ詳細
+- [ ] `magatama://stats` - グラフ統計
 
 **Dependencies**: TASK-020, 015
 **Estimated**: 4h
@@ -778,7 +778,7 @@ class Calculator:
 
 ---
 
-#### TASK-030: `yata index`コマンド
+#### TASK-030: `magatama index`コマンド
 
 **説明**: ライブラリインデックス作成CLI
 
@@ -801,7 +801,7 @@ class Calculator:
 
 ---
 
-#### TASK-031: `yata serve`コマンド
+#### TASK-031: `magatama serve`コマンド
 
 **説明**: MCPサーバー起動CLI
 
@@ -820,7 +820,7 @@ class Calculator:
 
 ---
 
-#### TASK-032: `yata query`コマンド
+#### TASK-032: `magatama query`コマンド
 
 **説明**: CLIからのクエリ実行
 
@@ -839,7 +839,7 @@ class Calculator:
 
 ---
 
-#### TASK-033: `yata stats`コマンド
+#### TASK-033: `magatama stats`コマンド
 
 **説明**: 統計情報表示CLI
 
@@ -858,7 +858,7 @@ class Calculator:
 
 ---
 
-#### TASK-034: `yata watch`コマンド
+#### TASK-034: `magatama watch`コマンド
 
 **説明**: ファイル監視・自動インデックス
 
@@ -1030,8 +1030,8 @@ class Calculator:
 - Article I (独立デプロイ可能)
 
 **Acceptance Criteria**:
-- [ ] yata-core パッケージ
-- [ ] yata-mcp パッケージ（依存: yata-core）
+- [ ] magatama-core パッケージ
+- [ ] magatama-mcp パッケージ（依存: magatama-core）
 - [ ] PyPI公開設定
 - [ ] GitHub Releases設定
 
@@ -1105,7 +1105,7 @@ class Calculator:
 
 | Article | 説明 | 実装タスク |
 |---------|------|------------|
-| I | Library-First | TASK-001 (yata-core分離) |
+| I | Library-First | TASK-001 (magatama-core分離) |
 | II | CLI Interface | TASK-029-034 |
 | III | Test-First | 全タスク（TDDサイクル） |
 | IV | EARS Format | REQ-YATA-001（完了済み） |

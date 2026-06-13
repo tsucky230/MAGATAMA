@@ -1,6 +1,7 @@
-# YATA Release Workflow
+# MAGATAMA Release Workflow
 # Triggered on version tags (v*.*.*)
-# Builds and publishes packages to PyPI
+# Builds packages and creates a GitHub Release. (PyPI publishing is disabled for
+# this fork — see the publish-pypi job below.)
 
 name: Release
 
@@ -44,7 +45,7 @@ jobs:
     needs: [verify]
     strategy:
       matrix:
-        package: [yata-core, yata-mcp]
+        package: [magatama-core, magatama-mcp]
     steps:
       - uses: actions/checkout@v4
 
@@ -66,35 +67,43 @@ jobs:
           path: dist/
 
   # Publish to PyPI
-  publish-pypi:
-    name: Publish ${{ matrix.package }} to PyPI
-    runs-on: ubuntu-latest
-    needs: [build]
-    strategy:
-      matrix:
-        package: [yata-core, yata-mcp]
-    environment: pypi
-    permissions:
-      id-token: write
-    steps:
-      - name: Download artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: dist-${{ matrix.package }}
-          path: dist/
-
-      - name: Publish to PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          # Uses trusted publishing (OIDC)
-          # Configure at https://pypi.org/manage/account/publishing/
-          packages-dir: dist/
+  # NOTE: Disabled for the MAGATAMA fork.
+  #   - PyPI publishing is intentionally not configured for this fork: there is
+  #     no `pypi` GitHub Environment / PyPI Trusted Publisher set up for
+  #     tsucky230/MAGATAMA.
+  # To enable PyPI publishing: register the `magatama-core` / `magatama-mcp`
+  # projects on PyPI, set up Trusted Publishing, create a `pypi` environment,
+  # then uncomment this job and restore `needs: [publish-pypi]` on
+  # github-release below.
+  # publish-pypi:
+  #   name: Publish ${{ matrix.package }} to PyPI
+  #   runs-on: ubuntu-latest
+  #   needs: [build]
+  #   strategy:
+  #     matrix:
+  #       package: [magatama-core, magatama-mcp]
+  #   environment: pypi
+  #   permissions:
+  #     id-token: write
+  #   steps:
+  #     - name: Download artifacts
+  #       uses: actions/download-artifact@v4
+  #       with:
+  #         name: dist-${{ matrix.package }}
+  #         path: dist/
+  #
+  #     - name: Publish to PyPI
+  #       uses: pypa/gh-action-pypi-publish@release/v1
+  #       with:
+  #         # Uses trusted publishing (OIDC)
+  #         # Configure at https://pypi.org/manage/account/publishing/
+  #         packages-dir: dist/
 
   # Create GitHub Release
   github-release:
     name: GitHub Release
     runs-on: ubuntu-latest
-    needs: [publish-pypi]
+    needs: [build]
     permissions:
       contents: write
     steps:
@@ -114,7 +123,7 @@ jobs:
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
-          name: YATA v${{ steps.version.outputs.version }}
+          name: MAGATAMA v${{ steps.version.outputs.version }}
           draft: false
           prerelease: ${{ contains(github.ref, 'alpha') || contains(github.ref, 'beta') || contains(github.ref, 'rc') }}
           generate_release_notes: true

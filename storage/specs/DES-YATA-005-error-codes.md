@@ -110,7 +110,7 @@
     "code": 1001,
     "message": "Library not found: lib-invalid-id",
     "data": {
-      "error_id": "yata-err-20251231-abc123",
+      "error_id": "magatama-err-20251231-abc123",
       "library_id": "lib-invalid-id",
       "suggestion": "Use list_libraries to get valid library IDs",
       "docs_url": "https://github.com/nahisaho/YATA/docs/errors#1001"
@@ -135,14 +135,14 @@
 ### 6.1 エラークラス定義
 
 ```python
-# src/yata/core/errors.py
+# src/magatama/core/errors.py
 from enum import IntEnum
 from dataclasses import dataclass
 from typing import Any
 import uuid
 from datetime import datetime
 
-class YataErrorCode(IntEnum):
+class MagatamaErrorCode(IntEnum):
     """YATA Error Codes"""
     # Library Errors (1000-1999)
     LIBRARY_NOT_FOUND = 1001
@@ -182,9 +182,9 @@ class YataErrorCode(IntEnum):
 
 
 @dataclass
-class YataError(Exception):
+class MagatamaError(Exception):
     """Base YATA Error"""
-    code: YataErrorCode
+    code: MagatamaErrorCode
     message: str
     data: dict[str, Any] | None = None
     
@@ -194,7 +194,7 @@ class YataError(Exception):
     def _generate_error_id(self) -> str:
         date = datetime.now().strftime("%Y%m%d")
         short_uuid = uuid.uuid4().hex[:6]
-        return f"yata-err-{date}-{short_uuid}"
+        return f"magatama-err-{date}-{short_uuid}"
     
     def to_mcp_error(self) -> dict:
         """Convert to MCP error response format"""
@@ -209,9 +209,9 @@ class YataError(Exception):
 
 
 # Convenience factory functions
-def library_not_found(library_id: str) -> YataError:
-    return YataError(
-        code=YataErrorCode.LIBRARY_NOT_FOUND,
+def library_not_found(library_id: str) -> MagatamaError:
+    return MagatamaError(
+        code=MagatamaErrorCode.LIBRARY_NOT_FOUND,
         message=f"Library not found: {library_id}",
         data={
             "library_id": library_id,
@@ -219,9 +219,9 @@ def library_not_found(library_id: str) -> YataError:
         }
     )
 
-def parser_language_not_supported(lang: str) -> YataError:
-    return YataError(
-        code=YataErrorCode.PARSER_LANGUAGE_NOT_SUPPORTED,
+def parser_language_not_supported(lang: str) -> MagatamaError:
+    return MagatamaError(
+        code=MagatamaErrorCode.PARSER_LANGUAGE_NOT_SUPPORTED,
         message=f"Language not supported: {lang}",
         data={
             "language": lang,
@@ -229,9 +229,9 @@ def parser_language_not_supported(lang: str) -> YataError:
         }
     )
 
-def github_rate_limited(reset_at: str) -> YataError:
-    return YataError(
-        code=YataErrorCode.GITHUB_RATE_LIMITED,
+def github_rate_limited(reset_at: str) -> MagatamaError:
+    return MagatamaError(
+        code=MagatamaErrorCode.GITHUB_RATE_LIMITED,
         message="GitHub API rate limited",
         data={
             "reset_at": reset_at,
@@ -243,12 +243,12 @@ def github_rate_limited(reset_at: str) -> YataError:
 ### 6.2 MCP Tool でのエラーハンドリング
 
 ```python
-# src/yata/mcp/tools.py
+# src/magatama/mcp/tools.py
 from mcp.server.fastmcp import FastMCP
 from mcp.types import McpError
-from yata.core.errors import YataError, YataErrorCode
+from magatama.core.errors import MagatamaError, MagatamaErrorCode
 
-mcp = FastMCP("yata")
+mcp = FastMCP("magatama")
 
 @mcp.tool()
 async def resolve_library(query: str) -> dict:
@@ -256,13 +256,13 @@ async def resolve_library(query: str) -> dict:
     try:
         result = await library_service.resolve(query)
         if not result:
-            raise YataError(
-                code=YataErrorCode.LIBRARY_NOT_FOUND,
+            raise MagatamaError(
+                code=MagatamaErrorCode.LIBRARY_NOT_FOUND,
                 message=f"No library found for query: {query}",
                 data={"query": query}
             )
         return result
-    except YataError as e:
+    except MagatamaError as e:
         raise McpError(e.code, e.message, e.to_mcp_error()["data"])
     except Exception as e:
         raise McpError(-32603, f"Internal error: {str(e)}")
@@ -279,9 +279,9 @@ import structlog
 
 logger = structlog.get_logger()
 
-def log_error(error: YataError):
+def log_error(error: MagatamaError):
     logger.error(
-        "yata_error",
+        "magatama_error",
         error_id=error.error_id,
         error_code=error.code,
         error_name=error.code.name,
@@ -296,8 +296,8 @@ def log_error(error: YataError):
 {
   "timestamp": "2025-12-31T12:34:56.789Z",
   "level": "error",
-  "event": "yata_error",
-  "error_id": "yata-err-20251231-abc123",
+  "event": "magatama_error",
+  "error_id": "magatama-err-20251231-abc123",
   "error_code": 1001,
   "error_name": "LIBRARY_NOT_FOUND",
   "message": "Library not found: lib-invalid-id",
