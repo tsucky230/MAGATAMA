@@ -1,8 +1,8 @@
 # MAGATAMA Release Workflow
 # Triggered on version tags (v*.*.*)
 # Flow: verify tests -> build packages -> publish to PyPI -> create GitHub Release.
-# PyPI publishing uses Trusted Publishing and requires one-time setup
-# (see the publish-pypi job below for prerequisites).
+# PyPI publishing uses an API token stored in the `PYPI_API_TOKEN` repo secret
+# (see the publish-pypi job below).
 
 name: Release
 
@@ -67,16 +67,12 @@ jobs:
           name: dist-${{ matrix.package }}
           path: dist/
 
-  # Publish to PyPI via Trusted Publishing (OIDC — no API token needed).
-  # PREREQUISITES (one-time, done outside this repo):
-  #   1. On PyPI, add a Trusted Publisher to BOTH projects `magatama` and
-  #      `magatama-core`:
-  #        Owner: tsucky230  Repo: MAGATAMA
-  #        Workflow: release.yml  Environment: pypi
-  #      (https://pypi.org/manage/account/publishing/)
-  #   2. In GitHub repo Settings → Environments, create an environment named
-  #      `pypi`.
-  # If these are not set up, this job fails and no GitHub Release is created.
+  # Publish to PyPI using an API token.
+  # PREREQUISITE (one-time): add a repository secret `PYPI_API_TOKEN` containing
+  # an account-scoped PyPI API token (account scope is required to create the
+  # `magatama` / `magatama-core` projects on first publish). After the projects
+  # exist, the token can be narrowed to project scope or switched to Trusted
+  # Publishing.
   publish-pypi:
     name: Publish ${{ matrix.package }} to PyPI
     runs-on: ubuntu-latest
@@ -84,9 +80,6 @@ jobs:
     strategy:
       matrix:
         package: [magatama-core, magatama]
-    environment: pypi
-    permissions:
-      id-token: write
     steps:
       - name: Download artifacts
         uses: actions/download-artifact@v4
@@ -97,8 +90,7 @@ jobs:
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
-          # Uses trusted publishing (OIDC)
-          # Configure at https://pypi.org/manage/account/publishing/
+          password: ${{ secrets.PYPI_API_TOKEN }}
           packages-dir: dist/
 
   # Create GitHub Release
