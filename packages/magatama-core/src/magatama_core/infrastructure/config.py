@@ -13,6 +13,8 @@ from pathlib import Path
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+from magatama_core import __version__
+
 
 class LogLevel(str, Enum):
     """Logging levels for MAGATAMA."""
@@ -107,7 +109,7 @@ class MCPConfig(BaseSettings):
         description="MCP server name",
     )
     version: str = Field(
-        default="0.1.0",
+        default=__version__,
         description="Server version",
     )
     max_context_tokens: int = Field(

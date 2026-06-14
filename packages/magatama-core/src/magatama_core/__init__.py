@@ -7,6 +7,8 @@ providing AST parsing and graph-based code understanding.
 Article I Compliance: This is an independent library.
 """
 
+from importlib.metadata import PackageNotFoundError, version
+
 from magatama_core.domain.entities import (
     ClassEntity,
     Entity,
@@ -20,7 +22,12 @@ from magatama_core.domain.entities import (
 )
 from magatama_core.domain.value_objects import EntityId, LibraryId, Location, Version
 
-__version__ = "0.1.0"
+try:
+    # Single source of truth: the distribution version in pyproject.toml.
+    __version__ = version("magatama-core")
+except PackageNotFoundError:  # pragma: no cover - e.g. running from a source tree
+    __version__ = "0.0.0+unknown"
+
 __all__ = [
     # Entities
     "Entity",

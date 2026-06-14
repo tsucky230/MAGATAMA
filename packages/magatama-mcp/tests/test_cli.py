@@ -23,10 +23,12 @@ class TestMagatamaCli:
         assert "MAGATAMA" in result.output
 
     def test_version_command(self, runner: CliRunner) -> None:
-        """Test version command."""
+        """Test version command reports the installed package version."""
+        from magatama_mcp import __version__
+
         result = runner.invoke(cli, ["--version"])
         assert result.exit_code == 0
-        assert "0.1.0" in result.output
+        assert __version__ in result.output
 
     def test_parse_command_help(self, runner: CliRunner) -> None:
         """Test parse command help."""
