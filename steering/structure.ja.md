@@ -1,91 +1,77 @@
 # Project Structure
 
-**Project**: YATA (八咫)
+**Project**: MAGATAMA (勾玉)
 **Last Updated**: 2026-01-01
-**Version**: 1.1
+**Version**: 1.2
+
+> MAGATAMA は [YATA (八咫)](https://github.com/nahisaho/YATA) のフォークに、
+> コードインデクサー [comP](https://github.com/tsucky230/comP) との連携
+> （comP Bridge）を追加した MCP Server です。
 
 ---
 
 ## Architecture Pattern
 
-**Primary Pattern**: Clean Architecture + MCP Server
+**Primary Pattern**: Clean Architecture + MCP Server（uv モノレポ）
 
-> YATAはClean Architectureパターンを採用し、MCPプロトコルを通じてAIコーディングツールにコンテキストを提供するサーバーアプリケーションです。
-> コア機能は独立したドメイン層として実装され、MCP Interface層を通じて公開されます。
+> MAGATAMA は Clean Architecture を採用し、MCP プロトコルを通じて AI コーディング
+> ツールにコンテキストを提供します。コア機能は `magatama-core` ライブラリとして
+> 独立実装され、`magatama-mcp`（MCP サーバ＋CLI）から公開されます（Article I）。
 
 ---
 
-## Architecture Layers (YATA Specific)
+## Architecture Layers
 
 ### Layer 1: Domain / Core
 
 **Purpose**: 知識グラフのコアロジックとエンティティ定義
-**Location**: `src/magatama/core/`
-**Rules**:
+**Location**: `packages/magatama-core/src/magatama_core/domain/`
+**Rules**: フレームワーク非依存の純粋 Python / MCP 非依存 / 外部 I/O なし
 
-- フレームワーク非依存の純粋なPythonコード
-- MCPプロトコルへの依存なし
-- 外部I/O操作なし
-
-**Contents**:
-| ファイル | 説明 |
-|----------|------|
-| `entities.py` | エンティティモデル（Class, Function, Method等） |
-| `relations.py` | 関係性モデル（Inherits, Calls, Depends等） |
-| `graph.py` | グラフ操作ロジック |
-| `indexer.py` | インデックス作成ロジック |
+| パス | 説明 |
+|------|------|
+| `entities/code_entities.py` | エンティティモデル（Class, Function, Method 等） |
+| `entities/relationships.py` | 関係性モデル（CALLS, IMPORTS, INHERITS, CONTAINS） |
+| `value_objects/` | 値オブジェクト（EntityId, Location, Version） |
+| `repositories/` | リポジトリインターフェース（Ports） |
 
 ### Layer 2: Application / Use Cases
 
-**Purpose**: ユースケースの実装とサービスオーケストレーション
-**Location**: `src/magatama/application/`
-**Rules**:
+**Purpose**: ユースケースの実装とオーケストレーション
+**Location**: `packages/magatama-core/src/magatama_core/application/`
+**Rules**: Domain 層のみに依存 / 直接 I/O なし
 
-- Domain層のみに依存
-- Infrastructure層のインターフェースを定義（Ports）
-- 直接のI/O操作なし
-
-**Contents**:
-| ファイル | 説明 |
-|----------|------|
-| `library_service.py` | ライブラリ管理サービス |
-| `query_service.py` | クエリ実行サービス |
-| `index_service.py` | インデックス作成サービス |
-| `ports.py` | インフラ層へのインターフェース |
+| パス | 説明 |
+|------|------|
+| `usecases/parse_usecase.py` | ファイル／ディレクトリ解析 |
+| `usecases/comp_usecase.py` | **comP Bridge**: `LoadCompIndexUseCase`（index.db 取り込み） |
+| `usecases/framework_usecase.py` | フレームワーク知識・検索・コンテキスト生成 |
+| `services/` | benchmark, graph_validator 等 |
 
 ### Layer 3: Infrastructure / Adapters
 
-**Purpose**: 外部システムとの統合（ストレージ、パーサー）
-**Location**: `src/magatama/infrastructure/`
-**Rules**:
+**Purpose**: 外部システム統合（ストレージ、パーサー、comP）
+**Location**: `packages/magatama-core/src/magatama_core/infrastructure/`
+**Rules**: Application 層の Ports を実装 / I/O をここに集約
 
-- Application層のPortsを実装
-- 全てのI/O操作をここに集約
-- 具体的な技術実装
-
-**Contents**:
 | サブディレクトリ | 説明 |
 |------------------|------|
-| `storage/` | SQLite永続化、キャッシュ |
-| `parsers/` | Tree-sitterパーサー実装 |
+| `parsers/` | Tree-sitter パーサー実装（24 言語） |
+| `storage/networkx_graph.py` | NetworkX 知識グラフ |
+| `storage/sqlite_storage.py` | SQLite 永続化 |
+| `storage/comp_index_reader.py` | **comP Bridge**: `.comp/index.db` 読取（WAL, 読み取り専用） |
 
 ### Layer 4: Interface / Presentation
 
-**Purpose**: MCPプロトコルインターフェース、CLI
-**Location**: `src/magatama/mcp/`, `src/magatama/cli/`
-**Rules**:
+**Purpose**: MCP プロトコルインターフェース、CLI
+**Location**: `packages/magatama-mcp/src/magatama_mcp/`
+**Rules**: Application 層を呼び出し / 入力検証・整形 / MCP 準拠
 
-- Application層のサービスを呼び出し
-- 入力バリデーションとレスポンス整形
-- MCPプロトコル準拠
-
-**Contents**:
-| ファイル | 説明 |
-|----------|------|
-| `mcp/tools.py` | MCPツール定義（32ツール） |
-| `mcp/resources.py` | MCPリソース定義 |
-| `mcp/prompts.py` | MCPプロンプト定義 |
-| `cli/commands.py` | CLIコマンド実装 |
+| パス | 説明 |
+|------|------|
+| `server/mcp_server.py` | MCP ツール登録（36 ツール） |
+| `server/protocol.py` | FastMCP サーバ生成・プロンプト・リソース |
+| `cli/main.py` | CLI コマンド（parse / query / stats / serve / watch …） |
 
 ### Layer Dependency Rules
 
@@ -93,9 +79,9 @@
 ┌─────────────────────────────────────────┐
 │   Interface Layer (MCP/CLI)             │ ← Entry points
 ├─────────────────────────────────────────┤
-│   Application Layer (Services)          │ ← Use Cases
+│   Application Layer (Use Cases)         │
 ├─────────────────────────────────────────┤
-│   Infrastructure Layer (Storage/Parser) │ ← I/O & External
+│   Infrastructure Layer (Storage/Parser) │ ← I/O & External (comP)
 ├─────────────────────────────────────────┤
 │   Domain Layer (Core)                   │ ← Pure logic
 └─────────────────────────────────────────┘
@@ -108,402 +94,128 @@ Domain layer has NO dependencies
 
 ## Directory Organization
 
-### Root Structure (YATA)
-
 ```
-YATA/
-├── src/magatama/              # メインパッケージ
-│   ├── __init__.py
-│   ├── __main__.py        # CLI entry point
-│   ├── server.py          # MCP server main
-│   ├── config.py          # Configuration
-│   ├── core/              # Domain layer
-│   │   ├── __init__.py
-│   │   ├── entities.py    # エンティティモデル
-│   │   ├── relations.py   # 関係性モデル
-│   │   ├── graph.py       # グラフ操作
-│   │   └── indexer.py     # インデックスロジック
-│   ├── application/       # Application layer
-│   │   ├── __init__.py
-│   │   ├── library_service.py
-│   │   ├── query_service.py
-│   │   ├── index_service.py
-│   │   └── ports.py       # インフラ層インターフェース
-│   ├── infrastructure/    # Infrastructure layer
-│   │   ├── __init__.py
-│   │   ├── storage/
-│   │   │   ├── __init__.py
-│   │   │   ├── sqlite.py
-│   │   │   └── cache.py
-│   │   └── parsers/
-│   │       ├── __init__.py
-│   │       ├── base.py    # パーサーインターフェース
-│   │       ├── python.py
-│   │       ├── typescript.py
-│   │       ├── javascript.py
-│   │       ├── rust.py
-│   │       └── go.py
-│   └── mcp/               # MCP Interface layer
-│       ├── __init__.py
-│       ├── tools.py       # MCP Tools (14種)
-│       ├── resources.py   # MCP Resources
-│       └── prompts.py     # MCP Prompts
-├── tests/                 # テストスイート
-│   ├── unit/              # ユニットテスト
-│   ├── integration/       # 統合テスト
-│   └── fixtures/          # テストフィクスチャ
-├── docs/                  # ドキュメント
-├── storage/               # SDD artifacts
-│   ├── specs/             # 要件、設計、タスク
-│   ├── changes/           # 変更仕様
-│   └── archive/           # アーカイブ
-├── steering/              # Project memory
-│   ├── structure.ja.md    # このファイル
-│   ├── tech.ja.md         # 技術スタック
-│   ├── product.ja.md      # 製品コンテキスト
-│   ├── project.yml        # プロジェクト設定
-│   └── rules/             # Constitutional governance
-├── templates/             # ドキュメントテンプレート
-├── pyproject.toml         # Python project config
-├── README.md              # プロジェクト説明
-└── AGENTS.md              # AI Agent設定
+MAGATAMA/                            # uv モノレポ
+├── packages/
+│   ├── magatama-core/               # 知識グラフエンジン（ライブラリ）
+│   │   ├── src/magatama_core/
+│   │   │   ├── domain/              # entities, value_objects, repositories
+│   │   │   ├── application/         # usecases, services
+│   │   │   └── infrastructure/      # parsers/, storage/（comp_index_reader 含む）
+│   │   └── tests/
+│   └── magatama-mcp/                # MCP サーバ＋CLI（配布名 `magatama`）
+│       ├── src/magatama_mcp/
+│       │   ├── server/              # FastMCP 実装（36 ツール）
+│       │   └── cli/                 # Click 実装
+│       └── tests/                   # cli / server / e2e
+├── knowledge_graphs/                # 47 フレームワーク事前学習済みグラフ（JSON）
+├── docs/                            # 利用ガイド（日英）
+├── storage/specs/                   # SDD 設計ドキュメント（要件・C4・ADR）
+├── steering/                        # Project memory（structure / tech / product / rules）
+├── scripts/                         # 補助スクリプト
+├── pyproject.toml                   # ワークスペース設定
+├── README.md                        # English（メイン）
+├── README_jp.md                     # 日本語
+└── AGENTS.md                        # AI Agent 設定
 ```
 
 ---
 
 ## MCP Tools Architecture (Article II: CLI Interface)
 
-YATAは32種類のMCPツールを提供します。
+MAGATAMA は **36 種類**の MCP ツールを提供します（YATA 由来 34 + comP Bridge 2）。
 
 ### Tool Categories
 
-#### 基本ツール (8)
+#### comP Bridge (2)
 | ツール | 説明 | パラメータ |
 |--------|------|-----------|
-| `parse_file` | ソースファイル解析 | path |
-| `parse_directory` | ディレクトリ一括解析 | path, pattern |
-| `search_entities` | エンティティ検索 | query, type |
+| `read_external_graph` | comP インデックスを知識グラフに取り込む | path, mode |
+| `get_external_graph_info` | comP インデックスの統計を確認（ロードなし） | path |
+
+#### 基本ツール (10)
+| ツール | 説明 | パラメータ |
+|--------|------|-----------|
+| `parse_file` | ソースファイル解析 | file_path |
+| `parse_directory` | ディレクトリ一括解析 | directory, patterns |
+| `search_entities` | エンティティ検索 | query, entity_type |
 | `get_entity` | エンティティ詳細取得 | entity_id |
 | `get_related_entities` | 関連エンティティ取得 | entity_id |
 | `get_graph_stats` | 統計情報取得 | - |
-| `save_graph` | グラフ保存 | path |
-| `load_graph` | グラフ読み込み | path |
+| `save_graph` / `load_graph` | グラフ保存／読込 | file_path |
+| `list_supported_languages` | 24 言語一覧 | - |
+| `get_language_for_file` | 拡張子から言語判定 | file_path |
 
 #### フレームワーク知識グラフツール (7)
-| ツール | 説明 | パラメータ |
-|--------|------|-----------|
-| `register_framework` | フレームワーク登録 | name, version |
-| `search_framework` | フレームワーク検索 | framework, query |
-| `get_framework_entity` | フレームワークエンティティ取得 | framework, entity_id |
-| `list_frameworks` | フレームワーク一覧 | - |
-| `get_framework_stats` | フレームワーク統計 | framework |
-| `get_usage_examples` | 使用例取得 | framework, entity |
-| `get_framework_structure` | 構造取得 | framework |
+`list_frameworks` / `search_framework_docs` / `search_all_frameworks` /
+`find_code_patterns` / `get_framework_entity_context` /
+`framework_semantic_search_tool` / `framework_find_by_pattern`
 
-#### Phase 1: ドキュメント生成ツール (3)
-| ツール | 説明 | パラメータ |
-|--------|------|-----------|
-| `generate_documentation` | ドキュメント自動生成 | entity_id, format |
-| `recommend_code` | コード推奨取得 | context, query |
-| `analyze_impact` | 変更影響分析 | entity_id |
+#### 検索・コンテキスト (4)
+`semantic_search` / `find_by_pattern` / `get_code_context` / `find_usage_examples`
 
-#### Phase 2: 検索・品質分析ツール (4)
-| ツール | 説明 | パラメータ |
-|--------|------|-----------|
-| `hybrid_search` | ハイブリッド検索 | query, weights |
-| `analyze_quality` | 品質メトリクス分析 | entity_id |
-| `track_evolution` | コード進化追跡 | path, since |
-| `find_hotspots` | ホットスポット検出 | path |
+#### ドキュメント・推奨 (4)
+`generate_documentation` / `recommend_code` / `analyze_impact` / `find_critical_paths`
 
-#### Phase 3: AIコーディング支援ツール (5)
-| ツール | 説明 | パラメータ |
-|--------|------|-----------|
-| `get_coding_guidance` | コーディングガイダンス | framework, task |
-| `detect_patterns` | デザインパターン検出 | path |
-| `check_api_compatibility` | API互換性チェック | framework, from_version, to_version |
-| `navigate_code` | コードナビゲーション | entity_id, direction |
-| `get_call_graph` | 呼び出しグラフ取得 | entity_id |
+#### ハイブリッド検索・品質 (4)
+`hybrid_search` / `analyze_quality` / `track_evolution` / `find_hotspots`
 
-#### その他ツール (5)
-| ツール | 説明 | パラメータ |
-|--------|------|-----------|
-| `resolve_library` | ライブラリ名解決 | query |
-| `list_libraries` | ライブラリ一覧 | - |
-| `query_docs` | ドキュメント検索 | library_id, query |
-| `get_api_reference` | API詳細取得 | library_id, entity |
-| `query_code_structure` | コード構造クエリ | library_id, query |
-│   │   └── page.tsx
-│   └── register/
-│       └── page.tsx
-├── dashboard/
-│   └── page.tsx
-├── api/                  # API routes
-│   ├── auth/
-│   │   └── route.ts
-│   └── users/
-│       └── route.ts
-├── layout.tsx            # Root layout
-└── page.tsx              # Home page
-```
+#### AI コーディング支援 (5)
+`get_coding_guidance` / `detect_patterns` / `check_api_compatibility` /
+`navigate_code` / `get_call_graph`
 
-### Application Guidelines
-
-- **Library Usage**: Applications import from `lib/` modules
-- **Thin Controllers**: API routes delegate to library services
-- **No Business Logic**: Business logic belongs in libraries
-
----
-
-## Component Organization
-
-### UI Components
-
-```
-components/
-├── ui/                   # Base UI components (shadcn/ui)
-│   ├── button.tsx
-│   ├── input.tsx
-│   └── card.tsx
-├── auth/                 # Feature-specific components
-│   ├── LoginForm.tsx
-│   └── RegisterForm.tsx
-├── dashboard/
-│   └── StatsCard.tsx
-└── shared/               # Shared components
-    ├── Header.tsx
-    └── Footer.tsx
-```
-
-### Component Guidelines
-
-- **Composition**: Prefer composition over props drilling
-- **Types**: All props typed with TypeScript
-- **Tests**: Component tests with React Testing Library
-
----
-
-## Database Organization
-
-### Schema Organization
-
-```
-prisma/
-├── schema.prisma         # Prisma schema
-├── migrations/           # Database migrations
-│   ├── 001_create_users_table/
-│   │   └── migration.sql
-│   └── 002_create_sessions_table/
-│       └── migration.sql
-└── seed.ts               # Database seed data
-```
-
-### Database Guidelines
-
-- **Migrations**: All schema changes via migrations
-- **Naming**: snake_case for tables and columns
-- **Indexes**: Index foreign keys and frequently queried columns
+**MCP Prompts (3)**: `analyze_codebase` / `explain_entity` / `find_dependencies`
+**MCP Resources (1)**: `magatama://graph/stats`
 
 ---
 
 ## Test Organization
 
-### Test Structure
-
 ```
-tests/
-├── unit/                 # Unit tests (per library)
-│   └── auth/
-│       └── service.test.ts
-├── integration/          # Integration tests (real services)
-│   └── auth/
-│       └── login.test.ts
-├── e2e/                  # End-to-end tests
-│   └── auth/
-│       └── user-flow.test.ts
-└── fixtures/             # Test data and fixtures
-    └── users.ts
+packages/<pkg>/tests/
+├── domain/              # ドメイン層ユニットテスト
+├── application/         # ユースケース・サービステスト
+├── infrastructure/      # パーサー・ストレージ・comP Bridge テスト
+├── server/ , cli/       # MCP サーバ・CLI テスト（magatama-mcp）
+└── e2e/                 # 統合・セキュリティ E2E（magatama-mcp）
 ```
 
 ### Test Guidelines
 
-- **Test-First**: Tests written BEFORE implementation (Article III)
-- **Real Services**: Integration tests use real DB/cache (Article IX)
-- **Coverage**: Minimum 80% coverage
-- **Naming**: `*.test.ts` for unit, `*.integration.test.ts` for integration
-
----
-
-## Documentation Organization
-
-### Documentation Structure
-
-```
-docs/
-├── architecture/         # Architecture documentation
-│   ├── c4-diagrams/
-│   └── adr/              # Architecture Decision Records
-├── api/                  # API documentation
-│   ├── openapi.yaml
-│   └── graphql.schema
-├── guides/               # Developer guides
-│   ├── getting-started.md
-│   └── contributing.md
-└── runbooks/             # Operational runbooks
-    ├── deployment.md
-    └── troubleshooting.md
-```
-
----
-
-## SDD Artifacts Organization
-
-### Storage Directory
-
-```
-storage/
-├── specs/                # Specifications
-│   ├── auth-requirements.md
-│   ├── auth-design.md
-│   ├── auth-tasks.md
-│   └── payment-requirements.md
-├── changes/              # Delta specifications (brownfield)
-│   ├── add-2fa.md
-│   └── upgrade-jwt.md
-├── features/             # Feature tracking
-│   ├── auth.json
-│   └── payment.json
-└── validation/           # Validation reports
-    ├── auth-validation-report.md
-    └── payment-validation-report.md
-```
+- **Test-First**: 実装前にテストを記述（Article III）
+- **Coverage**: 76%（目標 80%）
+- **Naming**: `test_*.py`（pytest）
 
 ---
 
 ## Naming Conventions
 
-### File Naming
+### File Naming (Python)
 
-- **TypeScript**: `PascalCase.tsx` for components, `camelCase.ts` for utilities
-- **React Components**: `PascalCase.tsx` (e.g., `LoginForm.tsx`)
-- **Utilities**: `camelCase.ts` (e.g., `formatDate.ts`)
-- **Tests**: `*.test.ts` or `*.spec.ts`
-- **Constants**: `SCREAMING_SNAKE_CASE.ts` (e.g., `API_ENDPOINTS.ts`)
-
-### Directory Naming
-
-- **Features**: `kebab-case` (e.g., `user-management/`)
-- **Components**: `kebab-case` or `PascalCase` (consistent within project)
+- **モジュール / パッケージ**: `snake_case.py`（例: `comp_index_reader.py`）
+- **テスト**: `test_*.py`
+- **クラス**: `PascalCase`（例: `LoadCompIndexUseCase`）
 
 ### Variable Naming
 
-- **Variables**: `camelCase`
-- **Constants**: `SCREAMING_SNAKE_CASE`
-- **Types/Interfaces**: `PascalCase`
-- **Enums**: `PascalCase`
-
----
-
-## Integration Patterns
-
-### Library → Application Integration
-
-```typescript
-// ✅ CORRECT: Application imports from library
-import { AuthService } from '@/lib/auth';
-
-const authService = new AuthService(repository);
-const result = await authService.login(credentials);
-```
-
-```typescript
-// ❌ WRONG: Library imports from application
-// Libraries must NOT depend on application code
-import { AuthContext } from '@/app/contexts/auth'; // Violation!
-```
-
-### Service → Repository Pattern
-
-```typescript
-// Service layer (business logic)
-export class AuthService {
-  constructor(private repository: UserRepository) {}
-
-  async login(credentials: LoginRequest): Promise<LoginResponse> {
-    // Business logic here
-    const user = await this.repository.findByEmail(credentials.email);
-    // ...
-  }
-}
-
-// Repository layer (data access)
-export class UserRepository {
-  constructor(private prisma: PrismaClient) {}
-
-  async findByEmail(email: string): Promise<User | null> {
-    return this.prisma.user.findUnique({ where: { email } });
-  }
-}
-```
+- **変数・関数**: `snake_case`
+- **定数**: `SCREAMING_SNAKE_CASE`
+- **クラス / 型**: `PascalCase`
 
 ---
 
 ## Deployment Structure
 
-### Deployment Units
+### Deployment Units（独立配布可能）
 
-**Projects** (independently deployable):
+1. `magatama-core` — 知識グラフエンジン（ライブラリ, PyPI: `magatama-core`）
+2. `magatama` — MCP サーバ＋CLI（PyPI: `magatama`、`magatama-core` に依存）
 
-1. YATA - Main application
-
-> ⚠️ **Simplicity Gate (Article VII)**: Maximum 3 projects initially.
-> If adding more projects, document justification in Phase -1 Gate approval.
-
-### Environment Structure
-
-```
-environments/
-├── development/
-│   └── .env.development
-├── staging/
-│   └── .env.staging
-└── production/
-    └── .env.production
-```
-
----
-
-## Multi-Language Support
-
-### Language Policy
-
-- **Primary Language**: English
-- **Documentation**: English first (`.md`), then Japanese (`.ja.md`)
-- **Code Comments**: English
-- **UI Strings**: i18n framework
-
-### i18n Organization
-
-```
-locales/
-├── en/
-│   ├── common.json
-│   └── auth.json
-└── ja/
-    ├── common.json
-    └── auth.json
-```
+> ⚠️ **Simplicity Gate (Article VII)**: 当面はこの 2 パッケージ構成を維持する。
 
 ---
 
 ## Version Control
-
-### Branch Organization
-
-- `main` - Production branch
-- `develop` - Development branch
-- `feature/*` - Feature branches
-- `hotfix/*` - Hotfix branches
-- `release/*` - Release branches
 
 ### Commit Message Convention
 
@@ -515,18 +227,7 @@ locales/
 <footer>
 ```
 
-**Types**: `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`
-
-**Example**:
-
-```
-feat(auth): implement user login (REQ-AUTH-001)
-
-Add login functionality with email and password authentication.
-Session created with 24-hour expiry.
-
-Closes REQ-AUTH-001
-```
+**Types**: `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`, `ci`, `build`
 
 ---
 
@@ -534,20 +235,22 @@ Closes REQ-AUTH-001
 
 This structure enforces:
 
-- **Article I**: Library-first pattern in `lib/`
-- **Article II**: CLI interfaces per library
-- **Article III**: Test structure supports Test-First
-- **Article VI**: Steering files maintain project memory
+- **Article I**: Library-first（`magatama-core` を独立ライブラリとして実装）
+- **Article II**: CLI interfaces（`magatama` コマンド）
+- **Article III**: Test-First を支えるテスト構成
+- **Article VI**: Steering files によるプロジェクトメモリ維持
 
 ---
 
 ## Changelog
 
-### Version 1.1 (Planned)
+### Version 1.2
 
-- [Future changes]
+- YATA → MAGATAMA、モノレポ構成（`packages/`）に全面更新
+- comP Bridge（2 ツール / `comp_index_reader` / `comp_usecase`）を追記
+- MCP ツール数を 36 に修正、別プロジェクトのテンプレート残骸を除去
 
 ---
 
-**Last Updated**: 2025-12-31
-**Maintained By**: {{MAINTAINER}}
+**Last Updated**: 2026-01-01
+**Maintained By**: MAGATAMA Development Team

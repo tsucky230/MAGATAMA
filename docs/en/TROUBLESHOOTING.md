@@ -13,7 +13,7 @@ The lineage below describes the origin and background of YATA, the upstream proj
 
 YATA is the **second MCP Server** following [CodeGraph MCP Server](https://github.com/nahisaho/CodeGraphMCPServer). While CodeGraph MCP Server specializes in building knowledge graphs for codebases, YATA provides more advanced AI coding support features including framework knowledge graphs, design pattern detection, and code quality analysis.
 
-YATA implements features that surpass [Context7](https://context7.com/). See [YATA vs Context7](MAGATAMA_vs_Context7.md) for details.
+YATA implements features that surpass [Context7](https://context7.com/). See [YATA vs Context7](YATA_vs_Context7.md) for details.
 
 | Project | Role |
 |---------|------|

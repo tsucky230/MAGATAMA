@@ -22,7 +22,7 @@ This article provides a thorough comparison between the popular [**Context7 MCP 
 | Feature | Context7 | YATA |
 |---------|----------|------|
 | Supported Languages | 5 | **24** |
-| MCP Tools | ~10 | **32** |
+| MCP Tools | ~10 | **36** |
 | Framework Knowledge | None | **47 frameworks** |
 | Design Pattern Detection | None | **10 patterns** |
 | Code Quality Analysis | None | **✅** |
@@ -268,7 +268,7 @@ call_graph = magatama get_call_graph --function "process_order"
 |----------|---------|----------|------|
 | **Basic** | Local Execution | ❌ | ✅ |
 | | Supported Languages | 5 | 24 |
-| | MCP Tools | ~10 | 32 |
+| | MCP Tools | ~10 | 36 |
 | **Analysis** | AST Analysis | ❌ | ✅ |
 | | Relationship Detection | ❌ | ✅ |
 | | Knowledge Graph | ❌ | ✅ |
@@ -562,7 +562,7 @@ Total: 15 minutes
 4. 🔄 **Evolution Tracking**: Insights from Git history
 5. 🎯 **Pattern Recognition**: Automatic design pattern detection
 6. 🔍 **Advanced Search**: Hybrid search that searches for "meaning" too
-7. ⚡ **32 Tools**: Rich MCP tools for various tasks
+7. ⚡ **36 Tools**: Rich MCP tools for various tasks (including 2 comP Bridge tools)
 
 ```bash
 # Try YATA now

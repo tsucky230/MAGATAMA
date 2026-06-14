@@ -304,7 +304,8 @@ magatama query "ClassName" --graph graph.json
 
 ### Q: どの言語がサポートされていますか？
 
-A: Python, TypeScript/TSX, JavaScript/JSX, Rust, Go がサポートされています。
+A: Python, TypeScript/TSX, JavaScript/JSX, Rust, Go をはじめ、合計 24 言語が
+サポートされています。
 
 ### Q: プライベートコードは外部に送信されますか？
 

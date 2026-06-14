@@ -43,6 +43,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `packages/magatama-core/tests/application/test_comp_usecase.py` — 8 テストケース
 - `packages/magatama-mcp/tests/test_protocol.py` — comP Bridge ツールのテストクラス追加
 
+#### CLI / ドキュメント
+
+- **`magatama parse --output/-o`** — 解析した知識グラフをそのまま JSON 保存できるように
+  （`stats` / `query` の `--graph` で再利用可能。これまで README に記載済みだが未実装だった）
+- **`OVERVIEW_jp.md` / `OVERVIEW.md`** — comP 連携によるプロジェクト概観と、
+  「地図あり／なし」のトークン消費実測（再現スクリプト `scripts/measure_overview_tokens.py`）
+- README を全面改稿 — comP（兄弟 VSCode 拡張）との連携手順、地図アナロジー、
+  プロンプト→出力サンプルを追加
+
+### Fixed
+
+- `magatama info` が Windows のレガシーコンソール（cp932）で `•`／「勾玉」を出力できず
+  `UnicodeEncodeError` でクラッシュする問題を修正（CLI 出力を UTF-8 に固定）
+- `__version__` をハードコード（`0.1.0`）からインストール済みパッケージのメタデータ参照へ
+  変更し、`pyproject.toml`（`0.5.0`）と一致させた。`MCPConfig.version` も同様に追従
+
+### Changed
+
+- ドキュメント構成を変更: `README.en.md` → `README.md`（英語をメインに）、
+  旧 `README.md` → `README_jp.md`（日本語）
+
 ---
 
 ## [0.5.0] - 2026-01-01
@@ -178,7 +199,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Documentation
 
 - [README.md](README.md) - 言語24、フレームワーク47に更新
-- [MAGATAMA_vs_Context7.md](docs/MAGATAMA_vs_Context7.md) - 最新メトリクスに更新
+- [YATA_vs_Context7.md](docs/YATA_vs_Context7.md) - 最新メトリクスに更新
 - [KNOWLEDGE_UPDATE_GUIDE.md](docs/KNOWLEDGE_UPDATE_GUIDE.md) - クイックスタートセクション追加
 - [TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md) - プロジェクト背景（MUSUBI, CodeGraph）追加
 - [steering/project.yml](steering/project.yml) - メトリクス更新

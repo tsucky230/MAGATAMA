@@ -11,7 +11,7 @@
 
 ## 特徴
 
-- 🔍 **マルチ言語解析**: Python, TypeScript, JavaScript, Rust, Go
+- 🔍 **マルチ言語解析**: Python, TypeScript, Rust, Go, Java, C# ほか **24 言語**
 - 🕸️ **知識グラフ**: NetworkX によるエンティティ・関係性グラフ
 - 🔗 **関係性検出**: CALLS, IMPORTS, CONTAINS, INHERITS
 - 💾 **永続化**: JSON / SQLite ストレージ
@@ -109,6 +109,9 @@ magatama_core/
 
 ## 対応言語
 
+合計 **24 言語**に対応しています（主要なものを抜粋）。全一覧は
+[ルート README](https://github.com/tsucky230/MAGATAMA#-対応言語-24-言語) を参照。
+
 | 言語 | 拡張子 | パーサー |
 |------|--------|----------|
 | Python | `.py` | `PythonParser` |
@@ -116,6 +119,7 @@ magatama_core/
 | JavaScript | `.js`, `.jsx` | `JavaScriptParser` |
 | Rust | `.rs` | `RustParser` |
 | Go | `.go` | `GoParser` |
+| Java / C# / C / C++ / Ruby / PHP ほか | — | （計 24 言語） |
 
 ## ライセンス
 

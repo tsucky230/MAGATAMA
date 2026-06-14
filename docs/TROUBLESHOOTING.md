@@ -13,7 +13,7 @@
 
 YATA は [CodeGraph MCP Server](https://github.com/nahisaho/CodeGraphMCPServer) に続く **2つ目の MCP Server** です。CodeGraph MCP Server がコードベースの知識グラフ構築に特化しているのに対し、YATA はフレームワーク知識グラフ、デザインパターン検出、コード品質分析など、より高度な AI コーディング支援機能を提供します。
 
-YATA は [Context7](https://context7.com/) を超える機能を実装しています。詳細は [YATA vs Context7](MAGATAMA_vs_Context7.md) を参照してください。
+YATA は [Context7](https://context7.com/) を超える機能を実装しています。詳細は [YATA vs Context7](YATA_vs_Context7.md) を参照してください。
 
 | プロジェクト | 役割 |
 |-------------|------|

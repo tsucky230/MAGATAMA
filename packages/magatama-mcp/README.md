@@ -11,7 +11,8 @@ Model Context Protocol (MCP) サーバーとして、AI コーディングツー
 
 ## 特徴
 
-- 🤖 **MCP 完全対応**: 8 Tools, 3 Prompts, 1 Resource
+- 🤖 **MCP 完全対応**: 36 Tools, 3 Prompts, 1 Resource
+- 🔌 **comP Bridge**: comP の `.comp/index.db` を再パースなしで知識グラフに取り込み
 - 🔌 **AI ツール連携**: Claude Desktop, GitHub Copilot, Cursor
 - 📡 **複数トランスポート**: stdio / SSE
 - 🔒 **プライバシー**: 完全ローカル実行
@@ -81,16 +82,20 @@ magatama validate --graph graph.json --repair
 
 ## MCP Tools
 
+全 **36 ツール**を提供します（基本・フレームワーク知識・検索・品質分析・
+AI 支援・comP Bridge）。下表は基本ツールの抜粋で、全 36 ツールの一覧は
+[ルート README](https://github.com/tsucky230/MAGATAMA#-mcp-tools-36) を参照してください。
+
 | Tool | 説明 |
 |------|------|
 | `parse_file` | ソースファイルを解析してエンティティを抽出 |
 | `parse_directory` | ディレクトリ内のファイルを一括解析 |
 | `search_entities` | 名前や型でエンティティを検索 |
-| `get_entity` | 特定エンティティの詳細を取得 |
-| `get_related_entities` | 関連エンティティを取得 |
+| `get_entity` / `get_related_entities` | 詳細取得 / 関連エンティティ取得 |
 | `get_graph_stats` | 知識グラフの統計情報を取得 |
-| `save_graph` | 知識グラフを JSON ファイルに保存 |
-| `load_graph` | JSON ファイルから知識グラフを読み込み |
+| `save_graph` / `load_graph` | JSON への保存 / 読み込み |
+| `read_external_graph` | **comP Bridge**: comP インデックスを取り込み |
+| `get_external_graph_info` | **comP Bridge**: comP インデックスの統計を確認 |
 
 ## MCP Prompts
 

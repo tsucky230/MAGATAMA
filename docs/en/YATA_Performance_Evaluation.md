@@ -39,7 +39,7 @@ With the evolution of AI coding support tools, the importance of providing accur
 |------|-------|
 | Supported Language Parsers | 24 |
 | Framework Knowledge Graphs | 47 |
-| MCP Tools | 32 |
+| MCP Tools | 36 |
 | Design Pattern Detection | 10 |
 
 ## Performance Evaluation: Parsing Benchmark
@@ -626,7 +626,7 @@ flowchart TD
 - [MUSUBI GitHub Repository](https://github.com/nahisaho/musubi)
 - [CodeGraph MCP Server](https://github.com/nahisaho/CodeGraphMCPServer)
 - [Model Context Protocol](https://modelcontextprotocol.io/)
-- [YATA vs Context7 Detailed Comparison](MAGATAMA_vs_Context7.md)
+- [YATA vs Context7 Detailed Comparison](YATA_vs_Context7.md)
 
 ---
 

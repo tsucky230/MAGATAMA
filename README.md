@@ -1,504 +1,400 @@
-# MAGATAMA (勾玉) - YATA fork with comP Bridge
+# MAGATAMA (勾玉) — give your AI a *map* of a huge codebase
 
 [![CI](https://github.com/tsucky230/MAGATAMA/workflows/CI/badge.svg)](https://github.com/tsucky230/MAGATAMA/actions)
 [![Coverage](https://codecov.io/gh/tsucky230/MAGATAMA/branch/main/graph/badge.svg)](https://codecov.io/gh/tsucky230/MAGATAMA)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-> 🇺🇸 [English README](README.en.md)
+> 🇯🇵 [日本語版 README](README_jp.md)
 
-**MAGATAMA** は [YATA (八咫)](https://github.com/nahisaho/YATA)（nahisaho 氏作、MIT License）を
-フォークし、**[comP](https://github.com/tsucky230/comP) コードインデクサーとの直接連携**を追加した
-AI コーディング支援 MCP Server です。
+---
 
-MAGATAMA は YATA 由来の MCP ツール群をそのまま継承しつつ、comP が `.comp/index.db` に蓄積した
-コードインデックスを再パース不要で知識グラフに取り込める **comP Bridge（2 ツール）** を追加しています。
+## 🗺️ MAGATAMA in 30 seconds
 
-## comP Bridge とは
+Picture someone arriving in an unfamiliar city. Nobody walks every single
+street end-to-end to find their way — they look at a **map** and learn only
+the roads they need.
 
-[comP](https://github.com/tsucky230/comP) は VSCode 拡張 + Rust デーモンで構成されるコードインデクサーです。
-ワークスペースを解析した結果を `<workspace>/.comp/index.db`（SQLite, WAL モード）に保存します。
+When people give an LLM (Claude, Copilot, …) a large codebase, they usually
+make it **read all the source**. That's like walking every street: it burns
+time — which here means tokens, which means cost.
 
-MAGATAMA の comP Bridge はこの SQLite を直接読み取り、NetworkX 知識グラフ（YATA 由来）に変換します。
-これにより **comP が構築済みのインデックスを `search_entities` / `hybrid_search` / `analyze_impact`
-などの全 MAGATAMA ツールからそのまま利用**できます。
+This is where pairing with its **sibling tool
+[comP](https://github.com/tsucky230/comP) (a VSCode extension)** pays off.
+MAGATAMA works on its own, but combined with comP the benefit doubles. Their
+roles split like this:
+
+- **comP** is the **surveyor** that walks your code and builds a **map (index)**.
+- **MAGATAMA** is the **guide** that reads that map and hands the LLM *only the
+  block it needs right now*.
+
+So the LLM grasps the structure — functions, classes, dependencies — without
+reading the full source. Measured on this very repo, a project overview took
+about **1/500 of the tokens** (full data in [OVERVIEW.md](OVERVIEW.md)).
+
+> **In one line:** MAGATAMA is an **MCP server** that turns code into a
+> "knowledge graph (map)" and feeds an AI maximum context for minimum tokens.
+> It is a fork of [YATA (八咫)](https://github.com/nahisaho/YATA) plus direct
+> integration with the [comP](https://github.com/tsucky230/comP) code indexer.
+
+---
+
+## 💡 What you can actually do (3 signature scenes)
+
+### Scene 1: Grasp an unfamiliar giant repo in 5 minutes
+
+> "What does this repo do, how is it structured, where do I start reading?"
+
+Instead of opening every file, the LLM reads only the **stats, top modules and
+exported symbols** from comP's map and returns an overview. We did exactly this
+on MAGATAMA itself — see [OVERVIEW.md](OVERVIEW.md).
+
+### Scene 2: Know what breaks if you change a function
+
+> "If I touch `save_graph`, what's affected?"
+
+`analyze_impact` / `get_call_graph` walk the map and return the **blast radius**.
+The structure graph replaces the manual grep-and-eyeball loop.
+
+### Scene 3: Write idiomatic framework code
+
+> "What's the right way to do dependency injection in FastAPI?"
+
+MAGATAMA ships **built-in knowledge graphs for 47 frameworks**, so
+`hybrid_search` cross-searches your code *and* the official idioms (from YATA).
+
+---
+
+## 🧩 How comP and MAGATAMA fit together
 
 ```text
-[comP Rust Daemon] ──書込──> .comp/index.db (SQLite, WALモード)
-                                   │ 読み取り専用で接続
-                                   ▼
-                     [MAGATAMA CompIndexReader] ──変換──> NetworkXKnowledgeGraph
-                                   │
-                                   ▼
-                [MAGATAMA MCP Server (FastMCP)] ──MCP──> Claude Desktop / Cursor / Copilot
+[comP (VSCode extension + Rust daemon)]
+        │ analyzes the workspace and writes the map
+        ▼
+   .comp/index.db  (SQLite, WAL mode)   ← the city map
+        │
+        ├─→ comP MCP ……………… query the map directly (file summary, one symbol — lightweight)
+        │
+        └─→ MAGATAMA Bridge … import the map into a knowledge graph, analyze (36 tools)
+                  │
+                  ▼
+        Claude Desktop / Cursor / Copilot / Claude Code
 ```
 
-## ✨ 特徴
+- **comP** = builds the map and answers cheap lookups (`get_file_summary`, `get_symbol`).
+- **MAGATAMA** = analyzes the whole map (`search_entities`, `analyze_impact`, `hybrid_search`).
 
-- 🔌 **comP Bridge**: comP の `.comp/index.db` を再パースなしで知識グラフに取り込み
-- 🔍 **コード解析**: Tree-sitter による高速 AST 解析（24 言語対応）
-- 🕸️ **知識グラフ**: NetworkX によるエンティティ・関係性グラフ
-- 🔗 **関係性検出**: CALLS/IMPORTS/INHERITS/CONTAINS 関係の自動検出
-- 🤖 **MCP 準拠**: Model Context Protocol 完全対応（36 Tools, 3 Prompts, 1 Resource）
-- 📚 **フレームワーク知識**: 47 フレームワークの組み込み知識グラフ（457K+ エンティティ）
-- 🔎 **ハイブリッド検索**: ローカルコード＋フレームワーク横断検索
-- 🎯 **パターン検出**: デザインパターン自動検出
-- 📝 **ドキュメント生成**: 自動ドキュメント生成
-- 📊 **品質分析**: コード品質メトリクス
-- 💾 **永続化**: JSON/SQLite への保存/読み込み
-- 🔒 **プライバシー**: 完全ローカル実行（データ外部送信なし）
-- 🔄 **増分解析**: 変更ファイルのみを効率的に再解析
+---
 
-## 🚀 クイックスタート
+## 🚀 Setup (with worked examples)
 
-### インストール
+Goal: **① index code with comP → ② install MAGATAMA → ③ register it as an MCP
+server in your AI tool → ④ verify.**
+
+### Step 1. Install comP as a VSCode extension and start indexing
+
+1. Install the comP extension (`tsucky230.comp-vscode`) in VSCode
+   (see the [comP repo](https://github.com/tsucky230/comP) for the VSIX/steps).
+2. Open your project folder in VSCode.
+3. comP analyzes the workspace automatically and writes the map to
+   **`<project>/.comp/index.db`** (SQLite, WAL mode). Only the first pass is
+   slow; afterwards it updates incrementally on change.
+
+> Check: you should see a `.comp/` folder containing `index.db`.
+
+To connect comP itself to an AI as an MCP server, add this to `.mcp.json`
+(real example from this repo):
+
+```json
+{
+  "mcpServers": {
+    "comp": {
+      "command": "c:\\Users\\<you>\\.vscode\\extensions\\tsucky230.comp-vscode-0.8.1\\daemon\\target\\release\\comp-daemon-win.exe",
+      "args": [],
+      "env": {
+        "COMP_WORKSPACE_ROOT": "e:\\dev\\MAGATAMA",
+        "RUST_LOG": "info"
+      }
+    }
+  }
+}
+```
+
+> Point `COMP_WORKSPACE_ROOT` at the folder you want indexed, and replace the
+> version in the path (`0.8.1`) with the extension version you installed.
+
+### Step 2. Install MAGATAMA
 
 ```bash
-# リポジトリをクローン
+# From source (this repo)
 git clone https://github.com/tsucky230/MAGATAMA.git
 cd MAGATAMA
+uv sync --all-packages       # no uv yet? https://astral.sh/uv
 
-# uv で依存関係をインストール（推奨）
-uv sync --all-packages
+# Or from PyPI
+pip install magatama
 ```
 
-### 基本的な使い方
+Verify:
 
 ```bash
-# ファイルを解析
-magatama parse path/to/file.py
-
-# ディレクトリを解析
-magatama parse path/to/project --pattern "**/*.py" --pattern "**/*.ts"
-
-# 解析して知識グラフを保存（stats / query で再利用できる）
-magatama parse path/to/project --output graph.json
-
-# MCP サーバーを起動（stdio モード）
-magatama serve
-
-# MCP サーバーを起動（SSE モード）
-magatama serve --transport sse --port 8080
-
-# サーバー情報を表示
-magatama info
-
-# エンティティを検索
-magatama query "parse" --type function
-
-# 統計情報を表示
-magatama stats --graph graph.json
-
-# グラフの整合性を検証
-magatama validate --graph graph.json --repair
-
-# ディレクトリを監視
-magatama watch ./src --output graph.json
-
-# パフォーマンス計測
-magatama benchmark ./src
-
-# 知識データベースを一括更新（47フレームワーク）
-python scripts/update_knowledge_db.py
+magatama info        # shows the version and tool count (36) if OK
 ```
 
-### comP と連携する
+### Step 3. Register it as an MCP server
 
-```bash
-# 1. comP でプロジェクトをインデックス（VSCode + comP 拡張で自動実行されます）
+#### Claude Desktop (Windows)
 
-# 2. MAGATAMA MCP サーバーを起動
-magatama serve
-```
-
-MCP 経由（Claude Desktop 等）で:
-
-```python
-# インデックスの確認（ロードなし）
-get_external_graph_info(path="e:/dev/myproject")
-
-# 知識グラフへ取り込み
-read_external_graph(path="e:/dev/myproject")
-
-# 取り込んだコードを通常の MAGATAMA ツールで検索
-search_entities(query="MyClass")
-get_related_entities(entity_id="comp:myproject:n42")
-analyze_impact(entity_id="comp:myproject:n42")
-```
-
-### AI ツールとの連携
-
-#### GitHub Copilot (VS Code)
-
-`.vscode/mcp.json`:
+`%APPDATA%\Claude\claude_desktop_config.json`:
 
 ```json
 {
   "mcpServers": {
     "magatama": {
       "command": "uv",
-      "args": ["run", "magatama", "serve"]
+      "args": ["run", "--directory", "C:\\path\\to\\MAGATAMA", "magatama", "serve"]
     }
   }
 }
 ```
 
-#### Claude Desktop
+#### GitHub Copilot / VS Code
 
-`~/Library/Application Support/Claude/claude_desktop_config.json`:
+`.vscode/mcp.json` in your project root:
 
 ```json
 {
   "mcpServers": {
     "magatama": {
       "command": "uv",
-      "args": ["run", "magatama", "serve"]
+      "args": ["run", "--directory", "${workspaceFolder}", "magatama", "serve"]
     }
   }
 }
 ```
 
-## 🔧 MCP Tools (36 Tools)
+With the PyPI install you can use `"command": "magatama", "args": ["serve"]`.
+For Cursor / Continue and SSE mode, see the
+[AI Tools Setup Guide](docs/AI_TOOLS_SETUP.md).
 
-### 🔌 comP Bridge (2 Tools)
+### Step 4. Connect and use it
 
-| Tool | 説明 |
-|------|------|
-| `read_external_graph` | comP インデックスを MAGATAMA 知識グラフに読み込む |
-| `get_external_graph_info` | comP インデックスの統計情報を確認（ロードなし） |
+Restart your AI tool and ask, in chat:
 
-`read_external_graph` のオプション:
-
-| パラメータ | 説明 |
-| ----------- | ------ |
-| `path` | ワークスペースルート / `.comp` ディレクトリ / `.db` ファイルのいずれか |
-| `mode` | `replace`（デフォルト）: 既存を削除して再ロード / `merge`: 追加ロード |
-
-### 📁 基本ツール (10 Tools)
-
-| Tool | 説明 |
-|------|------|
-| `parse_file` | ソースファイルを解析してエンティティを抽出 |
-| `parse_directory` | ディレクトリ内のファイルを一括解析 |
-| `search_entities` | 名前や型でエンティティを検索 |
-| `get_entity` | 特定エンティティの詳細を取得 |
-| `get_related_entities` | 関連エンティティを取得（グラフの隣接ノード） |
-| `get_graph_stats` | 知識グラフの統計情報を取得 |
-| `save_graph` | 知識グラフを JSON ファイルに保存 |
-| `load_graph` | JSON ファイルから知識グラフを読み込み |
-| `list_supported_languages` | サポートする 24 言語の一覧を取得 |
-| `get_language_for_file` | ファイル拡張子から言語を判定 |
-
-### 🧠 フレームワーク知識グラフツール (7 Tools)
-
-| Tool | 説明 |
-|------|------|
-| `list_frameworks` | 利用可能なフレームワーク一覧を取得 |
-| `search_framework_docs` | フレームワーク内でエンティティを検索 |
-| `search_all_frameworks` | 全フレームワークを横断検索 |
-| `find_code_patterns` | 複数フレームワークで共通パターンを検索 |
-| `get_framework_entity_context` | フレームワークエンティティの詳細を取得 |
-| `framework_semantic_search_tool` | フレームワークでセマンティック検索 |
-| `framework_find_by_pattern` | フレームワーク全体でパターンマッチング |
-
-### 🔍 検索・コンテキストツール (4 Tools)
-
-| Tool | 説明 |
-|------|------|
-| `semantic_search` | ローカルコードでセマンティック検索 |
-| `find_by_pattern` | 命名パターンでエンティティ検索 |
-| `get_code_context` | エンティティの包括的コンテキスト取得 |
-| `find_usage_examples` | エンティティの使用例を検索 |
-
-### 📚 ドキュメント・推奨ツール (4 Tools)
-
-| Tool | 説明 |
-|------|------|
-| `generate_documentation` | エンティティのドキュメントを自動生成 |
-| `recommend_code` | コードスニペットを推奨 |
-| `analyze_impact` | 変更の影響を分析 |
-| `find_critical_paths` | 重要な依存パスを特定 |
-
-### 🔎 ハイブリッド検索・品質分析ツール (4 Tools)
-
-| Tool | 説明 |
-| ------ | ------ |
-| `hybrid_search` | ローカル＋フレームワーク横断検索 |
-| `analyze_quality` | コード品質メトリクス分析 |
-| `track_evolution` | Git 履歴からコード進化を追跡 |
-| `find_hotspots` | 変更頻度の高いコードを特定 |
-
-### 🤖 AI コーディング支援ツール (5 Tools)
-
-| Tool | 説明 |
-| ------ | ------ |
-| `get_coding_guidance` | AI コーディングガイダンス生成 |
-| `detect_patterns` | デザインパターン自動検出 |
-| `check_api_compatibility` | API バージョン互換性チェック |
-| `navigate_code` | コード関係性のナビゲーション |
-| `get_call_graph` | 関数の呼び出しグラフを取得 |
-
-## 💬 MCP Prompts (3 Prompts)
-
-| Prompt | 説明 |
-|--------|------|
-| `analyze_codebase` | コードベース構造を分析してインサイトを提供 |
-| `explain_entity` | 特定のコードエンティティを説明 |
-| `find_dependencies` | エンティティの依存関係を分析 |
-
-## 📚 MCP Resources
-
-| URI | 説明 |
-|-----|------|
-| `magatama://graph/stats` | 知識グラフの統計情報 |
-
-## 💻 CLI コマンド詳細
-
-### parse - ソースコード解析
-
-```bash
-magatama parse <PATH> [OPTIONS]
+```text
+Call get_external_graph_info(path="e:/dev/myproject") to check comP's map.
+If it looks good, read_external_graph it and give me an overview of the project.
 ```
 
-| オプション | 説明 |
-|-----------|------|
-| `-p, --pattern` | 対象ファイルのパターン（デフォルト: `**/*.py`） |
-| `-e, --exclude` | 除外パターン |
-| `-o, --output` | 知識グラフの保存先 |
+The LLM imports comP's map into MAGATAMA and overviews the project without
+reading the full source.
 
-### query - エンティティ検索
+---
 
-```bash
-magatama query <QUERY> [OPTIONS]
+## 🎬 Try it: prompt → sample output
+
+What it feels like in practice (typed into your AI tool's chat).
+
+### Example A: project overview
+
+**Prompt**
+
+```text
+read_external_graph(path="e:/dev/MAGATAMA"), then use get_graph_stats to
+summarize the size and structure of this project.
 ```
 
-| オプション | 説明 |
-|-----------|------|
-| `-t, --type` | エンティティ型でフィルタ（function, class, method 等） |
-| `-n, --max-results` | 最大結果数（デフォルト: 20） |
-| `-g, --graph` | 読み込むグラフファイルのパス |
-| `--json` | JSON 形式で出力 |
+**Sample output (real data)**
 
-### serve - MCP サーバー起動
-
-```bash
-magatama serve [OPTIONS]
+```text
+✓ Imported (203 files / 3,829 symbols)
+- Languages: Python 123 / Markdown 38 / JSON 36 / YAML 1
+- Largest module: framework_usecase.py (133 symbols)
+- Layout: packages/magatama-core (engine) + packages/magatama-mcp (MCP+CLI)
+→ Clean Architecture (domain → application → infrastructure → interface)
 ```
 
-| オプション | 説明 |
-|-----------|------|
-| `-t, --transport` | トランスポート: `stdio` or `sse`（デフォルト: stdio） |
-| `-p, --port` | SSE 用ポート（デフォルト: 8080） |
+### Example B: impact analysis
 
-## 🏗️ 対応言語 (24 言語)
+**Prompt**
 
-| 言語 | 拡張子 | 状態 |
-|------|--------|------|
-| Python | `.py` | ✅ 対応 |
-| TypeScript | `.ts`, `.tsx` | ✅ 対応 |
-| JavaScript | `.js`, `.jsx` | ✅ 対応 |
-| Rust | `.rs` | ✅ 対応 |
-| Go | `.go` | ✅ 対応 |
-| Java | `.java` | ✅ 対応 |
-| Kotlin | `.kt` | ✅ 対応 |
-| Scala | `.scala` | ✅ 対応 |
-| C | `.c`, `.h` | ✅ 対応 |
-| C++ | `.cpp`, `.hpp` | ✅ 対応 |
-| C# | `.cs` | ✅ 対応 |
-| Swift | `.swift` | ✅ 対応 |
-| Objective-C | `.m` | ✅ 対応 |
-| PHP | `.php` | ✅ 対応 |
-| Ruby | `.rb` | ✅ 対応 |
-| Dart | `.dart` | ✅ 対応 |
-| Elixir | `.ex`, `.exs` | ✅ 対応 |
-| Haskell | `.hs` | ✅ 対応 |
-| Julia | `.jl` | ✅ 対応 |
-| Lua | `.lua` | ✅ 対応 |
-| Groovy | `.groovy` | ✅ 対応 |
-| SQL | `.sql` | ✅ 対応 |
-| Zig | `.zig` | ✅ 対応 |
-| YAML | `.yaml`, `.yml` | ✅ 対応 |
+```text
+search_entities(query="save_graph") to find the target, then analyze_impact
+to tell me the blast radius of changing this function.
+```
 
-## 📚 対応フレームワーク (26 フレームワーク)
+**Sample output**
 
-MAGATAMA は主要フレームワークの構造を事前学習済みの知識グラフとして提供します（YATA 由来の機能）。
+```text
+Target: _handle_save_graph (mcp_server.py:442)
+Possibly affected: the `save` command (cli/main.py), parse --output save path
+→ When changing it, check the tests on these two paths.
+```
 
-### Python
+### Example C: framework idioms (from YATA)
 
-| フレームワーク | カテゴリ | 主要エンティティ |
-|---------------|---------|----------------|
-| Django | Web Framework | Model, View, Template, Form, Middleware |
-| Flask | Web Framework | Blueprint, Route, Extension |
-| FastAPI | Web Framework | Router, Dependency, Pydantic Model |
-| Pytest | Testing | Fixture, Marker, Plugin |
-| NumPy | Data Science | ndarray, ufunc, dtype |
-| Pandas | Data Science | DataFrame, Series, Index |
-| SQLAlchemy | ORM | Model, Session, Query, Engine |
-| LangChain | AI/LLM | Chain, Agent, Memory, Tool |
-| Haystack | AI/NLP | Pipeline, Document Store, Retriever |
-| Streamlit | Dashboard | App, Widget, Cache, Session |
-| LangGraph | AI/Agent | Graph, Node, Edge, State |
+**Prompt**
 
-### JavaScript / TypeScript
+```text
+hybrid_search(query="FastAPI dependency injection") to cross-search the
+official idiom and where my code does it.
+```
 
-| フレームワーク | カテゴリ | 主要エンティティ |
-|---------------|---------|----------------|
-| React | UI Framework | Component, Hook, Context, Props |
-| Vue.js | UI Framework | Component, Composition API, Directive |
-| Angular | UI Framework | Component, Service, Module, Pipe |
-| Next.js | Full-stack | Page, API Route, Middleware, Server Component |
-| Express | Web Framework | Router, Middleware, Request, Response |
-| NestJS | Web Framework | Controller, Service, Module, Guard |
-| Jest | Testing | Test, Describe, Mock, Expect |
-| Astro | Meta Framework | Component, Island, Integration |
-| SolidJS | UI Framework | Signal, Effect, Component |
-| Remix | Full-stack | Loader, Action, Route, Form |
-| htmx | Hypermedia | Attribute, Swap, Trigger |
-| Hono | Edge Runtime | Router, Middleware, Context |
-| tRPC | Type-safe API | Router, Procedure, Query, Mutation |
-| Qwik | Resumable | Component, Signal, QRL |
-| Bun | Runtime | Server, File, Plugin |
-| Expo | Mobile | App, Navigation, Component |
+**Sample output**
 
-### Rust
+```text
+[Framework] FastAPI: declare Depends() as a function parameter (Router/Dependency)
+[Local]    (no match) → you're not using DI yet. Candidate: the routes layer
+```
 
-| フレームワーク | カテゴリ | 主要エンティティ |
-|---------------|---------|----------------|
-| Actix-web | Web Framework | App, Route, Handler, Middleware |
-| Tokio | Async Runtime | Runtime, Task, Channel, Stream |
-| Serde | Serialization | Serialize, Deserialize, Attribute |
-| Rocket | Web Framework | Route, Guard, Fairing, Responder |
-| Axum | Web Framework | Router, Handler, Extension, State |
-| Tauri | Desktop App | Command, Window, Plugin, State |
+> Want to try it from the CLI only? Persist the map to JSON and reuse it:
+>
+> ```bash
+> magatama parse ./src -o graph.json
+> magatama stats --graph graph.json
+> magatama query "UseCase" --type class --graph graph.json
+> ```
 
-### Go
+---
 
-| フレームワーク | カテゴリ | 主要エンティティ |
-|---------------|---------|----------------|
-| Gin | Web Framework | Router, Handler, Middleware, Context |
-| Echo | Web Framework | Router, Handler, Middleware, Context |
-| Fiber | Web Framework | App, Route, Handler, Middleware |
-| GORM | ORM | Model, DB, Query, Association |
+## 🔧 MCP Tools (36)
 
-### Elixir
+The LLM autonomously picks **only the tools it needs** from these.
 
-| フレームワーク | カテゴリ | 主要エンティティ |
-|---------------|---------|----------------|
-| Phoenix | Web Framework | Controller, LiveView, Channel, Router |
+<details>
+<summary><b>🔌 comP Bridge (2) — import the map</b></summary>
 
-### Database/ORM
+| Tool | Description |
+|------|-------------|
+| `read_external_graph` | Load a comP index into the knowledge graph (`mode=replace`/`merge`) |
+| `get_external_graph_info` | Inspect comP index stats without loading (freshness check) |
 
-| フレームワーク | 言語 | 主要エンティティ |
-|---------------|------|----------------|
-| Prisma | TypeScript | Schema, Client, Query, Migration |
-| Drizzle | TypeScript | Schema, Query, Migration, Relation |
+</details>
 
-### Mobile
+<details>
+<summary><b>📁 Core (10) — parse & search</b></summary>
 
-| フレームワーク | 言語 | 主要エンティティ |
-|---------------|------|----------------|
-| SwiftUI | Swift | View, State, Binding, Environment |
-| Jetpack Compose | Kotlin | Composable, State, Modifier, Theme |
+| Tool | Description |
+|------|-------------|
+| `parse_file` / `parse_directory` | Parse source and extract entities |
+| `search_entities` / `get_entity` | Search by name/type / get details |
+| `get_related_entities` | Adjacent nodes (related entities) |
+| `get_graph_stats` | Graph statistics |
+| `save_graph` / `load_graph` | Save/load to JSON |
+| `list_supported_languages` / `get_language_for_file` | List 24 languages / detect |
 
-### その他
+</details>
 
-| フレームワーク | 言語 | カテゴリ |
-|---------------|------|--------|
-| Spring Boot | Java | Web Framework |
-| .NET Core | C# | Web Framework |
-| Ruby on Rails | Ruby | Web Framework |
-| Laravel | PHP | Web Framework |
+<details>
+<summary><b>🧠 Framework knowledge (7) — built-in maps for 47 frameworks</b></summary>
 
-## 🛠️ 開発
+`list_frameworks` / `search_framework_docs` / `search_all_frameworks` /
+`find_code_patterns` / `get_framework_entity_context` /
+`framework_semantic_search_tool` / `framework_find_by_pattern`
 
-### セットアップ
+</details>
+
+<details>
+<summary><b>🔍 Search & context (4) / 📚 Docs & recommendation (4)</b></summary>
+
+`semantic_search` / `find_by_pattern` / `get_code_context` /
+`find_usage_examples` · `generate_documentation` / `recommend_code` /
+`analyze_impact` / `find_critical_paths`
+
+</details>
+
+<details>
+<summary><b>🔎 Hybrid search & quality (4) / 🤖 AI assistance (5)</b></summary>
+
+`hybrid_search` / `analyze_quality` / `track_evolution` / `find_hotspots` ·
+`get_coding_guidance` / `detect_patterns` / `check_api_compatibility` /
+`navigate_code` / `get_call_graph`
+
+</details>
+
+**MCP Prompts**: `analyze_codebase` / `explain_entity` / `find_dependencies`
+**MCP Resources**: `magatama://graph/stats`
+
+---
+
+## 💻 CLI commands (for humans at the terminal)
+
+| Command | What it does | Example |
+|---------|--------------|---------|
+| `parse` | Build a knowledge graph (`-o` to save) | `magatama parse ./src -o graph.json` |
+| `query` | Search entities | `magatama query "User" -t class -g graph.json` |
+| `stats` | Show statistics | `magatama stats -g graph.json` |
+| `serve` | Start the MCP server | `magatama serve` / `--transport sse --port 8080` |
+| `watch` | Watch & auto-update (`-o` auto-saves) | `magatama watch ./src -o graph.json` |
+| `validate` | Check graph integrity (`--repair`) | `magatama validate -g graph.json --repair` |
+| `info` | Server info & tool list | `magatama info` |
+
+> Note: `parse`/`query`/`stats` are **stateless across processes**. Use
+> `parse -o` to write the map to JSON, then load it with `--graph` in
+> `query`/`stats`. For AI integration, the long-running `serve` process holds
+> the graph and the LLM calls the tools instead.
+
+---
+
+## 🏗️ Languages & frameworks
+
+- **24 languages**: Python, TypeScript/JS, Rust, Go, Java, Kotlin, Scala,
+  C/C++, C#, Swift, Objective-C, PHP, Ruby, Dart, Elixir, Haskell, Julia, Lua,
+  Groovy, SQL, Zig, YAML
+- **47 frameworks** (457K+ entities): Django/Flask/FastAPI, React/Vue/Angular/
+  Next.js, Actix/Axum/Tauri, Gin/Echo, Phoenix, Spring Boot, Rails, Laravel,
+  SwiftUI, Jetpack Compose, and more
+
+---
+
+## 🛠️ Development
 
 ```bash
-git clone https://github.com/tsucky230/MAGATAMA.git
-cd MAGATAMA
 uv sync --all-packages
-
-# テストを実行
-uv run pytest
-
-# カバレッジ付きテスト
+uv run pytest                         # tests (794)
 uv run pytest --cov=magatama_core --cov=magatama_mcp
-
-# リンターを実行
-uv run ruff check .
-uv run mypy packages/
+uv run ruff check . && uv run mypy packages/
 ```
-
-### プロジェクト構成
 
 ```text
 MAGATAMA/
 ├── packages/
-│   ├── magatama-core/          # 知識グラフエンジン（ライブラリ）
-│   │   ├── src/magatama_core/
-│   │   │   ├── domain/         # ドメイン層（エンティティ、値オブジェクト）
-│   │   │   ├── application/    # アプリケーション層（ユースケース）
-│   │   │   └── infrastructure/ # インフラ層（パーサー、ストレージ、comP Bridge）
-│   │   └── tests/
-│   └── magatama-mcp/           # MCP Server（アプリケーション）
-│       ├── src/magatama_mcp/
-│       │   ├── server/     # MCP 実装（FastMCP）
-│       │   └── cli/        # CLI 実装（Click）
-│       └── tests/
-├── steering/               # プロジェクトメモリ
-└── storage/specs/          # 設計ドキュメント
+│   ├── magatama-core/   # Knowledge graph engine (library)
+│   └── magatama-mcp/    # MCP server + CLI (the `magatama` command)
+├── steering/            # Project memory & rules
+└── storage/specs/       # Design docs (requirements, C4, ADRs)
 ```
 
-### アーキテクチャ
-
-Clean Architecture に基づいて設計されています：
-
-- **Domain Layer**: コアエンティティ、値オブジェクト、リポジトリインターフェース
-- **Application Layer**: ユースケース（ParseFileUseCase, LoadCompIndexUseCase 等）
-- **Infrastructure Layer**: パーサー、NetworkXKnowledgeGraph、**CompIndexReader（comP Bridge）**
-- **Interface Layer**: MCP サーバー（FastMCP）と CLI（Click）
-
-## 📊 テスト状況
-
-- **テスト数**: 794 (694 magatama-core + 100 magatama-mcp)
-- **E2E テスト**: 42 (18 統合 + 24 セキュリティ)
-- **カバレッジ**: 76%
-- **対応言語パーサー**: 24
-- **フレームワーク知識グラフ**: 47 (457K+ エンティティ)
-
-## 📜 ライセンス
-
-MIT License
-
-本プロジェクトは [YATA](https://github.com/nahisaho/YATA)（Copyright (c) 2025 nahisaho）を
-MIT License のもとでフォークし、comP Bridge 機能を追加したものです。
-詳細は [LICENSE](LICENSE) を参照してください。
-
-## 🙏 謝辞
-
-- [YATA](https://github.com/nahisaho/YATA) by nahisaho — 本プロジェクトのベース
-- [comP](https://github.com/tsucky230/comP) by tsucky230 — VSCode コードインデクサー
-- [Model Context Protocol](https://modelcontextprotocol.io/) — Anthropic
-- [Tree-sitter](https://tree-sitter.github.io/tree-sitter/) — AST パーサー
-- [NetworkX](https://networkx.org/) — グラフライブラリ
-- [FastMCP](https://github.com/jlowin/fastmcp) — MCP SDK
-
-## 📖 ドキュメント
-
-- [English README](README.en.md)
-- [AI ツール設定ガイド](docs/AI_TOOLS_SETUP.md)
-- [知識データベース更新ガイド](docs/KNOWLEDGE_UPDATE_GUIDE.md)
-- [トラブルシューティング](docs/TROUBLESHOOTING.md)
-- [CHANGELOG](CHANGELOG.md)
-
-## 📛 プロジェクト名の由来
-
-**YATA（八咫）** とは、古代日本の長さの単位「咫（あた）」の 8 倍の大きさのこと。転じて「非常に大きい」「非常に長い」という意味を持つ言葉です。広大なコードベースや膨大なフレームワーク知識を丸ごと扱う、という思想を体現しています。
-
-**MAGATAMA（勾玉）** は、本来「小さな石の中に強大な力や魂を凝縮して閉じ込めたもの」です。広大な情報（YATA）から本質だけを抽出し、高密度に圧縮して連携させる（comP）という設計思想そのものを体現しています。
-
-MAGATAMA は YATA の姉妹プロジェクトとして、八咫の知識を勾玉のように小さく凝縮し、comP が構築したインデックスと結びつけることで、LLM に最小限のトークンで最大限のコンテキストを届けることを目指しています。
+Built on **Clean Architecture**. Details & measurements in [OVERVIEW.md](OVERVIEW.md).
 
 ---
 
-**MAGATAMA** (勾玉) — 三種の神器のひとつ、勾玉のように。YATA (八咫鏡) の兄弟プロジェクト。
+## 📜 License / Credits
+
+MIT License. This project forks
+[YATA](https://github.com/nahisaho/YATA) (Copyright (c) 2025 nahisaho) under
+the MIT License and adds the comP Bridge.
+
+- [YATA](https://github.com/nahisaho/YATA) by **nahisaho** — the foundation
+- [comP](https://github.com/tsucky230/comP) by **tsucky230** — code indexer
+- [Model Context Protocol](https://modelcontextprotocol.io/) / Tree-sitter / NetworkX / FastMCP
+
+---
+
+## 📖 Documentation
+
+- [Project overview + token measurement (OVERVIEW.md)](OVERVIEW.md)
+- [AI Tools Setup Guide](docs/AI_TOOLS_SETUP.md)
+- [Knowledge Database Update Guide](docs/KNOWLEDGE_UPDATE_GUIDE.md)
+- [Troubleshooting](docs/TROUBLESHOOTING.md)
+- [日本語 README](README_jp.md) / [CHANGELOG](CHANGELOG.md)
+
+---
+
+## 📛 About the name
+
+**YATA (八咫)** is an old word for "very large", reflecting the goal of handling
+vast codebases and framework knowledge whole. **MAGATAMA (勾玉)** is "a small
+stone that condenses great power" — extracting the essence from that vastness
+and delivering it densely to the LLM. Like the magatama, one of Japan's three
+imperial treasures.

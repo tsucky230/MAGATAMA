@@ -1,14 +1,18 @@
 # Technology Stack
 
-**Project**: YATA (八咫)
+**Project**: MAGATAMA (勾玉)
 **Last Updated**: 2026-01-01
 **Status**: 決定済み
+
+> MAGATAMA は [YATA (八咫)](https://github.com/nahisaho/YATA) のフォークに、
+> コードインデクサー [comP](https://github.com/tsucky230/comP) との連携
+> （comP Bridge）を追加したものです。フレームワーク知識機能は YATA 由来です。
 
 ---
 
 ## Overview
 
-YATAは、AI Codingを支援するMCP Serverです。CodeGraphMCPServerの技術をベースに、プログラミング言語・フレームワークの知識グラフを構築し、MCPプロトコルで提供します。
+MAGATAMAは、AI Codingを支援するMCP Serverです。プログラミング言語・フレームワークの知識グラフを構築し、MCPプロトコルで提供します。加えて、兄弟ツール comP（VSCode 拡張）が生成する `.comp/index.db` を再パースなしで知識グラフに取り込む **comP Bridge** を備えます。
 
 ## Technology Decisions
 
@@ -25,11 +29,13 @@ YATAは、AI Codingを支援するMCP Serverです。CodeGraphMCPServerの技術
 | カテゴリ | ライブラリ | バージョン | 用途 |
 |----------|-----------|-----------|------|
 | MCP | mcp | ^1.0.0 | MCPプロトコル実装 |
-| AST Parser | tree-sitter | ^0.21.0 | ソースコード解析 |
+| AST Parser | tree-sitter | ^0.24.0 | ソースコード解析 |
 | Graph | networkx | ^3.2.0 | グラフ構造管理 |
-| Storage | sqlite3 | (stdlib) | データ永続化 |
+| Storage | sqlite3 | (stdlib) | データ永続化（comP の index.db 読取含む） |
 | CLI | click | ^8.1.0 | CLIフレームワーク |
-| HTTP | httpx | ^0.25.0 | HTTP通信 |
+| CLI 表示 | rich | ^13.7.0 | CLI のリッチ出力 |
+| HTTP/SSE | uvicorn / httpx | ^0.27.0 | SSE トランスポート・HTTP通信 |
+| File Watch | watchdog | ^4.0.0 | `watch` コマンドのファイル監視 |
 | Config | pydantic | ^2.5.0 | 設定管理・バリデーション |
 | Logging | structlog | ^24.0.0 | 構造化ログ |
 
@@ -100,40 +106,30 @@ YATAは、AI Codingを支援するMCP Serverです。CodeGraphMCPServerの技術
 ## Project Structure
 
 ```
-magatama/
-├── src/magatama/
-│   ├── __init__.py
-│   ├── __main__.py          # CLI entry point
-│   ├── server.py            # MCP server
-│   ├── config.py            # Configuration
-│   ├── core/                # Domain layer
-│   │   ├── entities.py      # Entity models
-│   │   ├── graph.py         # Graph operations
-│   │   └── indexer.py       # Indexing logic
-│   ├── parsers/             # Language parsers
-│   │   ├── base.py          # Parser interface
-│   │   ├── python.py
-│   │   ├── typescript.py
-│   │   ├── javascript.py
-│   │   ├── rust.py
-│   │   └── go.py
-│   ├── storage/             # Persistence
-│   │   ├── sqlite.py
-│   │   └── cache.py
-│   └── mcp/                 # MCP interface
-│       ├── tools.py
-│       ├── resources.py
-│       └── prompts.py
-├── tests/
-│   ├── unit/
-│   ├── integration/
-│   └── fixtures/
-├── docs/
-├── steering/
-├── storage/
-├── pyproject.toml
-└── README.md
+MAGATAMA/                            # uv モノレポ
+├── packages/
+│   ├── magatama-core/               # 知識グラフエンジン（ライブラリ）
+│   │   └── src/magatama_core/
+│   │       ├── domain/              # Domain 層（entities, value_objects, repositories）
+│   │       ├── application/         # Application 層（usecases: parse / comp / framework …）
+│   │       └── infrastructure/      # Infrastructure 層
+│   │           ├── parsers/         # Tree-sitter 言語別パーサ（24言語）
+│   │           └── storage/         # networkx_graph / sqlite_storage / comp_index_reader
+│   └── magatama-mcp/                # MCP サーバ＋CLI（配布名 `magatama`）
+│       └── src/magatama_mcp/
+│           ├── server/              # MCP 実装（FastMCP, mcp_server.py / protocol.py）
+│           └── cli/                 # CLI 実装（Click, main.py）
+├── knowledge_graphs/                # 47 フレームワークの事前学習済みグラフ（JSON）
+├── docs/                            # 利用ガイド（日英）
+├── steering/                        # プロジェクトメモリ（このファイル等）
+├── storage/specs/                   # SDD 設計ドキュメント
+├── pyproject.toml                   # ワークスペース設定
+├── README.md                        # English（メイン）
+└── README_jp.md                     # 日本語
 ```
+
+> comP Bridge の中核: `infrastructure/storage/comp_index_reader.py`（SQLite 読取）と
+> `application/usecases/comp_usecase.py`（`LoadCompIndexUseCase`）。
 
 ---
 
@@ -142,23 +138,21 @@ magatama/
 ### Requirements
 
 - Python 3.11+
-- pip or uv (package manager)
+- uv (推奨パッケージマネージャ) / pip
 - Git
 
 ### Installation
 
 ```bash
 # Clone repository
-git clone https://github.com/nahisaho/YATA.git
-cd YATA
+git clone https://github.com/tsucky230/MAGATAMA.git
+cd MAGATAMA
 
-# Create virtual environment
-python -m venv .venv
-source .venv/bin/activate  # Linux/macOS
-# or: .venv\Scripts\activate  # Windows
+# Install dependencies (uv, モノレポ全パッケージ)
+uv sync --all-packages
 
-# Install dependencies
-pip install -e ".[dev]"
+# もしくは PyPI から
+pip install magatama
 ```
 
 ---
