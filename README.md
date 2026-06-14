@@ -71,6 +71,9 @@ magatama parse path/to/file.py
 # ディレクトリを解析
 magatama parse path/to/project --pattern "**/*.py" --pattern "**/*.ts"
 
+# 解析して知識グラフを保存（stats / query で再利用できる）
+magatama parse path/to/project --output graph.json
+
 # MCP サーバーを起動（stdio モード）
 magatama serve
 

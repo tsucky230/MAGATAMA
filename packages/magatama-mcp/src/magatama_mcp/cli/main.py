@@ -3,6 +3,7 @@
 This module provides the main CLI for the MAGATAMA MCP server.
 """
 
+import sys
 from pathlib import Path
 
 import click
@@ -44,12 +45,20 @@ def cli(ctx: click.Context) -> None:
     default=[],
     help="Glob pattern for files to exclude",
 )
+@click.option(
+    "--output",
+    "-o",
+    type=click.Path(),
+    default=None,
+    help="Path to save the knowledge graph (JSON)",
+)
 @click.pass_context
 def parse(
     ctx: click.Context,
     path: str,
     pattern: tuple[str, ...],
     exclude: tuple[str, ...],
+    output: str | None,
 ) -> None:
     """Parse source files and build knowledge graph.
 
@@ -89,6 +98,18 @@ def parse(
             )
         else:
             console.print(f"[red]✗[/red] Errors: {result['errors']}")
+            raise SystemExit(1)
+
+    # Persist the freshly built graph if an output path was requested.
+    if output:
+        output_path = Path(output).resolve()
+        save_result = asyncio.run(
+            server.call_tool("save_graph", {"file_path": str(output_path)})
+        )
+        if save_result.get("success", True):
+            console.print(f"[green]✓[/green] Saved knowledge graph to: {output_path}")
+        else:
+            console.print(f"[red]✗[/red] Failed to save graph: {save_result.get('error')}")
             raise SystemExit(1)
 
 
@@ -836,6 +857,17 @@ def watch(
 
 def main() -> None:
     """Main entry point."""
+    # On Windows the legacy console defaults to a locale codec (e.g. cp932),
+    # which cannot encode characters like "•" (U+2022) or "勾玉" and makes
+    # Rich raise UnicodeEncodeError. Force UTF-8 output so the CLI renders
+    # consistently across platforms.
+    for stream in (sys.stdout, sys.stderr):
+        reconfigure = getattr(stream, "reconfigure", None)
+        if reconfigure is not None:
+            try:
+                reconfigure(encoding="utf-8")
+            except (ValueError, OSError):
+                pass
     cli()
 
 
