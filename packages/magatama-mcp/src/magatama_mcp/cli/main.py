@@ -103,9 +103,7 @@ def parse(
     # Persist the freshly built graph if an output path was requested.
     if output:
         output_path = Path(output).resolve()
-        save_result = asyncio.run(
-            server.call_tool("save_graph", {"file_path": str(output_path)})
-        )
+        save_result = asyncio.run(server.call_tool("save_graph", {"file_path": str(output_path)}))
         if save_result.get("success", True):
             console.print(f"[green]✓[/green] Saved knowledge graph to: {output_path}")
         else:

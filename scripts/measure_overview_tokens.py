@@ -11,8 +11,7 @@ reproducible and clearly labeled as estimates.
 
 from __future__ import annotations
 
-import glob
-import os
+from pathlib import Path
 
 try:
     import tiktoken
@@ -44,9 +43,8 @@ COMP_OVERVIEW = (
 )
 
 
-def read(path: str) -> str:
-    with open(path, encoding="utf-8", errors="replace") as f:
-        return f.read()
+def read(path: str | Path) -> str:
+    return Path(path).read_text(encoding="utf-8", errors="replace")
 
 
 def measure_source() -> tuple[int, int, int]:
@@ -54,8 +52,8 @@ def measure_source() -> tuple[int, int, int]:
     chars = 0
     tokens = 0
     for d in SRC_DIRS:
-        for path in glob.glob(f"{d}/**/*.py", recursive=True):
-            if "__pycache__" in path:
+        for path in Path(d).rglob("*.py"):
+            if "__pycache__" in path.parts:
                 continue
             text = read(path)
             files += 1
@@ -75,7 +73,7 @@ def main() -> None:
     print(f"   tokens: {b_tokens:,}\n")
 
     # Approach A: read the comP structured overview instead.
-    overview = read(COMP_OVERVIEW) if os.path.exists(COMP_OVERVIEW) else ""
+    overview = read(COMP_OVERVIEW) if Path(COMP_OVERVIEW).exists() else ""
     a_full_tokens = count_tokens(overview)
     # The summary actually used to write the overview = the stats + language
     # distribution + top files (everything before the per-file breakdown).
