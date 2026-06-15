@@ -391,6 +391,17 @@ the MIT License and adds the comP Bridge.
 
 ---
 
+## 💖 Support This Project
+
+MAGATAMA is free and open-source. If you find it valuable, consider supporting development:
+
+- ☕ **[GitHub Sponsors](https://github.com/sponsors/tsucky230)** — Buy me a coffee and support ongoing development
+- 💖 **Star this repository** — Help others discover MAGATAMA
+
+Your support enables faster development, better maintenance, and new features. Thank you! 🙏
+
+---
+
 ## 📛 About the name
 
 **YATA (八咫)** is an old word for "very large", reflecting the goal of handling
