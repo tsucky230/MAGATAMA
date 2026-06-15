@@ -11,6 +11,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.2] - 2026-06-15
+
+### Changed
+
+- docs: README（英・日）に「Support This Project」セクションを追加
+  （GitHub Sponsors / リポジトリスター）
+- chore: GitHub Sponsors の `FUNDING.yml` を追加、ドラフト `qiita.md` を gitignore
+
+### Fixed
+
+- ci: ruff の lint / format 失敗を修正
+  （`scripts/measure_overview_tokens.py` を pathlib 化、`cli/main.py` を整形）
+
 ## [0.5.1] - 2026-06-15
 
 ### Added
