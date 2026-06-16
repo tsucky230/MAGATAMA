@@ -67,7 +67,8 @@ class CSharpParser:
         Returns:
             ParseResult with extracted entities
         """
-        tree = self._parser.parse(code.encode("utf-8"))
+        code = code.encode("utf-8")
+        tree = self._parser.parse(code)
 
         entities: list[Entity] = []
         relationships: list[Relationship] = []
@@ -137,11 +138,11 @@ class CSharpParser:
         self._entity_counter += 1
         return f"{prefix}_{self._entity_counter:04d}"
 
-    def _get_node_text(self, node: Node, code: str) -> str:
+    def _get_node_text(self, node: Node, code: bytes) -> str:
         """Get the text content of a node."""
-        return code[node.start_byte : node.end_byte]
+        return code[node.start_byte : node.end_byte].decode("utf-8")
 
-    def _extract_usings(self, node: Node, code: str, imports: list[str]) -> None:
+    def _extract_usings(self, node: Node, code: bytes, imports: list[str]) -> None:
         """Extract using directives."""
         for child in node.children:
             if child.type == "using_directive":
@@ -154,7 +155,7 @@ class CSharpParser:
     def _extract_from_node(
         self,
         node: Node,
-        code: str,
+        code: bytes,
         file_path: str,
         entities: list[Entity],
         relationships: list[Relationship],
@@ -288,7 +289,7 @@ class CSharpParser:
     def _extract_namespace(
         self,
         node: Node,
-        code: str,
+        code: bytes,
         file_path: str,
         entities: list[Entity],
         relationships: list[Relationship],
@@ -344,7 +345,7 @@ class CSharpParser:
     def _extract_file_scoped_namespace(
         self,
         node: Node,
-        code: str,
+        code: bytes,
         file_path: str,
         entities: list[Entity],
         relationships: list[Relationship],
@@ -399,7 +400,7 @@ class CSharpParser:
     def _extract_class(
         self,
         node: Node,
-        code: str,
+        code: bytes,
         file_path: str,
         entities: list[Entity],
         relationships: list[Relationship],
@@ -484,7 +485,7 @@ class CSharpParser:
     def _extract_interface(
         self,
         node: Node,
-        code: str,
+        code: bytes,
         file_path: str,
         entities: list[Entity],
         relationships: list[Relationship],
@@ -551,7 +552,7 @@ class CSharpParser:
     def _extract_struct(
         self,
         node: Node,
-        code: str,
+        code: bytes,
         file_path: str,
         entities: list[Entity],
         relationships: list[Relationship],
@@ -619,7 +620,7 @@ class CSharpParser:
     def _extract_enum(
         self,
         node: Node,
-        code: str,
+        code: bytes,
         file_path: str,
         entities: list[Entity],
         relationships: list[Relationship],
@@ -663,7 +664,7 @@ class CSharpParser:
     def _extract_method(
         self,
         node: Node,
-        code: str,
+        code: bytes,
         file_path: str,
         entities: list[Entity],
         relationships: list[Relationship],
@@ -755,7 +756,7 @@ class CSharpParser:
     def _extract_constructor(
         self,
         node: Node,
-        code: str,
+        code: bytes,
         file_path: str,
         entities: list[Entity],
         relationships: list[Relationship],
@@ -819,7 +820,7 @@ class CSharpParser:
     def _extract_property(
         self,
         node: Node,
-        code: str,
+        code: bytes,
         file_path: str,
         entities: list[Entity],
         relationships: list[Relationship],
@@ -878,7 +879,7 @@ class CSharpParser:
                 )
             )
 
-    def _get_xml_doc(self, node: Node, code: str) -> str | None:
+    def _get_xml_doc(self, node: Node, code: bytes) -> str | None:
         """Get XML documentation comment preceding a node."""
         prev = node.prev_sibling
         while prev:
@@ -914,7 +915,7 @@ class CSharpParser:
     def _extract_calls_relationships(
         self,
         node: Node,
-        code: str,
+        code: bytes,
         relationships: list[Relationship],
         method_name_to_id: dict[str, EntityId],
     ) -> None:
@@ -967,7 +968,7 @@ class CSharpParser:
     def _find_enclosing_method(
         self,
         node: Node,
-        code: str,
+        code: bytes,
         method_name_to_id: dict[str, EntityId],
     ) -> EntityId | None:
         """Find the enclosing method of a node."""

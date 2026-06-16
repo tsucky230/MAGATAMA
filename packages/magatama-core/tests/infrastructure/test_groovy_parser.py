@@ -260,7 +260,7 @@ class Test {
         assert id1 != id2
 
         # Test _get_node_text
-        code = "class Test {}"
-        tree = parser._parser.parse(code.encode("utf-8"))
+        code = b"class Test {}"
+        tree = parser._parser.parse(code)
         text = parser._get_node_text(tree.root_node, code)
         assert "class" in text

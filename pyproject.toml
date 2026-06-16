@@ -4,7 +4,7 @@
 
 [project]
 name = "magatama-workspace"
-version = "0.5.2"
+version = "0.5.3"
 description = "MAGATAMA (勾玉) - Knowledge Graph MCP Server for AI Coding Support"
 readme = "README.md"
 license = { text = "MIT" }

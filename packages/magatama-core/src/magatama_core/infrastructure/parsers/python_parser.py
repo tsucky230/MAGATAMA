@@ -54,8 +54,9 @@ class PythonParser:
         Returns:
             ParseResult containing extracted entities
         """
-        tree = self._parser.parse(code.encode("utf-8"))
-        return self._extract_entities(tree.root_node, code, Path(file_path))
+        code_bytes = code.encode("utf-8")
+        tree = self._parser.parse(code_bytes)
+        return self._extract_entities(tree.root_node, code_bytes, Path(file_path))
 
     def parse_file(self, path: Path) -> ParseResult:
         """
@@ -68,10 +69,11 @@ class PythonParser:
             ParseResult containing extracted entities
         """
         code = path.read_text(encoding="utf-8")
-        tree = self._parser.parse(code.encode("utf-8"))
-        return self._extract_entities(tree.root_node, code, path)
+        code_bytes = code.encode("utf-8")
+        tree = self._parser.parse(code_bytes)
+        return self._extract_entities(tree.root_node, code_bytes, path)
 
-    def _extract_entities(self, root: Node, code: str, file_path: Path) -> ParseResult:
+    def _extract_entities(self, root: Node, code: bytes, file_path: Path) -> ParseResult:
         """Extract all entities from AST."""
         result = ParseResult(file_path=file_path)
 
@@ -112,7 +114,7 @@ class PythonParser:
     def _visit_node(
         self,
         node: Node,
-        code: str,
+        code: bytes,
         file_path: Path,
         result: ParseResult,
         parent_class_id: EntityId | None,
@@ -156,7 +158,7 @@ class PythonParser:
     def _extract_function(
         self,
         node: Node,
-        code: str,
+        code: bytes,
         file_path: Path,
         parent_class_id: EntityId | None,
     ) -> FunctionEntity | MethodEntity:
@@ -215,7 +217,7 @@ class PythonParser:
     def _extract_class(
         self,
         node: Node,
-        code: str,
+        code: bytes,
         file_path: Path,
     ) -> ClassEntity:
         """Extract class from AST node."""
@@ -250,7 +252,7 @@ class PythonParser:
             decorators=decorators,
         )
 
-    def _extract_parameters(self, node: Node, code: str) -> list[tuple[str, str | None]]:
+    def _extract_parameters(self, node: Node, code: bytes) -> list[tuple[str, str | None]]:
         """Extract function parameters."""
         params: list[tuple[str, str | None]] = []
 
@@ -270,7 +272,7 @@ class PythonParser:
 
         return params
 
-    def _extract_docstring(self, node: Node, code: str) -> str | None:
+    def _extract_docstring(self, node: Node, code: bytes) -> str | None:
         """Extract docstring from function/class."""
         body = self._find_child(node, "block")
         if not body or not body.children:
@@ -290,7 +292,7 @@ class PythonParser:
 
         return None
 
-    def _extract_module_docstring(self, root: Node, code: str) -> str | None:
+    def _extract_module_docstring(self, root: Node, code: bytes) -> str | None:
         """Extract module-level docstring."""
         for child in root.children:
             if child.type == "expression_statement":
@@ -303,7 +305,7 @@ class PythonParser:
                 break
         return None
 
-    def _extract_decorators(self, node: Node, code: str) -> list[str]:
+    def _extract_decorators(self, node: Node, code: bytes) -> list[str]:
         """Extract decorator names."""
         decorators: list[str] = []
 
@@ -342,7 +344,7 @@ class PythonParser:
     def _extract_calls_relationships(
         self,
         root: Node,
-        code: str,
+        code: bytes,
         result: ParseResult,
         function_name_to_id: dict[str, EntityId],
     ) -> None:
@@ -367,7 +369,7 @@ class PythonParser:
     def _find_calls_in_node(
         self,
         node: Node,
-        code: str,
+        code: bytes,
         result: ParseResult,
         entity_name_to_id: dict[str, EntityId],
         current_function_id: EntityId | None,
@@ -423,7 +425,7 @@ class PythonParser:
                     child, code, result, entity_name_to_id, current_function_id
                 )
 
-    def _extract_call_name(self, call_node: Node, code: str) -> str:
+    def _extract_call_name(self, call_node: Node, code: bytes) -> str:
         """
         Extract the function name from a call node.
 
@@ -445,7 +447,7 @@ class PythonParser:
                 return parts[-1]
         return ""
 
-    def _extract_imports(self, root: Node, code: str) -> list[str]:
+    def _extract_imports(self, root: Node, code: bytes) -> list[str]:
         """Extract imported module names."""
         imports: list[str] = []
 
@@ -466,7 +468,7 @@ class PythonParser:
     def _extract_imports_relationships(
         self,
         root: Node,
-        code: str,
+        code: bytes,
         result: ParseResult,
         module_id: EntityId,
     ) -> None:
@@ -562,11 +564,11 @@ class PythonParser:
                 return child
         return None
 
-    def _get_node_text(self, node: Node | None, code: str) -> str:
+    def _get_node_text(self, node: Node | None, code: bytes) -> str:
         """Get source text for a node."""
         if node is None:
             return ""
-        return code[node.start_byte : node.end_byte]
+        return code[node.start_byte : node.end_byte].decode("utf-8")
 
     def _clean_docstring(self, raw: str) -> str:
         """Clean up docstring - remove quotes and extra whitespace."""

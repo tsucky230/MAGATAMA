@@ -32,7 +32,8 @@ class ElixirParser:
         return self.parse_string(content, str(file_path))
 
     def parse_string(self, code: str, file_path: str = "<string>") -> ParseResult:
-        tree = self._parser.parse(code.encode("utf-8"))
+        code = code.encode("utf-8")
+        tree = self._parser.parse(code)
 
         entities: list[Entity] = []
         relationships: list[Relationship] = []
@@ -66,13 +67,13 @@ class ElixirParser:
         self._entity_counter += 1
         return f"{prefix}_{self._entity_counter:04d}"
 
-    def _get_node_text(self, node: Node, code: str) -> str:
-        return code[node.start_byte : node.end_byte]
+    def _get_node_text(self, node: Node, code: bytes) -> str:
+        return code[node.start_byte : node.end_byte].decode("utf-8")
 
     def _extract_from_node(
         self,
         node: Node,
-        code: str,
+        code: bytes,
         file_path: str,
         entities: list,
         relationships: list,
@@ -91,7 +92,7 @@ class ElixirParser:
     def _handle_call(
         self,
         node: Node,
-        code: str,
+        code: bytes,
         file_path: str,
         entities: list,
         relationships: list,
@@ -124,7 +125,7 @@ class ElixirParser:
     def _extract_module(
         self,
         node: Node,
-        code: str,
+        code: bytes,
         file_path: str,
         entities: list,
         relationships: list,
@@ -168,7 +169,7 @@ class ElixirParser:
     def _extract_function(
         self,
         node: Node,
-        code: str,
+        code: bytes,
         file_path: str,
         entities: list,
         relationships: list,
@@ -217,7 +218,7 @@ class ElixirParser:
     def _extract_protocol(
         self,
         node: Node,
-        code: str,
+        code: bytes,
         file_path: str,
         entities: list,
         relationships: list,
@@ -261,7 +262,7 @@ class ElixirParser:
     def _extract_struct(
         self,
         node: Node,
-        code: str,
+        code: bytes,
         file_path: str,
         entities: list,
         relationships: list,
@@ -270,7 +271,7 @@ class ElixirParser:
         # Struct is defined within a module, extract its fields if needed
         pass
 
-    def _extract_import(self, node: Node, code: str, imports: list, import_type: str) -> None:
+    def _extract_import(self, node: Node, code: bytes, imports: list, import_type: str) -> None:
         args = node.child_by_field_name("arguments")
         if not args:
             return

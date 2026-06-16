@@ -32,7 +32,8 @@ class ZigParser:
         return self.parse_string(content, str(file_path))
 
     def parse_string(self, code: str, file_path: str = "<string>") -> ParseResult:
-        tree = self._parser.parse(code.encode("utf-8"))
+        code = code.encode("utf-8")
+        tree = self._parser.parse(code)
 
         entities: list[Entity] = []
         relationships: list[Relationship] = []
@@ -66,13 +67,13 @@ class ZigParser:
         self._entity_counter += 1
         return f"{prefix}_{self._entity_counter:04d}"
 
-    def _get_node_text(self, node: Node, code: str) -> str:
-        return code[node.start_byte : node.end_byte]
+    def _get_node_text(self, node: Node, code: bytes) -> str:
+        return code[node.start_byte : node.end_byte].decode("utf-8")
 
     def _extract_from_node(
         self,
         node: Node,
-        code: str,
+        code: bytes,
         file_path: str,
         entities: list,
         relationships: list,
@@ -99,7 +100,7 @@ class ZigParser:
     def _extract_function(
         self,
         node: Node,
-        code: str,
+        code: bytes,
         file_path: str,
         entities: list,
         relationships: list,
@@ -138,7 +139,7 @@ class ZigParser:
                 )
             )
 
-    def _extract_parameters(self, node: Node, code: str) -> list[tuple[str, str | None]]:
+    def _extract_parameters(self, node: Node, code: bytes) -> list[tuple[str, str | None]]:
         parameters: list[tuple[str, str | None]] = []
 
         for child in node.children:
@@ -160,7 +161,7 @@ class ZigParser:
     def _extract_struct(
         self,
         node: Node,
-        code: str,
+        code: bytes,
         file_path: str,
         entities: list,
         relationships: list,
@@ -203,7 +204,7 @@ class ZigParser:
     def _extract_var_decl(
         self,
         node: Node,
-        code: str,
+        code: bytes,
         file_path: str,
         entities: list,
         relationships: list,
@@ -233,7 +234,7 @@ class ZigParser:
     def _extract_test(
         self,
         node: Node,
-        code: str,
+        code: bytes,
         file_path: str,
         entities: list,
         relationships: list,

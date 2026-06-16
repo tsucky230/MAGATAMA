@@ -32,7 +32,8 @@ class SqlParser:
         return self.parse_string(content, str(file_path))
 
     def parse_string(self, code: str, file_path: str = "<string>") -> ParseResult:
-        tree = self._parser.parse(code.encode("utf-8"))
+        code = code.encode("utf-8")
+        tree = self._parser.parse(code)
 
         entities: list[Entity] = []
         relationships: list[Relationship] = []
@@ -66,13 +67,13 @@ class SqlParser:
         self._entity_counter += 1
         return f"{prefix}_{self._entity_counter:04d}"
 
-    def _get_node_text(self, node: Node, code: str) -> str:
-        return code[node.start_byte : node.end_byte]
+    def _get_node_text(self, node: Node, code: bytes) -> str:
+        return code[node.start_byte : node.end_byte].decode("utf-8")
 
     def _extract_from_node(
         self,
         node: Node,
-        code: str,
+        code: bytes,
         file_path: str,
         entities: list,
         relationships: list,
@@ -99,7 +100,7 @@ class SqlParser:
     def _extract_table(
         self,
         node: Node,
-        code: str,
+        code: bytes,
         file_path: str,
         entities: list,
         relationships: list,
@@ -142,7 +143,7 @@ class SqlParser:
     def _extract_columns(
         self,
         node: Node,
-        code: str,
+        code: bytes,
         file_path: str,
         entities: list,
         relationships: list,
@@ -161,7 +162,7 @@ class SqlParser:
     def _extract_column(
         self,
         node: Node,
-        code: str,
+        code: bytes,
         file_path: str,
         entities: list,
         relationships: list,
@@ -198,7 +199,7 @@ class SqlParser:
     def _extract_view(
         self,
         node: Node,
-        code: str,
+        code: bytes,
         file_path: str,
         entities: list,
         relationships: list,
@@ -238,7 +239,7 @@ class SqlParser:
     def _extract_function(
         self,
         node: Node,
-        code: str,
+        code: bytes,
         file_path: str,
         entities: list,
         relationships: list,
@@ -277,7 +278,7 @@ class SqlParser:
     def _extract_index(
         self,
         node: Node,
-        code: str,
+        code: bytes,
         file_path: str,
         entities: list,
         relationships: list,
@@ -316,7 +317,7 @@ class SqlParser:
     def _extract_trigger(
         self,
         node: Node,
-        code: str,
+        code: bytes,
         file_path: str,
         entities: list,
         relationships: list,

@@ -32,7 +32,8 @@ class HaskellParser:
         return self.parse_string(content, str(file_path))
 
     def parse_string(self, code: str, file_path: str = "<string>") -> ParseResult:
-        tree = self._parser.parse(code.encode("utf-8"))
+        code = code.encode("utf-8")
+        tree = self._parser.parse(code)
 
         entities: list[Entity] = []
         relationships: list[Relationship] = []
@@ -66,13 +67,13 @@ class HaskellParser:
         self._entity_counter += 1
         return f"{prefix}_{self._entity_counter:04d}"
 
-    def _get_node_text(self, node: Node, code: str) -> str:
-        return code[node.start_byte : node.end_byte]
+    def _get_node_text(self, node: Node, code: bytes) -> str:
+        return code[node.start_byte : node.end_byte].decode("utf-8")
 
     def _extract_from_node(
         self,
         node: Node,
-        code: str,
+        code: bytes,
         file_path: str,
         entities: list,
         relationships: list,
@@ -101,7 +102,7 @@ class HaskellParser:
     def _extract_function(
         self,
         node: Node,
-        code: str,
+        code: bytes,
         file_path: str,
         entities: list,
         relationships: list,
@@ -144,7 +145,7 @@ class HaskellParser:
     def _extract_class(
         self,
         node: Node,
-        code: str,
+        code: bytes,
         file_path: str,
         entities: list,
         relationships: list,
@@ -187,7 +188,7 @@ class HaskellParser:
     def _extract_data_type(
         self,
         node: Node,
-        code: str,
+        code: bytes,
         file_path: str,
         entities: list,
         relationships: list,
@@ -230,7 +231,7 @@ class HaskellParser:
     def _extract_newtype(
         self,
         node: Node,
-        code: str,
+        code: bytes,
         file_path: str,
         entities: list,
         relationships: list,
@@ -238,7 +239,7 @@ class HaskellParser:
     ) -> None:
         self._extract_data_type(node, code, file_path, entities, relationships, parent_id)
 
-    def _extract_import(self, node: Node, code: str, imports: list) -> None:
+    def _extract_import(self, node: Node, code: bytes, imports: list) -> None:
         for child in node.children:
             if child.type == "module":
                 module_name = self._get_node_text(child, code)

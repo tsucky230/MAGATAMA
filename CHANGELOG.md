@@ -11,6 +11,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.3] - 2026-06-16
+
+### Fixed
+
+- fix: tree-sitter ベースの全言語パーサーで、エンティティ名の抽出時に
+  tree-sitter のバイトオフセット（`start_byte`/`end_byte`）を文字列（str）へ
+  直接適用していたため、マルチバイト文字（日本語など）を含むファイルで
+  関数名・クラス名がコード本文の別位置の断片にずれて返っていた問題を修正
+
 ## [0.5.2] - 2026-06-15
 
 ### Changed

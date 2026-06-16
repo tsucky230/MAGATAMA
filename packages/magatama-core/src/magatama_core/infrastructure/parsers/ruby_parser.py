@@ -63,7 +63,8 @@ class RubyParser:
         Returns:
             ParseResult with extracted entities
         """
-        tree = self._parser.parse(code.encode("utf-8"))
+        code = code.encode("utf-8")
+        tree = self._parser.parse(code)
 
         entities: list[Entity] = []
         relationships: list[Relationship] = []
@@ -129,14 +130,14 @@ class RubyParser:
         self._entity_counter += 1
         return f"{prefix}_{self._entity_counter:04d}"
 
-    def _get_node_text(self, node: Node, code: str) -> str:
+    def _get_node_text(self, node: Node, code: bytes) -> str:
         """Get the text content of a node."""
-        return code[node.start_byte : node.end_byte]
+        return code[node.start_byte : node.end_byte].decode("utf-8")
 
     def _extract_from_node(
         self,
         node: Node,
-        code: str,
+        code: bytes,
         file_path: str,
         entities: list[Entity],
         relationships: list[Relationship],
@@ -216,7 +217,7 @@ class RubyParser:
     def _extract_class(
         self,
         node: Node,
-        code: str,
+        code: bytes,
         file_path: str,
         entities: list[Entity],
         relationships: list[Relationship],
@@ -294,7 +295,7 @@ class RubyParser:
     def _extract_module(
         self,
         node: Node,
-        code: str,
+        code: bytes,
         file_path: str,
         entities: list[Entity],
         relationships: list[Relationship],
@@ -355,7 +356,7 @@ class RubyParser:
     def _extract_method(
         self,
         node: Node,
-        code: str,
+        code: bytes,
         file_path: str,
         entities: list[Entity],
         relationships: list[Relationship],
@@ -440,7 +441,7 @@ class RubyParser:
                 )
             )
 
-    def _get_preceding_comment(self, node: Node, code: str) -> str | None:
+    def _get_preceding_comment(self, node: Node, code: bytes) -> str | None:
         """Get comment immediately preceding a node."""
         # Look for comment in previous sibling
         prev = node.prev_sibling
@@ -453,7 +454,7 @@ class RubyParser:
     def _extract_calls_relationships(
         self,
         node: Node,
-        code: str,
+        code: bytes,
         relationships: list[Relationship],
         method_name_to_id: dict[str, EntityId],
     ) -> None:
@@ -487,7 +488,7 @@ class RubyParser:
     def _find_enclosing_method(
         self,
         node: Node,
-        code: str,
+        code: bytes,
         method_name_to_id: dict[str, EntityId],
     ) -> EntityId | None:
         """Find the enclosing method of a node."""
@@ -505,7 +506,7 @@ class RubyParser:
     def _extract_imports_relationships(
         self,
         node: Node,
-        code: str,
+        code: bytes,
         relationships: list[Relationship],
         module_id: EntityId,
     ) -> None:

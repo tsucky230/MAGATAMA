@@ -220,7 +220,7 @@ CREATE INDEX idx_product_name ON products(name);
         assert id1 != id2
 
         # Test _get_node_text
-        code = "SELECT 1"
-        tree = parser._parser.parse(code.encode("utf-8"))
+        code = b"SELECT 1"
+        tree = parser._parser.parse(code)
         text = parser._get_node_text(tree.root_node, code)
         assert "SELECT" in text

@@ -66,7 +66,8 @@ class JavaParser:
         Returns:
             ParseResult with extracted entities
         """
-        tree = self._parser.parse(code.encode("utf-8"))
+        code = code.encode("utf-8")
+        tree = self._parser.parse(code)
 
         entities: list[Entity] = []
         relationships: list[Relationship] = []
@@ -139,11 +140,11 @@ class JavaParser:
         self._entity_counter += 1
         return f"{prefix}_{self._entity_counter:04d}"
 
-    def _get_node_text(self, node: Node, code: str) -> str:
+    def _get_node_text(self, node: Node, code: bytes) -> str:
         """Get the text content of a node."""
-        return code[node.start_byte : node.end_byte]
+        return code[node.start_byte : node.end_byte].decode("utf-8")
 
-    def _extract_package(self, node: Node, code: str) -> str | None:
+    def _extract_package(self, node: Node, code: bytes) -> str | None:
         """Extract package declaration."""
         for child in node.children:
             if child.type == "package_declaration":
@@ -152,7 +153,7 @@ class JavaParser:
                         return self._get_node_text(subchild, code)
         return None
 
-    def _extract_imports(self, node: Node, code: str, imports: list[str]) -> None:
+    def _extract_imports(self, node: Node, code: bytes, imports: list[str]) -> None:
         """Extract import statements."""
         for child in node.children:
             if child.type == "import_declaration":
@@ -165,7 +166,7 @@ class JavaParser:
     def _extract_from_node(
         self,
         node: Node,
-        code: str,
+        code: bytes,
         file_path: str,
         entities: list[Entity],
         relationships: list[Relationship],
@@ -251,7 +252,7 @@ class JavaParser:
     def _extract_class(
         self,
         node: Node,
-        code: str,
+        code: bytes,
         file_path: str,
         entities: list[Entity],
         relationships: list[Relationship],
@@ -345,7 +346,7 @@ class JavaParser:
     def _extract_interface(
         self,
         node: Node,
-        code: str,
+        code: bytes,
         file_path: str,
         entities: list[Entity],
         relationships: list[Relationship],
@@ -413,7 +414,7 @@ class JavaParser:
     def _extract_enum(
         self,
         node: Node,
-        code: str,
+        code: bytes,
         file_path: str,
         entities: list[Entity],
         relationships: list[Relationship],
@@ -473,7 +474,7 @@ class JavaParser:
     def _extract_method(
         self,
         node: Node,
-        code: str,
+        code: bytes,
         file_path: str,
         entities: list[Entity],
         relationships: list[Relationship],
@@ -569,7 +570,7 @@ class JavaParser:
     def _extract_constructor(
         self,
         node: Node,
-        code: str,
+        code: bytes,
         file_path: str,
         entities: list[Entity],
         relationships: list[Relationship],
@@ -630,7 +631,7 @@ class JavaParser:
                 )
             )
 
-    def _get_javadoc(self, node: Node, code: str) -> str | None:
+    def _get_javadoc(self, node: Node, code: bytes) -> str | None:
         """Get Javadoc comment preceding a node."""
         prev = node.prev_sibling
         while prev:
@@ -663,7 +664,7 @@ class JavaParser:
     def _extract_calls_relationships(
         self,
         node: Node,
-        code: str,
+        code: bytes,
         relationships: list[Relationship],
         method_name_to_id: dict[str, EntityId],
     ) -> None:
@@ -697,7 +698,7 @@ class JavaParser:
     def _find_enclosing_method(
         self,
         node: Node,
-        code: str,
+        code: bytes,
         method_name_to_id: dict[str, EntityId],
     ) -> EntityId | None:
         """Find the enclosing method of a node."""
