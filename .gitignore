@@ -121,3 +121,6 @@ plan.md
 
 # Drafts (blog/article work-in-progress)
 qiita.md
+
+# Local machine-specific MCP server config (paths differ per OS/machine)
+.mcp.json
