@@ -388,3 +388,97 @@ class TestBenchmarkCommand:
         result = runner.invoke(cli, ["benchmark", str(tmp_path), "--json"])
         assert result.exit_code == 0
         assert "files_parsed" in result.output
+
+
+class TestPatrolCommand:
+    """Tests for the patrol command."""
+
+    @pytest.fixture
+    def runner(self) -> CliRunner:
+        return CliRunner()
+
+    @staticmethod
+    def _make_comp_workspace(tmp_path: Path) -> Path:
+        import sqlite3
+
+        workspace = tmp_path / "proj"
+        comp_dir = workspace / ".comp"
+        comp_dir.mkdir(parents=True)
+        conn = sqlite3.connect(comp_dir / "index.db")
+        conn.executescript("""
+            CREATE TABLE files (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                path TEXT NOT NULL UNIQUE,
+                hash TEXT NOT NULL,
+                language TEXT NOT NULL,
+                last_indexed INTEGER NOT NULL DEFAULT 0,
+                char_count INTEGER NOT NULL DEFAULT 0
+            );
+            CREATE TABLE nodes (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                file_id INTEGER NOT NULL,
+                name TEXT NOT NULL,
+                kind TEXT NOT NULL,
+                line INTEGER NOT NULL,
+                col INTEGER NOT NULL,
+                scope TEXT,
+                is_exported INTEGER DEFAULT 0,
+                signature TEXT
+            );
+            CREATE TABLE edges (
+                from_id INTEGER NOT NULL,
+                to_id INTEGER NOT NULL,
+                kind TEXT NOT NULL,
+                PRIMARY KEY (from_id, to_id, kind)
+            );
+            CREATE TABLE metadata (key TEXT PRIMARY KEY, value TEXT);
+        """)
+        conn.execute(
+            "INSERT INTO files (id, path, hash, language) VALUES (1, 'a.py', 'h1', 'python')"
+        )
+        conn.execute(
+            "INSERT INTO nodes (id, file_id, name, kind, line, col, signature)"
+            " VALUES (1, 1, 'main', 'function', 1, 0, 'def main()')"
+        )
+        conn.commit()
+        conn.close()
+        return workspace
+
+    def test_patrol_help(self, runner: CliRunner) -> None:
+        result = runner.invoke(cli, ["patrol", "--help"])
+        assert result.exit_code == 0
+        assert "Patrol" in result.output or "patrol" in result.output.lower()
+
+    def test_patrol_once_baseline(self, runner: CliRunner, tmp_path: Path) -> None:
+        workspace = self._make_comp_workspace(tmp_path)
+        result = runner.invoke(cli, ["patrol", str(workspace), "--once"])
+        assert result.exit_code == 0
+        assert (workspace / ".magatama" / "patrol-state.json").is_file()
+
+    def test_patrol_once_no_changes(self, runner: CliRunner, tmp_path: Path) -> None:
+        workspace = self._make_comp_workspace(tmp_path)
+        runner.invoke(cli, ["patrol", str(workspace), "--once"])
+        result = runner.invoke(cli, ["patrol", str(workspace), "--once"])
+        assert result.exit_code == 0
+        assert "変更なし" in result.output
+
+    def test_patrol_once_detects_change(self, runner: CliRunner, tmp_path: Path) -> None:
+        import sqlite3
+
+        workspace = self._make_comp_workspace(tmp_path)
+        runner.invoke(cli, ["patrol", str(workspace), "--once"])
+
+        conn = sqlite3.connect(workspace / ".comp" / "index.db")
+        conn.execute("UPDATE files SET hash = 'h1-new' WHERE id = 1")
+        conn.execute("UPDATE nodes SET signature = 'def main(argv)' WHERE id = 1")
+        conn.commit()
+        conn.close()
+
+        result = runner.invoke(cli, ["patrol", str(workspace), "--once"])
+        assert result.exit_code == 0
+        assert "変更検知" in result.output
+        assert (workspace / ".comp" / "history").is_dir()
+
+    def test_patrol_missing_workspace(self, runner: CliRunner) -> None:
+        result = runner.invoke(cli, ["patrol", "/nonexistent"])
+        assert result.exit_code != 0

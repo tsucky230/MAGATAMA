@@ -330,3 +330,59 @@ class TestIncrementalParse:
         tools = server.list_tools()
         tool_names = [t.name for t in tools]
         assert "incremental_parse" in tool_names
+
+
+class TestCompBridgeToolsLegacyServer:
+    """comP bridge tools on the CLI-facing MagatamaMcpServer."""
+
+    @pytest.fixture
+    def server(self) -> MagatamaMcpServer:
+        return MagatamaMcpServer(name="magatama-test")
+
+    def test_comp_tools_registered(self, server: MagatamaMcpServer) -> None:
+        tool_names = [t.name for t in server.list_tools()]
+        assert "read_external_graph" in tool_names
+        assert "read_external_sessions" in tool_names
+        assert "get_external_graph_info" in tool_names
+
+    def test_24_language_parsers(self, server: MagatamaMcpServer) -> None:
+        """The CLI server supports the same extensions as protocol.py."""
+        for ext in (".py", ".rb", ".java", ".cs", ".swift", ".kt", ".hs", ".zig", ".yaml"):
+            assert ext in server._parsers, f"missing parser for {ext}"
+
+    @pytest.mark.asyncio
+    async def test_read_external_graph_not_found(self, server: MagatamaMcpServer, tmp_path) -> None:
+        result = await server.call_tool("read_external_graph", {"path": str(tmp_path / "x")})
+        assert result["success"] is False
+
+    @pytest.mark.asyncio
+    async def test_get_external_graph_info_not_found(
+        self, server: MagatamaMcpServer, tmp_path
+    ) -> None:
+        result = await server.call_tool("get_external_graph_info", {"path": str(tmp_path / "x")})
+        assert result["exists"] is False
+
+    @pytest.mark.asyncio
+    async def test_read_external_sessions_roundtrip(
+        self, server: MagatamaMcpServer, tmp_path
+    ) -> None:
+        import json
+
+        comp_dir = tmp_path / "proj" / ".comp"
+        comp_dir.mkdir(parents=True)
+        memory = {
+            "sessions": [
+                {
+                    "id": "s1",
+                    "timestamp": 1,
+                    "calls": [
+                        {"query": "do a thing", "outcome": "done", "files": [], "symbols": []}
+                    ],
+                }
+            ]
+        }
+        (comp_dir / "session-memory.json").write_text(json.dumps(memory), encoding="utf-8")
+
+        result = await server.call_tool("read_external_sessions", {"path": str(tmp_path / "proj")})
+        assert result["success"] is True
+        assert result["sessions_loaded"] == 1

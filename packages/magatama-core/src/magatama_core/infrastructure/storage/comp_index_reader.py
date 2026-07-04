@@ -95,6 +95,44 @@ def derive_alias(db_path: Path) -> str:
     return parent.name.lower()
 
 
+@dataclass
+class CompSnapshot:
+    """Lightweight snapshot of a comP index for change detection.
+
+    files:   path -> content hash
+    symbols: "path::name::kind" -> signature (empty string when NULL)
+    """
+
+    files: dict[str, str] = field(default_factory=dict)
+    symbols: dict[str, str] = field(default_factory=dict)
+
+
+def read_comp_snapshot(path: str | Path) -> CompSnapshot:
+    """Read file hashes and symbol signatures from a comP index.db.
+
+    Accepts the same path forms as resolve_db_path. Used by patrol to diff
+    the index against a previously saved snapshot.
+    """
+    db_path = resolve_db_path(path)
+    uri = f"file:{urllib.parse.quote(db_path.as_posix())}?mode=ro"
+    conn = sqlite3.connect(uri, uri=True)
+    try:
+        conn.execute("PRAGMA busy_timeout=5000")
+        conn.row_factory = sqlite3.Row
+        snapshot = CompSnapshot()
+        file_paths: dict[int, str] = {}
+        for row in conn.execute("SELECT id, path, hash FROM files"):
+            file_paths[int(row["id"])] = row["path"]
+            snapshot.files[row["path"]] = row["hash"]
+        for row in conn.execute("SELECT file_id, name, kind, signature FROM nodes"):
+            file_path = file_paths.get(int(row["file_id"]), "<unknown>")
+            key = f"{file_path}::{row['name']}::{row['kind']}"
+            snapshot.symbols[key] = row["signature"] or ""
+        return snapshot
+    finally:
+        conn.close()
+
+
 class CompIndexReader:
     """Reads a comP SQLite index in read-only mode."""
 

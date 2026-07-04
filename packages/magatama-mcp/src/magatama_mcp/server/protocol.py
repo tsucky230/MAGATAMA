@@ -9,7 +9,10 @@ from typing import Any
 
 from mcp.server import FastMCP
 
-from magatama_core.application.usecases.comp_usecase import LoadCompIndexUseCase
+from magatama_core.application.usecases.comp_usecase import (
+    LoadCompIndexUseCase,
+    LoadCompSessionsUseCase,
+)
 from magatama_core.application.usecases.framework_usecase import (
     APICompatibilityUseCase,
     CodeContextUseCase,
@@ -1594,6 +1597,7 @@ def create_mcp_server(name: str = "magatama") -> FastMCP:
     # ===== External Index Tools (comP Bridge) =====
 
     load_comp_index_usecase = LoadCompIndexUseCase(knowledge_graph=knowledge_graph)
+    load_comp_sessions_usecase = LoadCompSessionsUseCase(knowledge_graph=knowledge_graph)
 
     @mcp.tool()
     def read_external_graph(path: str, mode: str = "replace") -> dict[str, Any]:
@@ -1623,6 +1627,41 @@ def create_mcp_server(name: str = "magatama") -> FastMCP:
             "entities_removed": result.entities_removed,
             "skipped_edges": result.skipped_edges,
             "comp_metadata": result.comp_metadata,
+            "errors": result.errors,
+        }
+
+    @mcp.tool()
+    def read_external_sessions(path: str, mode: str = "replace") -> dict[str, Any]:
+        """Load comP session history into the knowledge graph as SESSION entities.
+
+        Reads .comp/session-memory.json and .comp/history/*.jsonl from a comP
+        workspace. Each record (request/outcome) becomes a SESSION entity, and
+        the files/symbols it mentions are linked to matching code entities via
+        DISCUSSED relationships. Load the code index first with
+        read_external_graph so the links can attach; afterwards
+        get_related_entities on a file answers "what past requests touched
+        this file?".
+
+        Args:
+            path: Workspace root containing .comp/, or the .comp directory.
+            mode: "replace" (default) removes previously loaded session
+                  entities from the same workspace first; "merge" adds on top.
+
+        Returns:
+            Load statistics: sessions_loaded, discussed_links, sources, etc.
+        """
+        result = load_comp_sessions_usecase.execute(path, mode=mode)
+        return {
+            "success": result.success,
+            "alias": result.alias,
+            "comp_dir": result.comp_dir,
+            "sessions_loaded": result.sessions_loaded,
+            "entities_removed": result.entities_removed,
+            "discussed_links": result.discussed_links,
+            "unmatched_files": result.unmatched_files,
+            "unmatched_symbols": result.unmatched_symbols,
+            "sources": result.sources,
+            "skipped_records": result.skipped_records,
             "errors": result.errors,
         }
 

@@ -1,11 +1,17 @@
 """Tests for LoadCompIndexUseCase."""
 
+import json
 import sqlite3
 from pathlib import Path
 
 import pytest
 
-from magatama_core.application.usecases.comp_usecase import LoadCompIndexUseCase
+from magatama_core.application.usecases.comp_usecase import (
+    LoadCompIndexUseCase,
+    LoadCompSessionsUseCase,
+)
+from magatama_core.domain.entities.base import EntityType
+from magatama_core.domain.entities.relationships import RelationshipType
 from magatama_core.infrastructure.storage.networkx_graph import NetworkXKnowledgeGraph
 
 SCHEMA = """
@@ -150,3 +156,137 @@ def test_execute_get_neighbors(comp_db: Path) -> None:
     neighbors = graph.get_neighbors(helper_id, depth=1)
     neighbor_names = {n.name for n in neighbors}
     assert "run" in neighbor_names
+
+
+# ---------------------------------------------------------------------------
+# LoadCompSessionsUseCase
+# ---------------------------------------------------------------------------
+
+
+def make_session_workspace(tmp_path: Path) -> Path:
+    """Workspace with a comP index (one file, one symbol) and session data."""
+    workspace = tmp_path / "sessproj"
+    comp_dir = workspace / ".comp"
+    comp_dir.mkdir(parents=True)
+
+    db_path = comp_dir / "index.db"
+    conn = sqlite3.connect(db_path)
+    conn.executescript(SCHEMA)
+    conn.execute(
+        "INSERT INTO files (id, path, hash, language) VALUES (1, 'src/app.py', 'h', 'python')"
+    )
+    conn.execute(
+        "INSERT INTO nodes (id, file_id, name, kind, line, col) VALUES (1, 1, 'main', 'function', 1, 0)"
+    )
+    conn.commit()
+    conn.close()
+
+    memory = {
+        "sessions": [
+            {
+                "id": "s1",
+                "timestamp": 1780341799978,
+                "calls": [
+                    {
+                        "query": "refactor main",
+                        "outcome": "done",
+                        "files": ["src/app.py", "missing/file.py"],
+                        "symbols": ["main", "no_such_symbol"],
+                        "timestamp": 1780341799978,
+                    }
+                ],
+            }
+        ]
+    }
+    (comp_dir / "session-memory.json").write_text(json.dumps(memory), encoding="utf-8")
+    return workspace
+
+
+def test_sessions_load_and_link(tmp_path: Path) -> None:
+    workspace = make_session_workspace(tmp_path)
+    kg = NetworkXKnowledgeGraph()
+    LoadCompIndexUseCase(kg).execute(workspace)
+
+    result = LoadCompSessionsUseCase(kg).execute(workspace)
+
+    assert result.success
+    assert result.alias == "sessproj"
+    assert result.sessions_loaded == 1
+    # src/app.py (file) + main (symbol) matched; the other two unmatched
+    assert result.discussed_links == 2
+    assert result.unmatched_files == 1
+    assert result.unmatched_symbols == 1
+
+    sessions = [e for e in kg.entities.all() if e.type == EntityType.SESSION]
+    assert len(sessions) == 1
+    discussed = [r for r in kg.relationships.all() if r.type == RelationshipType.DISCUSSED]
+    assert len(discussed) == 2
+    assert all(r.source_id == sessions[0].id for r in discussed)
+
+
+def test_sessions_replace_idempotent(tmp_path: Path) -> None:
+    workspace = make_session_workspace(tmp_path)
+    kg = NetworkXKnowledgeGraph()
+    LoadCompIndexUseCase(kg).execute(workspace)
+
+    usecase = LoadCompSessionsUseCase(kg)
+    usecase.execute(workspace)
+    result = usecase.execute(workspace)
+
+    assert result.entities_removed == 1
+    sessions = [e for e in kg.entities.all() if e.type == EntityType.SESSION]
+    assert len(sessions) == 1
+    discussed = [r for r in kg.relationships.all() if r.type == RelationshipType.DISCUSSED]
+    assert len(discussed) == 2
+
+
+def test_sessions_without_index_all_unmatched(tmp_path: Path) -> None:
+    """Session data loads even when no code entities are in the graph."""
+    workspace = make_session_workspace(tmp_path)
+    kg = NetworkXKnowledgeGraph()
+
+    result = LoadCompSessionsUseCase(kg).execute(workspace)
+
+    assert result.success
+    assert result.sessions_loaded == 1
+    assert result.discussed_links == 0
+    assert result.unmatched_files == 2
+    assert result.unmatched_symbols == 2
+
+
+def test_sessions_file_suffix_match(tmp_path: Path) -> None:
+    """Relative session paths match code entities indexed by longer paths."""
+    workspace = make_session_workspace(tmp_path)
+    comp_dir = workspace / ".comp"
+    memory = {
+        "sessions": [
+            {
+                "id": "s2",
+                "timestamp": 1,
+                "calls": [{"query": "q", "outcome": "o", "files": ["app.py"], "symbols": []}],
+            }
+        ]
+    }
+    (comp_dir / "session-memory.json").write_text(json.dumps(memory), encoding="utf-8")
+
+    kg = NetworkXKnowledgeGraph()
+    LoadCompIndexUseCase(kg).execute(workspace)
+    result = LoadCompSessionsUseCase(kg).execute(workspace)
+
+    # "app.py" matches "src/app.py" via suffix
+    assert result.discussed_links == 1
+    assert result.unmatched_files == 0
+
+
+def test_sessions_not_found(tmp_path: Path) -> None:
+    kg = NetworkXKnowledgeGraph()
+    result = LoadCompSessionsUseCase(kg).execute(tmp_path / "nowhere")
+    assert not result.success
+    assert result.errors
+
+
+def test_sessions_invalid_mode(tmp_path: Path) -> None:
+    kg = NetworkXKnowledgeGraph()
+    result = LoadCompSessionsUseCase(kg).execute(tmp_path, mode="bogus")
+    assert not result.success
+    assert "Invalid mode" in result.errors[0]

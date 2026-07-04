@@ -9,15 +9,42 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from magatama_core.application.usecases.comp_usecase import (
+    LoadCompIndexUseCase,
+    LoadCompSessionsUseCase,
+)
 from magatama_core.application.usecases.parse_usecase import (
     IncrementalParseUseCase,
     ParseDirectoryUseCase,
     ParseFileUseCase,
 )
 from magatama_core.domain.entities import Entity, EntityType
-from magatama_core.infrastructure.parsers import GoParser, PythonParser, RustParser
-from magatama_core.infrastructure.parsers.javascript_parser import JavaScriptParser
-from magatama_core.infrastructure.parsers.typescript_parser import TypeScriptParser
+from magatama_core.infrastructure.parsers import (
+    CParser,
+    CppParser,
+    CSharpParser,
+    DartParser,
+    ElixirParser,
+    GoParser,
+    GroovyParser,
+    HaskellParser,
+    JavaParser,
+    JavaScriptParser,
+    JuliaParser,
+    KotlinParser,
+    LuaParser,
+    ObjectiveCParser,
+    PhpParser,
+    PythonParser,
+    RubyParser,
+    RustParser,
+    ScalaParser,
+    SqlParser,
+    SwiftParser,
+    TypeScriptParser,
+    YAMLParser,
+    ZigParser,
+)
 from magatama_core.infrastructure.storage import NetworkXKnowledgeGraph
 
 
@@ -62,12 +89,31 @@ class MagatamaMcpServer:
         # Initialize knowledge graph (Article I: Library-First)
         self._knowledge_graph = NetworkXKnowledgeGraph()
 
-        # Initialize parsers
+        # Initialize parsers (24 languages, matching server/protocol.py)
         python_parser = PythonParser()
         ts_parser = TypeScriptParser()
         js_parser = JavaScriptParser()
         rust_parser = RustParser()
         go_parser = GoParser()
+        ruby_parser = RubyParser()
+        java_parser = JavaParser()
+        csharp_parser = CSharpParser()
+        cpp_parser = CppParser()
+        c_parser = CParser()
+        objc_parser = ObjectiveCParser()
+        php_parser = PhpParser()
+        swift_parser = SwiftParser()
+        kotlin_parser = KotlinParser()
+        scala_parser = ScalaParser()
+        lua_parser = LuaParser()
+        haskell_parser = HaskellParser()
+        elixir_parser = ElixirParser()
+        julia_parser = JuliaParser()
+        sql_parser = SqlParser()
+        groovy_parser = GroovyParser()
+        dart_parser = DartParser()
+        zig_parser = ZigParser()
+        yaml_parser = YAMLParser()
 
         self._parsers: dict[str, Any] = {
             ".py": python_parser,
@@ -77,6 +123,34 @@ class MagatamaMcpServer:
             ".jsx": js_parser,
             ".rs": rust_parser,
             ".go": go_parser,
+            ".rb": ruby_parser,
+            ".java": java_parser,
+            ".cs": csharp_parser,
+            ".cpp": cpp_parser,
+            ".hpp": cpp_parser,
+            ".cc": cpp_parser,
+            ".hh": cpp_parser,
+            ".cxx": cpp_parser,
+            ".c": c_parser,
+            ".h": c_parser,
+            ".m": objc_parser,
+            ".mm": objc_parser,
+            ".php": php_parser,
+            ".swift": swift_parser,
+            ".kt": kotlin_parser,
+            ".kts": kotlin_parser,
+            ".scala": scala_parser,
+            ".lua": lua_parser,
+            ".hs": haskell_parser,
+            ".ex": elixir_parser,
+            ".exs": elixir_parser,
+            ".jl": julia_parser,
+            ".sql": sql_parser,
+            ".groovy": groovy_parser,
+            ".dart": dart_parser,
+            ".zig": zig_parser,
+            ".yaml": yaml_parser,
+            ".yml": yaml_parser,
         }
 
         # Initialize use cases
@@ -91,6 +165,12 @@ class MagatamaMcpServer:
             parsers=self._parsers,
             knowledge_graph=self._knowledge_graph,
         )
+        self._load_comp_index_usecase = LoadCompIndexUseCase(
+            knowledge_graph=self._knowledge_graph,
+        )
+        self._load_comp_sessions_usecase = LoadCompSessionsUseCase(
+            knowledge_graph=self._knowledge_graph,
+        )
 
         # Register tool handlers
         self._tool_handlers: dict[str, Callable[..., Awaitable[dict[str, Any]]]] = {
@@ -102,6 +182,9 @@ class MagatamaMcpServer:
             "get_related_entities": self._handle_get_related_entities,
             "save_graph": self._handle_save_graph,
             "load_graph": self._handle_load_graph,
+            "read_external_graph": self._handle_read_external_graph,
+            "read_external_sessions": self._handle_read_external_sessions,
+            "get_external_graph_info": self._handle_get_external_graph_info,
         }
 
         # Define tools
@@ -249,6 +332,76 @@ class MagatamaMcpServer:
                         },
                     },
                     "required": ["file_path"],
+                },
+            ),
+            Tool(
+                name="read_external_graph",
+                description=(
+                    "Load an external comP index (.comp/index.db) into the knowledge graph"
+                ),
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "path": {
+                            "type": "string",
+                            "description": (
+                                "Workspace root containing .comp/index.db, the .comp "
+                                "directory, or a direct path to the .db file"
+                            ),
+                        },
+                        "mode": {
+                            "type": "string",
+                            "description": (
+                                "'replace' (default) removes previously loaded entities "
+                                "from the same workspace before loading; 'merge' adds on top"
+                            ),
+                        },
+                    },
+                    "required": ["path"],
+                },
+            ),
+            Tool(
+                name="read_external_sessions",
+                description=(
+                    "Load comP session history (.comp/session-memory.json and "
+                    ".comp/history/*.jsonl) into the knowledge graph as SESSION "
+                    "entities linked to code entities via DISCUSSED relationships"
+                ),
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "path": {
+                            "type": "string",
+                            "description": (
+                                "Workspace root containing .comp/, or the .comp directory"
+                            ),
+                        },
+                        "mode": {
+                            "type": "string",
+                            "description": (
+                                "'replace' (default) removes previously loaded session "
+                                "entities from the same workspace first; 'merge' adds on top"
+                            ),
+                        },
+                    },
+                    "required": ["path"],
+                },
+            ),
+            Tool(
+                name="get_external_graph_info",
+                description="Inspect a comP index (.comp/index.db) without loading it",
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "path": {
+                            "type": "string",
+                            "description": (
+                                "Workspace root containing .comp/index.db, the .comp "
+                                "directory, or a direct path to the .db file"
+                            ),
+                        },
+                    },
+                    "required": ["path"],
                 },
             ),
         ]
@@ -472,6 +625,84 @@ class MagatamaMcpServer:
             }
         except Exception as e:
             return {"success": False, "error": str(e)}
+
+    async def _handle_read_external_graph(
+        self,
+        path: str,
+        mode: str = "replace",
+    ) -> dict[str, Any]:
+        """Handle read_external_graph tool (comP bridge)."""
+        result = self._load_comp_index_usecase.execute(path, mode=mode)
+        return {
+            "success": result.success,
+            "alias": result.alias,
+            "db_path": result.db_path,
+            "entities_loaded": result.entities_loaded,
+            "relationships_loaded": result.relationships_loaded,
+            "entities_removed": result.entities_removed,
+            "skipped_edges": result.skipped_edges,
+            "comp_metadata": result.comp_metadata,
+            "errors": result.errors,
+        }
+
+    async def _handle_read_external_sessions(
+        self,
+        path: str,
+        mode: str = "replace",
+    ) -> dict[str, Any]:
+        """Handle read_external_sessions tool (comP bridge)."""
+        result = self._load_comp_sessions_usecase.execute(path, mode=mode)
+        return {
+            "success": result.success,
+            "alias": result.alias,
+            "comp_dir": result.comp_dir,
+            "sessions_loaded": result.sessions_loaded,
+            "entities_removed": result.entities_removed,
+            "discussed_links": result.discussed_links,
+            "unmatched_files": result.unmatched_files,
+            "unmatched_symbols": result.unmatched_symbols,
+            "sources": result.sources,
+            "skipped_records": result.skipped_records,
+            "errors": result.errors,
+        }
+
+    async def _handle_get_external_graph_info(self, path: str) -> dict[str, Any]:
+        """Handle get_external_graph_info tool (comP bridge)."""
+        import sqlite3
+        import urllib.parse
+
+        from magatama_core.infrastructure.storage.comp_index_reader import (
+            CompIndexNotFoundError,
+            resolve_db_path,
+        )
+
+        try:
+            db_path = resolve_db_path(path)
+        except CompIndexNotFoundError as e:
+            return {"exists": False, "error": str(e)}
+        uri = f"file:{urllib.parse.quote(db_path.as_posix())}?mode=ro"
+        try:
+            conn = sqlite3.connect(uri, uri=True)
+            try:
+                conn.execute("PRAGMA busy_timeout=5000")
+                files = conn.execute("SELECT COUNT(*) FROM files").fetchone()[0]
+                nodes = conn.execute("SELECT COUNT(*) FROM nodes").fetchone()[0]
+                edges = conn.execute("SELECT COUNT(*) FROM edges").fetchone()[0]
+                meta = dict(conn.execute("SELECT key, value FROM metadata").fetchall())
+                last_indexed = conn.execute("SELECT MAX(last_indexed) FROM files").fetchone()[0]
+            finally:
+                conn.close()
+        except sqlite3.Error as e:
+            return {"exists": True, "db_path": str(db_path), "error": str(e)}
+        return {
+            "exists": True,
+            "db_path": str(db_path),
+            "files": files,
+            "nodes": nodes,
+            "edges": edges,
+            "last_indexed": last_indexed,
+            "metadata": meta,
+        }
 
     # Resource handlers
 

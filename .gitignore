@@ -119,6 +119,9 @@ uv.lock
 .comp/
 plan.md
 
+# MAGATAMA patrol state
+.magatama/
+
 # Drafts (blog/article work-in-progress)
 qiita.md
 

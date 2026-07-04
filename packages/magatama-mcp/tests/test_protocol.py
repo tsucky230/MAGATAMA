@@ -244,7 +244,41 @@ class TestCompBridgeTools:
         mcp = create_mcp_server()
         tool_names = list(mcp._tool_manager._tools.keys())
         assert "read_external_graph" in tool_names
+        assert "read_external_sessions" in tool_names
         assert "get_external_graph_info" in tool_names
+
+    @pytest.mark.asyncio
+    async def test_read_external_sessions_not_found(self, tmp_path: Path) -> None:
+        """read_external_sessions returns success=False for missing path."""
+        mcp = create_mcp_server()
+        result = await mcp.call_tool("read_external_sessions", {"path": str(tmp_path / "no_such")})
+        assert result is not None
+
+    @pytest.mark.asyncio
+    async def test_read_external_sessions_success(self, tmp_path: Path) -> None:
+        """read_external_sessions loads session-memory.json records."""
+        import json
+
+        workspace = tmp_path / "sessproj"
+        comp_dir = workspace / ".comp"
+        comp_dir.mkdir(parents=True)
+        memory = {
+            "sessions": [
+                {
+                    "id": "s1",
+                    "timestamp": 1,
+                    "calls": [
+                        {"query": "do a thing", "outcome": "done", "files": [], "symbols": []}
+                    ],
+                }
+            ]
+        }
+        (comp_dir / "session-memory.json").write_text(json.dumps(memory), encoding="utf-8")
+
+        mcp = create_mcp_server()
+        _blocks, payload = await mcp.call_tool("read_external_sessions", {"path": str(workspace)})
+        assert payload["success"] is True
+        assert payload["sessions_loaded"] == 1
 
     @pytest.mark.asyncio
     async def test_get_external_graph_info_not_found(self, tmp_path: Path) -> None:

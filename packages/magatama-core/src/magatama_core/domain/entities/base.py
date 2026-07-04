@@ -27,6 +27,7 @@ class EntityType(str, Enum):
     TRAIT = "trait"  # Rust
     STRUCT = "struct"  # Rust/Go
     ENUM = "enum"
+    SESSION = "session"  # comP session-memory / history record
 
 
 class Entity(BaseModel):

@@ -11,6 +11,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- feat: comP セッショングラフ・ブリッジ。`.comp/session-memory.json` と
+  `.comp/history/*.jsonl` のセッション記録を SESSION エンティティとして
+  知識グラフに取り込み、記録が言及する files/symbols を既存コードエンティティへ
+  DISCUSSED リレーションで接続する。MCP ツール `read_external_sessions` を追加
+  （FastMCP サーバー・CLI 用サーバーの両方）
+- feat: `magatama patrol` コマンド。comP の index.db を定期巡回して前回との差分
+  （ファイル hash / シンボル signature）を検出し、変化シンボルに impact/quality
+  分析を適用、結果を `.comp/history/log-YYYY-MM.jsonl` に comP デーモンと同形式で
+  追記する。次セッションの `session_recall` が「留守中の変化と影響範囲」を拾える
+
+### Changed
+
+- refactor: CLI 用 MCP サーバー（`mcp_server.py`）を拡張し、言語パーサーを
+  5→24 言語へ、comP ブリッジツール（`read_external_graph` /
+  `get_external_graph_info`）を FastMCP サーバーと同等に追加
+
 ## [0.5.3] - 2026-06-16
 
 ### Fixed

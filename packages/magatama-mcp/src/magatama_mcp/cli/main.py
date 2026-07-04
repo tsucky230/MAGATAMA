@@ -853,6 +853,104 @@ def watch(
         console.print("[green]✓[/green] Watch stopped")
 
 
+@cli.command()
+@click.argument("workspace", type=click.Path(exists=True))
+@click.option(
+    "--interval",
+    "-i",
+    type=float,
+    default=300.0,
+    help="Seconds between patrol passes (default: 300)",
+)
+@click.option(
+    "--once",
+    is_flag=True,
+    help="Run a single patrol pass and exit",
+)
+@click.option(
+    "--depth",
+    "-d",
+    type=int,
+    default=3,
+    help="Impact analysis depth (default: 3)",
+)
+@click.option(
+    "--max-analyzed",
+    "-n",
+    type=int,
+    default=10,
+    help="Max changed symbols to analyze per pass (default: 10)",
+)
+@click.option(
+    "--no-log",
+    is_flag=True,
+    help="Do not append findings to .comp/history",
+)
+def patrol(
+    workspace: str,
+    interval: float,
+    once: bool,
+    depth: int,
+    max_analyzed: int,
+    no_log: bool,
+) -> None:
+    """Patrol a comP-indexed workspace and leave notes on changes.
+
+    Periodically re-reads WORKSPACE/.comp/index.db, diffs it against the
+    previous pass, runs impact/quality analysis on changed symbols, and
+    appends a summary to .comp/history so the next AI session's
+    session_recall picks up what changed.
+
+    The first pass records a baseline without analyzing.
+
+    Examples:
+
+        magatama patrol .
+
+        magatama patrol e:/dev/myproject --interval 600
+
+        magatama patrol . --once --no-log
+    """
+    import time
+    from datetime import datetime
+
+    from magatama_core.application.usecases.patrol_usecase import PatrolUseCase
+
+    usecase = PatrolUseCase(max_analyzed=max_analyzed, impact_depth=depth)
+
+    def run_pass() -> None:
+        timestamp = datetime.now().strftime("%H:%M:%S")
+        report = usecase.execute(workspace, log_history=not no_log)
+        if not report.success:
+            console.print(f"[{timestamp}] [red]✗[/red] {'; '.join(report.errors)}")
+            return
+        if report.baseline:
+            console.print(f"[{timestamp}] [blue]基準スナップショットを保存しました[/blue]")
+            return
+        if not report.changed:
+            console.print(f"[{timestamp}] 変更なし")
+            return
+        console.print(f"[{timestamp}] [yellow]変更検知[/yellow]")
+        console.print(f"  {PatrolUseCase.format_summary(report)}")
+        if report.history_file:
+            console.print(f"  [blue]💾[/blue] {report.history_file}")
+        for error in report.errors:
+            console.print(f"  [red]![/red] {error}")
+
+    if once:
+        run_pass()
+        return
+
+    console.print(f"[bold green]Patrolling:[/bold green] {workspace} (interval: {interval}s)")
+    console.print("Press Ctrl+C to stop\n")
+    try:
+        while True:
+            run_pass()
+            time.sleep(interval)
+    except KeyboardInterrupt:
+        console.print("\n[green]✓[/green] Patrol stopped")
+
+
 def main() -> None:
     """Main entry point."""
     # On Windows the legacy console defaults to a locale codec (e.g. cp932),

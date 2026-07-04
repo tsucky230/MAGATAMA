@@ -36,6 +36,9 @@ class RelationshipType(str, Enum):
     REFERENCES = "references"  # References another entity
     RETURNS = "returns"  # Returns a type
 
+    # Session history (comP bridge)
+    DISCUSSED = "discussed"  # A session record mentions a file/symbol
+
 
 class Relationship(BaseModel):
     """
