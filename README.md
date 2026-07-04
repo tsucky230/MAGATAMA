@@ -101,7 +101,7 @@ magatama patrol . --once           # single pass (cron / CI)
         │
         ├─→ comP MCP ……………… query the map directly (file summary, one symbol — lightweight)
         │
-        └─→ MAGATAMA Bridge … import the map into a knowledge graph, analyze (37 tools)
+        └─→ MAGATAMA Bridge … import the map into a knowledge graph, analyze (38 tools)
                   │
                   ▼
         Claude Desktop / Cursor / Copilot / Claude Code
@@ -181,7 +181,7 @@ pip install magatama
 Verify:
 
 ```bash
-magatama info        # shows the version and tool count (37) if OK
+magatama info        # shows the version and tool count (38) if OK
 ```
 
 ### Step 3. Register it as an MCP server
@@ -300,17 +300,18 @@ official idiom and where my code does it.
 
 ---
 
-## 🔧 MCP Tools (37)
+## 🔧 MCP Tools (38)
 
 The LLM autonomously picks **only the tools it needs** from these.
 
 <details>
-<summary><b>🔌 comP Bridge (3) — import the map and the memory</b></summary>
+<summary><b>🔌 comP Bridge (4) — import the map and the memory</b></summary>
 
 | Tool | Description |
 |------|-------------|
 | `read_external_graph` | Load a comP index into the knowledge graph (`mode=replace`/`merge`) |
 | `read_external_sessions` | Import comP conversation history as SESSION nodes, wired to the files/symbols they mention (DISCUSSED edges) |
+| `generate_handoff` | Build a handoff Markdown (recent sessions + git state, token-budgeted) and note it into comP history |
 | `get_external_graph_info` | Inspect comP index stats without loading (freshness check) |
 
 </details>

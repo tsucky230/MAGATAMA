@@ -1,0 +1,17 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/constraint-watchdog.sh",
+            "timeout": 10,
+            "statusMessage": "Checking constraints..."
+          }
+        ]
+      }
+    ]
+  }
+}

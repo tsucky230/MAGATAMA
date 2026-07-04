@@ -386,3 +386,24 @@ class TestCompBridgeToolsLegacyServer:
         result = await server.call_tool("read_external_sessions", {"path": str(tmp_path / "proj")})
         assert result["success"] is True
         assert result["sessions_loaded"] == 1
+
+
+class TestGenerateHandoffLegacyServer:
+    """generate_handoff on the CLI-facing MagatamaMcpServer."""
+
+    @pytest.mark.asyncio
+    async def test_generate_handoff(self, tmp_path) -> None:
+        import json
+
+        history = tmp_path / "proj" / ".comp" / "history"
+        history.mkdir(parents=True)
+        (history / "log-2026-07.jsonl").write_text(
+            json.dumps({"timestamp": 1, "query": "q", "outcome": "o"}) + "\n",
+            encoding="utf-8",
+        )
+        server = MagatamaMcpServer()
+        result = await server.call_tool(
+            "generate_handoff", {"path": str(tmp_path / "proj"), "token_budget": 500}
+        )
+        assert result["success"] is True
+        assert "引継ぎ" in result["markdown"]

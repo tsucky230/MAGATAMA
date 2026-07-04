@@ -32,6 +32,7 @@ from magatama_core.application.usecases.framework_usecase import (
     PatternDetectionUseCase,
     SemanticSearchUseCase,
 )
+from magatama_core.application.usecases.handoff_usecase import GenerateHandoffUseCase
 from magatama_core.application.usecases.parse_usecase import (
     ParseDirectoryUseCase,
     ParseFileUseCase,
@@ -1598,6 +1599,7 @@ def create_mcp_server(name: str = "magatama") -> FastMCP:
 
     load_comp_index_usecase = LoadCompIndexUseCase(knowledge_graph=knowledge_graph)
     load_comp_sessions_usecase = LoadCompSessionsUseCase(knowledge_graph=knowledge_graph)
+    generate_handoff_usecase = GenerateHandoffUseCase()
 
     @mcp.tool()
     def read_external_graph(path: str, mode: str = "replace") -> dict[str, Any]:
@@ -1662,6 +1664,40 @@ def create_mcp_server(name: str = "magatama") -> FastMCP:
             "unmatched_symbols": result.unmatched_symbols,
             "sources": result.sources,
             "skipped_records": result.skipped_records,
+            "errors": result.errors,
+        }
+
+    @mcp.tool()
+    def generate_handoff(
+        path: str,
+        token_budget: int = 2000,
+        recent: int = 10,
+    ) -> dict[str, Any]:
+        """Generate a handoff document for the next chat session.
+
+        Combines the latest comP session records (including patrol notes)
+        with the current git state (branch, uncommitted files, recent
+        commits) into one Markdown document sized to a token budget, and
+        appends it to .comp/history. When the next session starts,
+        session_recall returns this document first, so work can continue
+        immediately even after context exhaustion.
+
+        Args:
+            path: Workspace root containing .comp/, or the .comp directory.
+            token_budget: Approximate token size of the output (rough
+                estimate at 2 chars/token; default 2000).
+            recent: Max number of recent session records to include.
+
+        Returns:
+            The markdown, estimated_tokens, sessions_included, history_file.
+        """
+        result = generate_handoff_usecase.execute(path, token_budget=token_budget, recent=recent)
+        return {
+            "success": result.success,
+            "markdown": result.markdown,
+            "estimated_tokens": result.estimated_tokens,
+            "sessions_included": result.sessions_included,
+            "history_file": result.history_file,
             "errors": result.errors,
         }
 

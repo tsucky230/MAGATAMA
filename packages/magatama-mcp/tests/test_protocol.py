@@ -610,3 +610,28 @@ class Service:
                 assert result is not None
             except Exception:
                 pass
+
+
+class TestGenerateHandoffTool:
+    """Tests for the generate_handoff MCP tool."""
+
+    def test_tool_registered(self) -> None:
+        mcp = create_mcp_server()
+        assert "generate_handoff" in mcp._tool_manager._tools
+
+    @pytest.mark.asyncio
+    async def test_generate_handoff(self, tmp_path: Path) -> None:
+        import json
+
+        history = tmp_path / "proj" / ".comp" / "history"
+        history.mkdir(parents=True)
+        (history / "log-2026-07.jsonl").write_text(
+            json.dumps({"timestamp": 1, "query": "q", "outcome": "o"}) + "\n",
+            encoding="utf-8",
+        )
+        mcp = create_mcp_server()
+        _blocks, payload = await mcp.call_tool(
+            "generate_handoff", {"path": str(tmp_path / "proj"), "token_budget": 500}
+        )
+        assert payload["success"] is True
+        assert "引継ぎ" in payload["markdown"]

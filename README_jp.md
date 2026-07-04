@@ -98,7 +98,7 @@ magatama patrol . --once           # 1 回だけ（cron / CI 向け）
         │
         ├─→ comP MCP …………… 地図を直接引く（1ファイル要約・1シンボル取得など軽量）
         │
-        └─→ MAGATAMA Bridge … 地図を知識グラフに取り込み、横断分析（37ツール）
+        └─→ MAGATAMA Bridge … 地図を知識グラフに取り込み、横断分析（38ツール）
                   │
                   ▼
         Claude Desktop / Cursor / Copilot / Claude Code
@@ -178,7 +178,7 @@ pip install magatama
 動作確認:
 
 ```bash
-magatama info        # バージョン・ツール数（37）が表示されれば OK
+magatama info        # バージョン・ツール数（38）が表示されれば OK
 ```
 
 ### Step 3. AI ツールに MCP として登録
@@ -296,17 +296,18 @@ hybrid_search(query="FastAPI dependency injection") で、
 
 ---
 
-## 🔧 MCP Tools（37）
+## 🔧 MCP Tools（38）
 
 LLM はこれらから**必要なものだけ**を自律的に選んで呼びます。
 
 <details>
-<summary><b>🔌 comP Bridge（3）— 地図と記憶の取り込み</b></summary>
+<summary><b>🔌 comP Bridge（4）— 地図と記憶の取り込み</b></summary>
 
 | Tool | 説明 |
 |------|------|
 | `read_external_graph` | comP インデックスを知識グラフに読み込む（`mode=replace`/`merge`） |
 | `read_external_sessions` | comP の会話履歴を SESSION ノードとして取り込み、触れたファイル・シンボルと DISCUSSED で接続 |
+| `generate_handoff` | 直近セッション + git 現状から引継ぎ Markdown を生成し comP 履歴に記録（トークン予算指定可） |
 | `get_external_graph_info` | comP インデックスの統計を確認（ロードなし・鮮度チェック） |
 
 </details>

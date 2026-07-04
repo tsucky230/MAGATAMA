@@ -40,6 +40,7 @@ class SessionRecord:
     entity: Entity
     files: list[str] = field(default_factory=list)
     symbols: list[str] = field(default_factory=list)
+    timestamp_ms: int | None = None
 
 
 @dataclass
@@ -153,6 +154,7 @@ class CompSessionReader:
                         entity=entity,
                         files=_str_list(call.get("files")),
                         symbols=_str_list(call.get("symbols")),
+                        timestamp_ms=timestamp if isinstance(timestamp, int) else None,
                     )
                 )
 
@@ -190,10 +192,12 @@ class CompSessionReader:
                 or None,
                 scope="public",
             )
+            ts = record.get("timestamp")
             data.records.append(
                 SessionRecord(
                     entity=entity,
                     files=_str_list(record.get("files")),
                     symbols=_str_list(record.get("symbols")),
+                    timestamp_ms=ts if isinstance(ts, int) else None,
                 )
             )

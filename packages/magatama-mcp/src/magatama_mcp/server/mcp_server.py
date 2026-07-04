@@ -13,6 +13,7 @@ from magatama_core.application.usecases.comp_usecase import (
     LoadCompIndexUseCase,
     LoadCompSessionsUseCase,
 )
+from magatama_core.application.usecases.handoff_usecase import GenerateHandoffUseCase
 from magatama_core.application.usecases.parse_usecase import (
     IncrementalParseUseCase,
     ParseDirectoryUseCase,
@@ -171,6 +172,7 @@ class MagatamaMcpServer:
         self._load_comp_sessions_usecase = LoadCompSessionsUseCase(
             knowledge_graph=self._knowledge_graph,
         )
+        self._generate_handoff_usecase = GenerateHandoffUseCase()
 
         # Register tool handlers
         self._tool_handlers: dict[str, Callable[..., Awaitable[dict[str, Any]]]] = {
@@ -184,6 +186,7 @@ class MagatamaMcpServer:
             "load_graph": self._handle_load_graph,
             "read_external_graph": self._handle_read_external_graph,
             "read_external_sessions": self._handle_read_external_sessions,
+            "generate_handoff": self._handle_generate_handoff,
             "get_external_graph_info": self._handle_get_external_graph_info,
         }
 
@@ -382,6 +385,36 @@ class MagatamaMcpServer:
                                 "'replace' (default) removes previously loaded session "
                                 "entities from the same workspace first; 'merge' adds on top"
                             ),
+                        },
+                    },
+                    "required": ["path"],
+                },
+            ),
+            Tool(
+                name="generate_handoff",
+                description=(
+                    "Generate a handoff Markdown for the next session from recent comP "
+                    "session records and git state, and append it to .comp/history"
+                ),
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "path": {
+                            "type": "string",
+                            "description": (
+                                "Workspace root containing .comp/, or the .comp directory"
+                            ),
+                        },
+                        "token_budget": {
+                            "type": "integer",
+                            "description": (
+                                "Approximate token size of the output "
+                                "(rough estimate at 2 chars/token; default 2000)"
+                            ),
+                        },
+                        "recent": {
+                            "type": "integer",
+                            "description": "Max recent session records to include (default 10)",
                         },
                     },
                     "required": ["path"],
@@ -663,6 +696,25 @@ class MagatamaMcpServer:
             "unmatched_symbols": result.unmatched_symbols,
             "sources": result.sources,
             "skipped_records": result.skipped_records,
+            "errors": result.errors,
+        }
+
+    async def _handle_generate_handoff(
+        self,
+        path: str,
+        token_budget: int = 2000,
+        recent: int = 10,
+    ) -> dict[str, Any]:
+        """Handle generate_handoff tool (comP bridge)."""
+        result = self._generate_handoff_usecase.execute(
+            path, token_budget=token_budget, recent=recent
+        )
+        return {
+            "success": result.success,
+            "markdown": result.markdown,
+            "estimated_tokens": result.estimated_tokens,
+            "sessions_included": result.sessions_included,
+            "history_file": result.history_file,
             "errors": result.errors,
         }
 

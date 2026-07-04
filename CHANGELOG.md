@@ -23,6 +23,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   分析を適用、結果を `.comp/history/log-YYYY-MM.jsonl` に comP デーモンと同形式で
   追記する。次セッションの `session_recall` が「留守中の変化と影響範囲」を拾える
 
+- feat: MCP ツール `generate_handoff`。直近の comP セッション記録（patrol の
+  メモ含む）と git の現状（ブランチ・未コミット・直近コミット）から、トークン
+  予算指定つきの引継ぎ Markdown を生成して `.comp/history` に記録する。
+  コンテキスト枯渇後も、新チャットは `session_recall` 一発で続きから始められる
+- feat: `/wrapup` スキル（`.claude/skills/wrapup/`）。セッション中の「やる」
+  宣言と git の実変更を突合し、✅完了 / ❌未着手 / ⚠️判定不能で報告して
+  session_log に記録する
+- feat: 制約番犬 hook（`.claude/hooks/constraint-watchdog.sh` + PreToolUse）。
+  `.comp/constraints.json` に登録した「修正禁止」ファイルへの Edit/Write を
+  検出し、additionalContext で警告を注入する（物理ブロックはしない。
+  constraints.json 不在・破損時は素通し）
+
 ### Changed
 
 - refactor: CLI 用 MCP サーバー（`mcp_server.py`）を拡張し、言語パーサーを
