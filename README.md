@@ -63,6 +63,32 @@ The structure graph replaces the manual grep-and-eyeball loop.
 MAGATAMA ships **built-in knowledge graphs for 47 frameworks**, so
 `hybrid_search` cross-searches your code *and* the official idioms (from YATA).
 
+### Scene 4: "Which past request touched this file again?"
+
+> "I want to rework auth — what did past sessions ask about it?"
+
+comP records your AI conversations under `.comp/`. MAGATAMA's
+`read_external_sessions` puts those **conversation records on the same graph
+as your code**, wiring each record to the files and symbols it mentioned
+(DISCUSSED edges). From then on, `get_related_entities` on a file also returns
+the past requests that touched it. **The conversation memory and the code map
+become one map.**
+
+### Scene 5: Hand over "what changed while you were away" automatically
+
+> "Someone on the team changed something last night. What's affected?"
+
+Keep `magatama patrol` running and it periodically re-reads comP's map,
+**detects the diff since the last pass** (added/changed/removed symbols),
+attaches impact and quality analysis to each change, and **writes the findings
+into comP's conversation history**. When the next chat starts and the AI calls
+`session_recall`, it already knows what changed and where it hurts.
+
+```bash
+magatama patrol . --interval 600   # patrol every 10 minutes
+magatama patrol . --once           # single pass (cron / CI)
+```
+
 ---
 
 ## 🧩 How comP and MAGATAMA fit together
@@ -75,7 +101,7 @@ MAGATAMA ships **built-in knowledge graphs for 47 frameworks**, so
         │
         ├─→ comP MCP ……………… query the map directly (file summary, one symbol — lightweight)
         │
-        └─→ MAGATAMA Bridge … import the map into a knowledge graph, analyze (36 tools)
+        └─→ MAGATAMA Bridge … import the map into a knowledge graph, analyze (37 tools)
                   │
                   ▼
         Claude Desktop / Cursor / Copilot / Claude Code
@@ -83,6 +109,23 @@ MAGATAMA ships **built-in knowledge graphs for 47 frameworks**, so
 
 - **comP** = builds the map and answers cheap lookups (`get_file_summary`, `get_symbol`).
 - **MAGATAMA** = analyzes the whole map (`search_entities`, `analyze_impact`, `hybrid_search`).
+
+### "Isn't connecting comP directly enough?"
+
+**For one-off lookups — yes, it is.** "What's in this file?", "what does this
+symbol depend on?" — comP's own tools answer those fine, and putting MAGATAMA
+in between adds nothing. MAGATAMA's value starts *after* the lookup.
+
+| | comP directly | With MAGATAMA |
+|---|---|---|
+| **Impact analysis** | Returns the list of connected nodes (interpretation left to the LLM) | Scores it against thresholds and returns `risk=high/medium/low` — saving the tokens the LLM would spend aggregating |
+| **Conversation memory** | `session_recall` = a flat list with substring filter | Conversation records become graph nodes next to your code; "past requests that touched this file" is one graph query away |
+| **Where it runs** | Needs the VSCode extension's daemon | Reads index.db directly, so it works in CI/cron with no editor (`patrol`) |
+| **Cross-project** | One daemon = one workspace | Load multiple projects' maps into one graph and query across them |
+| **Knowledge** | Your code only | Built-in knowledge graphs for 47 frameworks, cross-searchable |
+
+In one line: **comP draws the map; MAGATAMA is the analyst and note-taker
+working on top of it.**
 
 ---
 
@@ -138,7 +181,7 @@ pip install magatama
 Verify:
 
 ```bash
-magatama info        # shows the version and tool count (36) if OK
+magatama info        # shows the version and tool count (37) if OK
 ```
 
 ### Step 3. Register it as an MCP server
@@ -257,16 +300,17 @@ official idiom and where my code does it.
 
 ---
 
-## 🔧 MCP Tools (36)
+## 🔧 MCP Tools (37)
 
 The LLM autonomously picks **only the tools it needs** from these.
 
 <details>
-<summary><b>🔌 comP Bridge (2) — import the map</b></summary>
+<summary><b>🔌 comP Bridge (3) — import the map and the memory</b></summary>
 
 | Tool | Description |
 |------|-------------|
 | `read_external_graph` | Load a comP index into the knowledge graph (`mode=replace`/`merge`) |
+| `read_external_sessions` | Import comP conversation history as SESSION nodes, wired to the files/symbols they mention (DISCUSSED edges) |
 | `get_external_graph_info` | Inspect comP index stats without loading (freshness check) |
 
 </details>
@@ -326,6 +370,7 @@ The LLM autonomously picks **only the tools it needs** from these.
 | `stats` | Show statistics | `magatama stats -g graph.json` |
 | `serve` | Start the MCP server | `magatama serve` / `--transport sse --port 8080` |
 | `watch` | Watch & auto-update (`-o` auto-saves) | `magatama watch ./src -o graph.json` |
+| `patrol` | Patrol comP's map periodically; note diffs + impact analysis into comP's history | `magatama patrol . --interval 600` |
 | `validate` | Check graph integrity (`--repair`) | `magatama validate -g graph.json --repair` |
 | `info` | Server info & tool list | `magatama info` |
 
@@ -351,7 +396,7 @@ The LLM autonomously picks **only the tools it needs** from these.
 
 ```bash
 uv sync --all-packages
-uv run pytest                         # tests (794)
+uv run pytest                         # tests (918)
 uv run pytest --cov=magatama_core --cov=magatama_mcp
 uv run ruff check . && uv run mypy packages/
 ```

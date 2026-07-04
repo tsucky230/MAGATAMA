@@ -61,6 +61,31 @@ grep で全文検索して目視する作業を、構造グラフが肩代わり
 MAGATAMA には **47 フレームワークの作り付け知識グラフ**が入っており、
 `hybrid_search` であなたのコードと公式作法を**横断検索**できます（YATA 由来）。
 
+### シーン 4: 「このファイル、前に何の話で触ったっけ？」を思い出したい
+
+> 「auth まわりを直したいけど、過去のセッションでどんな依頼があった？」
+
+comP はあなたと AI の会話履歴を `.comp/` に記録しています。MAGATAMA の
+`read_external_sessions` は、その**会話の記録をコードの地図と同じグラフに載せ**、
+記録が触れたファイルやシンボルと線（DISCUSSED）でつなぎます。以後、
+`get_related_entities` でファイルを引くと「過去にそのファイルを触った依頼」が
+一緒に出てきます。**会話の記憶とコードの地図が、一枚の地図になる**機能です。
+
+### シーン 5: 留守中の変化を、次のチャットに自動で引き継ぎたい
+
+> 「昨日の夜、チームの誰かが何か変えたらしい。影響は？」
+
+`magatama patrol` を回しておくと、comP の地図を定期的に見回り、
+**前回からの差分（追加・変更・削除されたシンボル）を検出**して、変化した箇所に
+影響範囲（impact）と品質（quality）の分析を自動で付け、結果を comP の会話履歴に
+**メモとして書き残します**。次のチャットで AI が `session_recall` を呼ぶと、
+「留守中に何がどう変わり、どこに影響するか」が最初から頭に入った状態で始まります。
+
+```bash
+magatama patrol . --interval 600   # 10 分ごとに見回り
+magatama patrol . --once           # 1 回だけ（cron / CI 向け）
+```
+
 ---
 
 ## 🧩 comP と MAGATAMA の関係
@@ -73,7 +98,7 @@ MAGATAMA には **47 フレームワークの作り付け知識グラフ**が入
         │
         ├─→ comP MCP …………… 地図を直接引く（1ファイル要約・1シンボル取得など軽量）
         │
-        └─→ MAGATAMA Bridge … 地図を知識グラフに取り込み、横断分析（36ツール）
+        └─→ MAGATAMA Bridge … 地図を知識グラフに取り込み、横断分析（37ツール）
                   │
                   ▼
         Claude Desktop / Cursor / Copilot / Claude Code
@@ -82,6 +107,22 @@ MAGATAMA には **47 フレームワークの作り付け知識グラフ**が入
 - **comP** = 地図を作る＆軽く引く。`get_file_summary` / `get_symbol` など。
 - **MAGATAMA** = 地図を俯瞰して分析。`search_entities` / `analyze_impact` /
   `hybrid_search` など。
+
+### 「comP を直接つなぐだけで足りるのでは？」
+
+**単発の参照なら、足ります。**「このファイルに何がある？」「このシンボルの依存は？」
+程度なら comP のツールだけで十分で、MAGATAMA を挟む意味はありません。
+MAGATAMA の価値は「参照」の先にあります。
+
+| | comP 直結 | MAGATAMA を挟むと |
+|---|---|---|
+| **影響調査** | 繋がったノードの一覧が返る（解釈は LLM 任せ） | スコアと閾値で `risk=high/medium/low` まで判定して返す。LLM が集計に使うトークンを節約 |
+| **会話の記憶** | `session_recall` = 文字列フィルタ付きのフラットな一覧 | 会話記録がコードと同じグラフ上のノードになり、「このファイルを触った過去の依頼」をグラフ探索で引ける |
+| **動く場所** | VSCode 拡張のデーモンが必要 | index.db を直接読むので、エディタなしの CI・cron でも動く（`patrol`） |
+| **横断** | 1 デーモン = 1 ワークスペース | 複数プロジェクトの地図を 1 グラフに載せて横断クエリできる |
+| **知識** | あなたのコードのみ | 47 フレームワークの作り付け知識グラフと横断検索 |
+
+一言で言えば、**comP が地図、MAGATAMA はその地図の上で働く分析屋と記録係**です。
 
 ---
 
@@ -137,7 +178,7 @@ pip install magatama
 動作確認:
 
 ```bash
-magatama info        # バージョン・ツール数（36）が表示されれば OK
+magatama info        # バージョン・ツール数（37）が表示されれば OK
 ```
 
 ### Step 3. AI ツールに MCP として登録
@@ -255,16 +296,17 @@ hybrid_search(query="FastAPI dependency injection") で、
 
 ---
 
-## 🔧 MCP Tools（36）
+## 🔧 MCP Tools（37）
 
 LLM はこれらから**必要なものだけ**を自律的に選んで呼びます。
 
 <details>
-<summary><b>🔌 comP Bridge（2）— 地図の取り込み</b></summary>
+<summary><b>🔌 comP Bridge（3）— 地図と記憶の取り込み</b></summary>
 
 | Tool | 説明 |
 |------|------|
 | `read_external_graph` | comP インデックスを知識グラフに読み込む（`mode=replace`/`merge`） |
+| `read_external_sessions` | comP の会話履歴を SESSION ノードとして取り込み、触れたファイル・シンボルと DISCUSSED で接続 |
 | `get_external_graph_info` | comP インデックスの統計を確認（ロードなし・鮮度チェック） |
 
 </details>
@@ -324,6 +366,7 @@ LLM はこれらから**必要なものだけ**を自律的に選んで呼びま
 | `stats` | 統計表示 | `magatama stats -g graph.json` |
 | `serve` | MCP サーバ起動 | `magatama serve` / `--transport sse --port 8080` |
 | `watch` | 変更を監視して自動更新（`-o` で自動保存） | `magatama watch ./src -o graph.json` |
+| `patrol` | comP の地図を定期巡回し、差分＋影響分析を comP の会話履歴にメモ | `magatama patrol . --interval 600` |
 | `validate` | グラフ整合性チェック（`--repair` で修復） | `magatama validate -g graph.json --repair` |
 | `info` | サーバ情報・ツール一覧 | `magatama info` |
 
@@ -348,7 +391,7 @@ LLM はこれらから**必要なものだけ**を自律的に選んで呼びま
 
 ```bash
 uv sync --all-packages
-uv run pytest                         # テスト（794 件）
+uv run pytest                         # テスト（918 件）
 uv run pytest --cov=magatama_core --cov=magatama_mcp
 uv run ruff check . && uv run mypy packages/
 ```
