@@ -930,7 +930,10 @@ def patrol(
         if not report.changed:
             console.print(f"[{timestamp}] 変更なし")
             return
-        console.print(f"[{timestamp}] [yellow]変更検知[/yellow]")
+        if report.constraint_hits:
+            console.print(f"[{timestamp}] [red]変更検知（制約対象を含む）[/red]")
+        else:
+            console.print(f"[{timestamp}] [yellow]変更検知[/yellow]")
         console.print(f"  {PatrolUseCase.format_summary(report)}")
         if report.history_file:
             console.print(f"  [blue]💾[/blue] {report.history_file}")

@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Any
 
 from magatama_core.application.usecases.comp_usecase import (
+    EntityHistoryUseCase,
     LoadCompIndexUseCase,
     LoadCompSessionsUseCase,
 )
@@ -172,6 +173,9 @@ class MagatamaMcpServer:
         self._load_comp_sessions_usecase = LoadCompSessionsUseCase(
             knowledge_graph=self._knowledge_graph,
         )
+        self._entity_history_usecase = EntityHistoryUseCase(
+            knowledge_graph=self._knowledge_graph,
+        )
         self._generate_handoff_usecase = GenerateHandoffUseCase()
 
         # Register tool handlers
@@ -186,6 +190,7 @@ class MagatamaMcpServer:
             "load_graph": self._handle_load_graph,
             "read_external_graph": self._handle_read_external_graph,
             "read_external_sessions": self._handle_read_external_sessions,
+            "get_entity_history": self._handle_get_entity_history,
             "generate_handoff": self._handle_generate_handoff,
             "get_external_graph_info": self._handle_get_external_graph_info,
         }
@@ -391,10 +396,45 @@ class MagatamaMcpServer:
                 },
             ),
             Tool(
+                name="get_entity_history",
+                description=(
+                    "Get past comP session records that discussed a file or symbol "
+                    "(via DISCUSSED links), plus current impact analysis. Load data "
+                    "first with read_external_graph/read_external_sessions, or pass "
+                    "path to load automatically"
+                ),
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "name": {
+                            "type": "string",
+                            "description": "File path (relative or absolute) or exact symbol name",
+                        },
+                        "path": {
+                            "type": "string",
+                            "description": (
+                                "Optional comP workspace root; when given, index and "
+                                "sessions are (re)loaded from it before the query"
+                            ),
+                        },
+                        "limit": {
+                            "type": "integer",
+                            "description": "Max history records to return (default 10)",
+                        },
+                        "analyze": {
+                            "type": "boolean",
+                            "description": "Also run impact analysis (default true)",
+                        },
+                    },
+                    "required": ["name"],
+                },
+            ),
+            Tool(
                 name="generate_handoff",
                 description=(
                     "Generate a handoff Markdown for the next session from recent comP "
-                    "session records and git state, and append it to .comp/history"
+                    "session records and git state, and append it to .comp/history "
+                    "(full text saved under .magatama/handoffs/)"
                 ),
                 input_schema={
                     "type": "object",
@@ -699,6 +739,30 @@ class MagatamaMcpServer:
             "errors": result.errors,
         }
 
+    async def _handle_get_entity_history(
+        self,
+        name: str,
+        path: str = "",
+        limit: int = 10,
+        analyze: bool = True,
+    ) -> dict[str, Any]:
+        """Handle get_entity_history tool (comP bridge)."""
+        load_errors: list[str] = []
+        if path:
+            index_result = self._load_comp_index_usecase.execute(path, mode="replace")
+            load_errors.extend(index_result.errors)
+            sessions_result = self._load_comp_sessions_usecase.execute(path, mode="replace")
+            load_errors.extend(sessions_result.errors)
+        result = self._entity_history_usecase.execute(name, limit=limit, analyze=analyze)
+        return {
+            "success": result.success,
+            "query": result.query,
+            "matched_entities": result.matched_entities,
+            "history": result.history,
+            "impact": result.impact,
+            "errors": load_errors + result.errors,
+        }
+
     async def _handle_generate_handoff(
         self,
         path: str,
@@ -715,6 +779,7 @@ class MagatamaMcpServer:
             "estimated_tokens": result.estimated_tokens,
             "sessions_included": result.sessions_included,
             "history_file": result.history_file,
+            "handoff_file": result.handoff_file,
             "errors": result.errors,
         }
 

@@ -12,6 +12,30 @@
           }
         ]
       }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/context-inject.sh",
+            "timeout": 10,
+            "statusMessage": "Injecting session history..."
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/history-record.sh",
+            "timeout": 15,
+            "statusMessage": "Recording session history..."
+          }
+        ]
+      }
     ]
   }
 }

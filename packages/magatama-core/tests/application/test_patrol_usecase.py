@@ -214,6 +214,133 @@ def test_max_analyzed_cap(tmp_path: Path) -> None:
     assert report.analyses[0].name == "helper"
 
 
+def register_constraint(workspace: Path, **overrides: object) -> None:
+    constraint = {
+        "id": "no-touch-a",
+        "file": "a.py",
+        "entity": "",
+        "rule": "修正禁止",
+        "reason": "顧客納品済み",
+        "severity": "CRITICAL",
+    }
+    constraint.update(overrides)
+    (workspace / ".comp" / "constraints.json").write_text(
+        json.dumps({"constraints": [constraint]}, ensure_ascii=False), encoding="utf-8"
+    )
+
+
+def test_constraint_hit_on_changed_file(tmp_path: Path) -> None:
+    workspace = make_workspace(tmp_path)
+    register_constraint(workspace)
+    usecase = PatrolUseCase()
+    usecase.execute(workspace)
+    mutate_index(workspace)
+
+    report = usecase.execute(workspace)
+
+    assert len(report.constraint_hits) == 1
+    hit = report.constraint_hits[0]
+    assert hit.constraint_id == "no-touch-a"
+    assert hit.severity == "CRITICAL"
+    assert "a.py" in hit.matched
+    # Hits lead the summary and switch the history query
+    summary = PatrolUseCase.format_summary(report)
+    assert summary.startswith("[CRITICAL]")
+    record = json.loads(Path(report.history_file).read_text(encoding="utf-8").splitlines()[-1])
+    assert record["query"] == "magatama patrol: 制約対象の変更を検知"
+    assert "[CRITICAL]" in record["outcome"]
+
+
+def test_constraint_hit_on_entity(tmp_path: Path) -> None:
+    workspace = make_workspace(tmp_path)
+    register_constraint(workspace, id="no-touch-helper", file="zzz.py", entity="Api.helper")
+    usecase = PatrolUseCase()
+    usecase.execute(workspace)
+    mutate_index(workspace)
+
+    report = usecase.execute(workspace)
+
+    # File "zzz.py" never changed, but the "helper" symbol did; the last
+    # dotted segment of the entity matches it.
+    assert len(report.constraint_hits) == 1
+    assert "helper" in report.constraint_hits[0].matched
+
+
+def test_constraint_directory_match(tmp_path: Path) -> None:
+    """A trailing-slash constraint covers every file under the directory."""
+    workspace = make_workspace(tmp_path)
+    conn = sqlite3.connect(workspace / ".comp" / "index.db")
+    conn.execute(
+        "INSERT INTO files (id, path, hash, language) VALUES (3, 'src/c.py', 'h3', 'python')"
+    )
+    conn.commit()
+    conn.close()
+    register_constraint(workspace, id="no-touch-src", file="src/")
+
+    usecase = PatrolUseCase()
+    usecase.execute(workspace)
+    conn = sqlite3.connect(workspace / ".comp" / "index.db")
+    conn.execute("UPDATE files SET hash = 'h3-new' WHERE id = 3")
+    conn.commit()
+    conn.close()
+
+    report = usecase.execute(workspace)
+    assert len(report.constraint_hits) == 1
+    assert "src/c.py" in report.constraint_hits[0].matched
+
+
+def test_no_constraint_no_hits(tmp_path: Path) -> None:
+    workspace = make_workspace(tmp_path)
+    usecase = PatrolUseCase()
+    usecase.execute(workspace)
+    mutate_index(workspace)
+
+    report = usecase.execute(workspace)
+    assert report.constraint_hits == []
+    assert not PatrolUseCase.format_summary(report).startswith("[")
+
+
+def test_unrelated_constraint_no_hit(tmp_path: Path) -> None:
+    workspace = make_workspace(tmp_path)
+    register_constraint(workspace, file="other/unrelated.py", entity="")
+    usecase = PatrolUseCase()
+    usecase.execute(workspace)
+    mutate_index(workspace)
+
+    report = usecase.execute(workspace)
+    assert report.constraint_hits == []
+    assert (
+        json.loads(Path(report.history_file).read_text(encoding="utf-8").splitlines()[-1])["query"]
+        == "magatama patrol: 変更検知"
+    )
+
+
+def test_comp_internal_files_ignored(tmp_path: Path) -> None:
+    """Indexed .comp/history/*.jsonl entries must not trigger the patrol.
+
+    If comP starts indexing its own history JSONL (BM25 carve-out), each
+    patrol pass would otherwise detect its own previous log write.
+    """
+    workspace = make_workspace(tmp_path)
+    usecase = PatrolUseCase()
+    usecase.execute(workspace)
+
+    conn = sqlite3.connect(workspace / ".comp" / "index.db")
+    conn.execute(
+        "INSERT INTO files (id, path, hash, language)"
+        " VALUES (9, '.comp/history/log-2026-07.jsonl', 'hx', 'jsonl')"
+    )
+    conn.execute(
+        "INSERT INTO nodes (id, file_id, name, kind, line, col, signature)"
+        " VALUES (9, 9, 'entry', 'variable', 1, 0, NULL)"
+    )
+    conn.commit()
+    conn.close()
+
+    report = usecase.execute(workspace)
+    assert not report.changed
+
+
 def test_append_history_record_appends(tmp_path: Path) -> None:
     comp_dir = tmp_path / ".comp"
     comp_dir.mkdir()

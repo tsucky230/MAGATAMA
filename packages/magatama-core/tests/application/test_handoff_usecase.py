@@ -101,6 +101,26 @@ def test_handoff_writes_history(tmp_path: Path) -> None:
     assert "引継ぎ" in record["outcome"]
 
 
+def test_handoff_full_text_saved_summary_logged(tmp_path: Path) -> None:
+    """History gets a one-line summary; the full markdown lives in its own file.
+
+    Logging the whole document as the outcome would make every later
+    session_recall replay it (recall pollution).
+    """
+    workspace = make_workspace(tmp_path)
+    result = GenerateHandoffUseCase().execute(workspace)
+
+    assert result.handoff_file
+    handoff = Path(result.handoff_file)
+    assert handoff.is_file()
+    assert handoff.read_text(encoding="utf-8") == result.markdown
+
+    record = json.loads(Path(result.history_file).read_text(encoding="utf-8").splitlines()[-1])
+    assert record["outcome"].startswith("引継ぎ生成:")
+    assert record["files"] == [f".magatama/handoffs/{handoff.name}"]
+    assert "## 直近のセッション記録" not in record["outcome"]  # full text not replayed
+
+
 def test_handoff_no_sessions(tmp_path: Path) -> None:
     """Works (with note) when .comp has no session data at all."""
     workspace = tmp_path / "empty"

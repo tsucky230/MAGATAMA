@@ -5,6 +5,10 @@ ADR-004: NetworkX + SQLite storage
 REQ-KGC-003: Graph storage
 """
 
+from magatama_core.infrastructure.storage.comp_constraints_reader import (
+    Constraint,
+    read_constraints,
+)
 from magatama_core.infrastructure.storage.comp_history_writer import append_history_record
 from magatama_core.infrastructure.storage.comp_index_reader import (
     CompIndexData,
@@ -40,6 +44,7 @@ __all__ = [
     "CompSnapshot",
     "CompSessionReader",
     "CompSessionsNotFoundError",
+    "Constraint",
     "SessionRecord",
     "InMemoryEntityRepository",
     "InMemoryRelationshipRepository",
@@ -49,6 +54,7 @@ __all__ = [
     "SQLiteRelationshipRepository",
     "append_history_record",
     "read_comp_snapshot",
+    "read_constraints",
     "resolve_comp_dir",
     "resolve_db_path",
 ]

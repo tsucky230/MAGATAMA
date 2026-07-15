@@ -41,6 +41,7 @@ class SessionRecord:
     files: list[str] = field(default_factory=list)
     symbols: list[str] = field(default_factory=list)
     timestamp_ms: int | None = None
+    outcome: str = ""
 
 
 @dataclass
@@ -76,8 +77,14 @@ def _truncate(text: str, limit: int) -> str:
     return text if len(text) <= limit else text[: limit - 1] + "…"
 
 
-def _timestamp_prefix(timestamp_ms: int | None) -> str:
-    if not timestamp_ms:
+def _timestamp_prefix(timestamp_ms: object) -> str:
+    # bool is an int subclass but never a valid epoch; strings and other
+    # types from hand-edited/third-party JSONL must not crash the reader.
+    if (
+        isinstance(timestamp_ms, bool)
+        or not isinstance(timestamp_ms, (int, float))
+        or not timestamp_ms
+    ):
         return ""
     try:
         dt = datetime.fromtimestamp(timestamp_ms / 1000, tz=UTC)
@@ -155,6 +162,7 @@ class CompSessionReader:
                         files=_str_list(call.get("files")),
                         symbols=_str_list(call.get("symbols")),
                         timestamp_ms=timestamp if isinstance(timestamp, int) else None,
+                        outcome=str(outcome),
                     )
                 )
 
@@ -199,5 +207,6 @@ class CompSessionReader:
                     files=_str_list(record.get("files")),
                     symbols=_str_list(record.get("symbols")),
                     timestamp_ms=ts if isinstance(ts, int) else None,
+                    outcome=str(outcome),
                 )
             )

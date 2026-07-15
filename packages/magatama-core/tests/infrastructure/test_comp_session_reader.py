@@ -147,6 +147,26 @@ class TestCompSessionReader:
         data = CompSessionReader().read(ws)
         assert len(data.records[0].entity.name) <= 120
 
+    def test_string_timestamp_does_not_crash(self, tmp_path: Path) -> None:
+        """A hand-edited/third-party line with an ISO-string timestamp must
+        degrade to 'no timestamp', not abort the whole read."""
+        ws = make_workspace(
+            tmp_path,
+            history_lines=[
+                json.dumps({"timestamp": "2026-07-04T00:00:00Z", "request": "q", "outcome": "o"})
+            ],
+        )
+        data = CompSessionReader().read(ws)
+        assert len(data.records) == 1
+        assert data.records[0].timestamp_ms is None
+        assert data.records[0].entity.docstring == "o"  # no bogus prefix
+
+    def test_outcome_field_populated(self, tmp_path: Path) -> None:
+        ws = make_workspace(tmp_path, memory=SAMPLE_MEMORY, history_lines=SAMPLE_HISTORY)
+        data = CompSessionReader().read(ws)
+        outcomes = {r.outcome for r in data.records}
+        assert outcomes == {"fixed them", "done"}
+
     def test_non_string_files_and_symbols_filtered(self, tmp_path: Path) -> None:
         memory = {
             "sessions": [

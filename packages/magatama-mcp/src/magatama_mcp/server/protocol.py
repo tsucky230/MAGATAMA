@@ -10,6 +10,7 @@ from typing import Any
 from mcp.server import FastMCP
 
 from magatama_core.application.usecases.comp_usecase import (
+    EntityHistoryUseCase,
     LoadCompIndexUseCase,
     LoadCompSessionsUseCase,
 )
@@ -1599,6 +1600,7 @@ def create_mcp_server(name: str = "magatama") -> FastMCP:
 
     load_comp_index_usecase = LoadCompIndexUseCase(knowledge_graph=knowledge_graph)
     load_comp_sessions_usecase = LoadCompSessionsUseCase(knowledge_graph=knowledge_graph)
+    entity_history_usecase = EntityHistoryUseCase(knowledge_graph=knowledge_graph)
     generate_handoff_usecase = GenerateHandoffUseCase()
 
     @mcp.tool()
@@ -1668,6 +1670,49 @@ def create_mcp_server(name: str = "magatama") -> FastMCP:
         }
 
     @mcp.tool()
+    def get_entity_history(
+        name: str,
+        path: str = "",
+        limit: int = 10,
+        analyze: bool = True,
+    ) -> dict[str, Any]:
+        """Get past session records that discussed a file or symbol, plus current impact.
+
+        Answers "what happened around this file/symbol before?" in one call:
+        finds the entity in the knowledge graph, follows DISCUSSED links back
+        to comP session records (requests + outcomes, newest first), and runs
+        impact analysis so past context and present blast radius arrive
+        together. Use before modifying unfamiliar code.
+
+        Args:
+            name: File path (relative or absolute) or exact symbol name.
+            path: Optional comP workspace root. When given, the .comp index
+                  and session history are (re)loaded from it first; leave
+                  empty to query whatever is already in the graph.
+            limit: Max number of history records to return (default 10).
+            analyze: Also run impact analysis on the entity (default True).
+
+        Returns:
+            matched_entities, history (request/outcome/when/mentions),
+            impact (score, risk_level, total_affected), errors.
+        """
+        load_errors: list[str] = []
+        if path:
+            index_result = load_comp_index_usecase.execute(path, mode="replace")
+            load_errors.extend(index_result.errors)
+            sessions_result = load_comp_sessions_usecase.execute(path, mode="replace")
+            load_errors.extend(sessions_result.errors)
+        result = entity_history_usecase.execute(name, limit=limit, analyze=analyze)
+        return {
+            "success": result.success,
+            "query": result.query,
+            "matched_entities": result.matched_entities,
+            "history": result.history,
+            "impact": result.impact,
+            "errors": load_errors + result.errors,
+        }
+
+    @mcp.tool()
     def generate_handoff(
         path: str,
         token_budget: int = 2000,
@@ -1698,6 +1743,7 @@ def create_mcp_server(name: str = "magatama") -> FastMCP:
             "estimated_tokens": result.estimated_tokens,
             "sessions_included": result.sessions_included,
             "history_file": result.history_file,
+            "handoff_file": result.handoff_file,
             "errors": result.errors,
         }
 

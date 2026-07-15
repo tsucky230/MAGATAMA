@@ -343,7 +343,61 @@ class TestCompBridgeToolsLegacyServer:
         tool_names = [t.name for t in server.list_tools()]
         assert "read_external_graph" in tool_names
         assert "read_external_sessions" in tool_names
+        assert "get_entity_history" in tool_names
         assert "get_external_graph_info" in tool_names
+
+    @pytest.mark.asyncio
+    async def test_get_entity_history_not_found(self, server: MagatamaMcpServer) -> None:
+        result = await server.call_tool("get_entity_history", {"name": "nope"})
+        assert result["success"] is False
+        assert result["errors"]
+
+    @pytest.mark.asyncio
+    async def test_get_entity_history_after_load(self, server: MagatamaMcpServer, tmp_path) -> None:
+        import json
+
+        comp_dir = tmp_path / "proj" / ".comp"
+        comp_dir.mkdir(parents=True)
+        memory = {
+            "sessions": [
+                {
+                    "id": "s1",
+                    "timestamp": 1780341799978,
+                    "calls": [
+                        {
+                            "query": "do a thing",
+                            "outcome": "done",
+                            "files": [],
+                            "symbols": ["do_thing"],
+                            "timestamp": 1780341799978,
+                        }
+                    ],
+                }
+            ]
+        }
+        (comp_dir / "session-memory.json").write_text(json.dumps(memory), encoding="utf-8")
+
+        # Put a matching code entity in the graph, then load sessions.
+        from magatama_core.domain.entities.base import Entity, EntityType
+        from magatama_core.domain.value_objects.ids import EntityId
+        from magatama_core.domain.value_objects.location import Location
+
+        server._knowledge_graph.entities.add(
+            Entity(
+                id=EntityId(value="test:do_thing"),
+                name="do_thing",
+                type=EntityType.FUNCTION,
+                location=Location(file="x.py", line=1, column=0),
+                scope="public",
+            )
+        )
+        await server.call_tool("read_external_sessions", {"path": str(tmp_path / "proj")})
+
+        result = await server.call_tool(
+            "get_entity_history", {"name": "do_thing", "analyze": False}
+        )
+        assert result["success"] is True
+        assert result["history"][0]["request"] == "do a thing"
 
     def test_24_language_parsers(self, server: MagatamaMcpServer) -> None:
         """The CLI server supports the same extensions as protocol.py."""

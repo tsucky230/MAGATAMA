@@ -245,7 +245,66 @@ class TestCompBridgeTools:
         tool_names = list(mcp._tool_manager._tools.keys())
         assert "read_external_graph" in tool_names
         assert "read_external_sessions" in tool_names
+        assert "get_entity_history" in tool_names
         assert "get_external_graph_info" in tool_names
+
+    @pytest.mark.asyncio
+    async def test_get_entity_history_not_found(self) -> None:
+        """Unknown name yields success=False with a hint, not an exception."""
+        mcp = create_mcp_server()
+        _blocks, payload = await mcp.call_tool("get_entity_history", {"name": "nope"})
+        assert payload["success"] is False
+        assert payload["errors"]
+
+    @pytest.mark.asyncio
+    async def test_get_entity_history_with_path_autoload(self, tmp_path: Path) -> None:
+        """Passing path loads index + sessions before the query."""
+        import json
+        import sqlite3
+
+        workspace = tmp_path / "histproj"
+        comp_dir = workspace / ".comp"
+        comp_dir.mkdir(parents=True)
+        conn = sqlite3.connect(comp_dir / "index.db")
+        conn.executescript(
+            "CREATE TABLE files (id INTEGER PRIMARY KEY, path TEXT, hash TEXT,"
+            " language TEXT, last_indexed INTEGER DEFAULT 0, char_count INTEGER DEFAULT 0);"
+            "CREATE TABLE nodes (id INTEGER PRIMARY KEY, file_id INTEGER, name TEXT,"
+            " kind TEXT, line INTEGER, col INTEGER, scope TEXT,"
+            " is_exported INTEGER DEFAULT 0, signature TEXT);"
+            "CREATE TABLE edges (from_id INTEGER, to_id INTEGER, kind TEXT);"
+            "CREATE TABLE metadata (key TEXT PRIMARY KEY, value TEXT);"
+        )
+        conn.execute("INSERT INTO files VALUES (1, 'src/app.py', 'h', 'python', 0, 0)")
+        conn.execute("INSERT INTO nodes VALUES (1, 1, 'main', 'function', 1, 0, NULL, 1, NULL)")
+        conn.commit()
+        conn.close()
+        memory = {
+            "sessions": [
+                {
+                    "id": "s1",
+                    "timestamp": 1780341799978,
+                    "calls": [
+                        {
+                            "query": "refactor main",
+                            "outcome": "done",
+                            "files": ["src/app.py"],
+                            "symbols": ["main"],
+                            "timestamp": 1780341799978,
+                        }
+                    ],
+                }
+            ]
+        }
+        (comp_dir / "session-memory.json").write_text(json.dumps(memory), encoding="utf-8")
+
+        mcp = create_mcp_server()
+        _blocks, payload = await mcp.call_tool(
+            "get_entity_history", {"name": "main", "path": str(workspace)}
+        )
+        assert payload["success"] is True
+        assert payload["history"][0]["request"] == "refactor main"
+        assert payload["impact"] is not None
 
     @pytest.mark.asyncio
     async def test_read_external_sessions_not_found(self, tmp_path: Path) -> None:

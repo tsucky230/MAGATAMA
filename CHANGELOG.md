@@ -9,7 +9,7 @@ MAGATAMA は [YATA (八咫)](https://github.com/nahisaho/YATA) のフォーク�
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.6.0] - 2026-07-16
 
 ### Added
 
@@ -35,11 +35,42 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   検出し、additionalContext で警告を注入する（物理ブロックはしない。
   constraints.json 不在・破損時は素通し）
 
+- feat: MCP ツール `get_entity_history`（両サーバー）。ファイル/シンボル名から
+  DISCUSSED リンクを逆引きし、「そのコードを過去にどの依頼が触ったか」
+  （request/outcome/日時、新しい順）と現在の impact 分析を1コールで返す。
+  `path` 指定で index + セッションの自動読込も可能
+- feat: patrol × 制約番犬の連携。patrol の変更検知時に `.comp/constraints.json`
+  と突合し、制約対象ファイル/シンボルの変更を `[CRITICAL]` 等の severity 付きで
+  summary 先頭と履歴（query: 「制約対象の変更を検知」）に記録する。
+  constraints.json の Python リーダー（`comp_constraints_reader`）を新設
+- feat: comP 由来の hook を配備（`.claude/hooks/history-record.sh` = Stop で
+  対話を .comp/history に自動記録、`context-inject.sh` = UserPromptSubmit で
+  直近5件を自動注入）。CLAUDE.md の「自動注入」記述が本リポジトリでも実態に
+  なった。inject は `query` キーのレコードも読む（移植時に見つけた comP 版の
+  request キー限定バグは comP 本体でも修正済み）
+
 ### Changed
 
 - refactor: CLI 用 MCP サーバー（`mcp_server.py`）を拡張し、言語パーサーを
   5→24 言語へ、comP ブリッジツール（`read_external_graph` /
   `get_external_graph_info`）を FastMCP サーバーと同等に追加
+- change: `generate_handoff` の履歴記録を「要約1行 + 全文は
+  `.magatama/handoffs/handoff-*.md`」に変更。従来は Markdown 全文を outcome に
+  書いていたため、以後の全 `session_recall` が引継ぎ全文を再生し続けていた
+
+### Fixed
+
+- fix: セッション記録の files が `//?/E:/...`（拡張パス）や絶対パスのとき
+  DISCUSSED リンクが1本も張られなかった問題を修正（サフィックス一致の双方向化と
+  `//?/` プレフィックス除去）。comP デーモンの auto-record は実際にこの形式で書く
+- fix: impact 分析（`analyze_impact` 系）が DISCUSSED リレーションを依存として
+  数え、セッション読込後にスコアが水増しされる問題を修正
+- fix: 履歴 JSONL の timestamp が文字列だと reader 全体が TypeError で失敗する
+  潜在バグを修正（1行スキップに降格）。handoff の outcome 抽出も docstring の
+  `"] "` 分割をやめ SessionRecord.outcome を直接使う方式に変更
+- fix: patrol が `.comp/` 内のファイル（履歴 JSONL 等）を差分対象から除外する
+  ガードを追加。comP が将来 history を index.db に登録した場合の自己ループ
+  （patrol が自分のログ書込を毎回検知）を予防
 
 ## [0.5.3] - 2026-06-16
 

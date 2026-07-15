@@ -7,6 +7,7 @@ from pathlib import Path
 import pytest
 
 from magatama_core.application.usecases.comp_usecase import (
+    EntityHistoryUseCase,
     LoadCompIndexUseCase,
     LoadCompSessionsUseCase,
 )
@@ -278,6 +279,37 @@ def test_sessions_file_suffix_match(tmp_path: Path) -> None:
     assert result.unmatched_files == 0
 
 
+def test_sessions_unc_absolute_path_links(tmp_path: Path) -> None:
+    """Daemon auto-records use //?/E:/... paths; they must still link."""
+    workspace = make_session_workspace(tmp_path)
+    comp_dir = workspace / ".comp"
+    memory = {
+        "sessions": [
+            {
+                "id": "s3",
+                "timestamp": 1,
+                "calls": [
+                    {
+                        "query": "q",
+                        "outcome": "o",
+                        "files": ["//?/E:/dev/sessproj/src/app.py"],
+                        "symbols": [],
+                    }
+                ],
+            }
+        ]
+    }
+    (comp_dir / "session-memory.json").write_text(json.dumps(memory), encoding="utf-8")
+
+    kg = NetworkXKnowledgeGraph()
+    LoadCompIndexUseCase(kg).execute(workspace)
+    result = LoadCompSessionsUseCase(kg).execute(workspace)
+
+    # "//?/e:/dev/sessproj/src/app.py" endswith "/src/app.py" (graph path)
+    assert result.discussed_links == 1
+    assert result.unmatched_files == 0
+
+
 def test_sessions_not_found(tmp_path: Path) -> None:
     kg = NetworkXKnowledgeGraph()
     result = LoadCompSessionsUseCase(kg).execute(tmp_path / "nowhere")
@@ -290,3 +322,96 @@ def test_sessions_invalid_mode(tmp_path: Path) -> None:
     result = LoadCompSessionsUseCase(kg).execute(tmp_path, mode="bogus")
     assert not result.success
     assert "Invalid mode" in result.errors[0]
+
+
+# ---------------------------------------------------------------------------
+# EntityHistoryUseCase
+# ---------------------------------------------------------------------------
+
+
+def make_history_graph(tmp_path: Path) -> NetworkXKnowledgeGraph:
+    workspace = make_session_workspace(tmp_path)
+    kg = NetworkXKnowledgeGraph()
+    LoadCompIndexUseCase(kg).execute(workspace)
+    LoadCompSessionsUseCase(kg).execute(workspace)
+    return kg
+
+
+def test_entity_history_by_symbol(tmp_path: Path) -> None:
+    kg = make_history_graph(tmp_path)
+    result = EntityHistoryUseCase(kg).execute("main")
+
+    assert result.success
+    assert any(e["name"] == "main" for e in result.matched_entities)
+    assert len(result.history) == 1
+    assert result.history[0]["request"] == "refactor main"
+    assert result.history[0]["outcome"] == "done"
+    assert result.history[0]["when"]  # timestamp prefix parsed
+    mentions = result.history[0]["mentions"]
+    assert any(m["kind"] == "symbol" for m in mentions)
+
+
+def test_entity_history_by_file_suffix(tmp_path: Path) -> None:
+    """A bare file name finds the MODULE indexed under a longer path."""
+    kg = make_history_graph(tmp_path)
+    result = EntityHistoryUseCase(kg).execute("app.py", analyze=False)
+
+    assert result.success
+    assert any(e["type"] == "module" for e in result.matched_entities)
+    assert len(result.history) == 1
+    assert result.impact is None  # analyze=False
+
+
+def test_entity_history_impact_excludes_sessions(tmp_path: Path) -> None:
+    """DISCUSSED links must not count as dependents in impact analysis."""
+    from magatama_core.application.usecases.framework_usecase import DependencyImpactUseCase
+
+    workspace = make_session_workspace(tmp_path)
+    kg = NetworkXKnowledgeGraph()
+    LoadCompIndexUseCase(kg).execute(workspace)
+    baseline = DependencyImpactUseCase(kg).analyze_impact("main").total_affected
+
+    LoadCompSessionsUseCase(kg).execute(workspace)
+    result = EntityHistoryUseCase(kg).execute("main")
+
+    assert result.impact is not None
+    # Loading sessions adds a DISCUSSED link to "main"; impact must not grow.
+    assert result.impact["total_affected"] == baseline
+
+
+def test_entity_history_not_found(tmp_path: Path) -> None:
+    kg = make_history_graph(tmp_path)
+    result = EntityHistoryUseCase(kg).execute("no_such_thing")
+    assert not result.success
+    assert result.errors
+
+
+def test_entity_history_limit(tmp_path: Path) -> None:
+    workspace = make_session_workspace(tmp_path)
+    comp_dir = workspace / ".comp"
+    history = comp_dir / "history"
+    history.mkdir()
+    # Well after the session-memory.json record, one minute apart so the
+    # second-resolution "when" strings are strictly ordered.
+    lines = [
+        json.dumps(
+            {
+                "timestamp": 1780341899978 + i * 60_000,
+                "query": f"req {i}",
+                "outcome": "o",
+                "files": ["src/app.py"],
+            }
+        )
+        for i in range(5)
+    ]
+    (history / "log-2026-07.jsonl").write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+    kg = NetworkXKnowledgeGraph()
+    LoadCompIndexUseCase(kg).execute(workspace)
+    LoadCompSessionsUseCase(kg).execute(workspace)
+    result = EntityHistoryUseCase(kg).execute("src/app.py", limit=3, analyze=False)
+
+    assert result.success
+    assert len(result.history) == 3
+    # Newest first
+    assert result.history[0]["request"] == "req 4"

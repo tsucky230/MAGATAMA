@@ -2,10 +2,11 @@
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from magatama_core.domain.entities.base import EntityType
+from magatama_core.domain.entities.base import Entity, EntityType
 from magatama_core.domain.entities.relationships import Relationship, RelationshipType
 from magatama_core.domain.errors import EntityAlreadyExistsError
 from magatama_core.domain.repositories.knowledge_graph_repository import (
@@ -104,7 +105,32 @@ class LoadCompSessionsResult:
 
 
 def _norm_path(path: str) -> str:
-    return path.replace("\\", "/").lower()
+    p = path.replace("\\", "/").lower()
+    # comP daemon auto-records sometimes use extended-length Windows paths
+    # (//?/E:/dev/...); strip the prefix so they compare like normal paths.
+    if p.startswith("//?/"):
+        p = p[4:]
+    return p
+
+
+def _match_file_targets(
+    key: str,
+    file_targets: dict[str, set[EntityId]],
+    file_suffix_targets: list[tuple[str, EntityId]],
+) -> set[EntityId]:
+    """Match a normalized record path against graph MODULE paths.
+
+    Tries exact match first, then suffix match in both directions: the
+    record path may be relative while the graph path is absolute, or
+    (daemon auto-records) absolute while the graph path is relative.
+    """
+    targets = set(file_targets.get(key, set()))
+    if not targets:
+        suffix = "/" + key
+        targets = {eid for k, eid in file_suffix_targets if k.endswith(suffix)}
+    if not targets:
+        targets = {eid for k, eid in file_suffix_targets if k and key.endswith("/" + k)}
+    return targets
 
 
 class LoadCompSessionsUseCase:
@@ -181,12 +207,7 @@ class LoadCompSessionsUseCase:
 
             linked: set[EntityId] = set()
             for f in set(record.files):
-                key = _norm_path(f)
-                targets = set(file_targets.get(key, set()))
-                if not targets:
-                    # Absolute vs relative mismatch: match on path suffix.
-                    suffix = "/" + key
-                    targets = {eid for k, eid in file_suffix_targets if k.endswith(suffix)}
+                targets = _match_file_targets(_norm_path(f), file_targets, file_suffix_targets)
                 if not targets:
                     result.unmatched_files += 1
                     continue
@@ -220,3 +241,131 @@ class LoadCompSessionsUseCase:
                     result.discussed_links += 1
 
         return result
+
+
+_WHEN_PREFIX_RE = re.compile(r"^\[(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z)\] ")
+
+
+@dataclass
+class EntityHistoryResult:
+    success: bool
+    query: str = ""
+    matched_entities: list[dict[str, str]] = field(default_factory=list)
+    history: list[dict[str, object]] = field(default_factory=list)
+    impact: dict[str, object] | None = None
+    errors: list[str] = field(default_factory=list)
+
+
+class EntityHistoryUseCase:
+    """Answer "what past sessions touched this file/symbol, and what depends on it now?".
+
+    Looks up a file path or symbol name in the knowledge graph, follows
+    inbound DISCUSSED relationships back to SESSION entities (loaded by
+    LoadCompSessionsUseCase), and optionally runs impact analysis on the
+    entity so the caller sees past context and present blast radius in one
+    query.
+    """
+
+    def __init__(self, knowledge_graph: KnowledgeGraphRepository) -> None:
+        self._graph = knowledge_graph
+
+    def execute(self, name: str, limit: int = 10, analyze: bool = True) -> EntityHistoryResult:
+        result = EntityHistoryResult(success=True, query=name)
+        targets = self._find_targets(name)
+        if not targets:
+            return EntityHistoryResult(
+                success=False,
+                query=name,
+                errors=[
+                    f"No entity matching {name!r} in the knowledge graph. "
+                    "Load data first with read_external_graph / read_external_sessions."
+                ],
+            )
+
+        result.matched_entities = [
+            {
+                "id": e.id.value,
+                "name": e.name,
+                "type": e.type.value,
+                "file": e.location.file,
+            }
+            for e in targets
+        ]
+
+        # SESSION entity id -> aggregated history entry.
+        entries: dict[str, dict[str, object]] = {}
+        for target in targets:
+            for rel in self._graph.relationships.get_incoming(target.id):
+                if rel.type != RelationshipType.DISCUSSED:
+                    continue
+                session = self._graph.entities.get(rel.source_id)
+                if session is None or session.type != EntityType.SESSION:
+                    continue
+                entry = entries.get(session.id.value)
+                if entry is None:
+                    docstring = session.docstring or ""
+                    m = _WHEN_PREFIX_RE.match(docstring)
+                    entry = {
+                        "request": session.name,
+                        "outcome": docstring[m.end() :] if m else docstring,
+                        "when": m.group(1) if m else "",
+                        "mentions": [],
+                    }
+                    entries[session.id.value] = entry
+                mentions = entry["mentions"]
+                assert isinstance(mentions, list)
+                mentions.append(
+                    {
+                        "kind": (rel.metadata or {}).get("kind", ""),
+                        "mention": (rel.metadata or {}).get("mention", ""),
+                        "entity": target.name,
+                    }
+                )
+
+        # Newest first; records without a timestamp go last.
+        result.history = sorted(
+            entries.values(),
+            key=lambda e: str(e["when"]),
+            reverse=True,
+        )[: max(limit, 1)]
+
+        if analyze:
+            try:
+                from magatama_core.application.usecases.framework_usecase import (
+                    DependencyImpactUseCase,
+                )
+
+                r = DependencyImpactUseCase(self._graph).analyze_impact(entity_name=name)
+                result.impact = {
+                    "impact_score": r.impact_score,
+                    "risk_level": r.risk_level,
+                    "total_affected": r.total_affected,
+                }
+            except Exception as e:
+                result.errors.append(f"impact analysis failed: {e}")
+
+        return result
+
+    def _find_targets(self, name: str) -> list[Entity]:
+        """Match a symbol by exact name, or a file by (suffix-tolerant) path."""
+        targets: dict[str, Entity] = {}
+        for entity in self._graph.entities.get_by_name(name):
+            if entity.type != EntityType.SESSION:
+                targets[entity.id.value] = entity
+
+        key = _norm_path(name)
+        for entity in self._graph.entities.all():
+            if entity.type != EntityType.MODULE or entity.id.value in targets:
+                continue
+            # File MODULE entities are named with their path. Deliberately
+            # not matched on location.file: markdown headings etc. are also
+            # MODULE-typed and share the file location, and matching them
+            # would balloon the result with every section of the file.
+            candidate = _norm_path(entity.name)
+            if (
+                candidate == key
+                or candidate.endswith("/" + key)
+                or (candidate and key.endswith("/" + candidate))
+            ):
+                targets[entity.id.value] = entity
+        return list(targets.values())

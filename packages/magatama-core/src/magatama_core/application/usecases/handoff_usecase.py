@@ -34,6 +34,7 @@ class HandoffResult:
     estimated_tokens: int = 0
     sessions_included: int = 0
     history_file: str = ""
+    handoff_file: str = ""
     errors: list[str] = field(default_factory=list)
 
 
@@ -121,7 +122,7 @@ class GenerateHandoffUseCase:
                     )
                 except (OverflowError, OSError, ValueError):
                     when = ""
-            outcome = (record.entity.docstring or "").split("] ", 1)[-1]
+            outcome = record.outcome
             if len(outcome) > _OUTCOME_SNIPPET_LEN:
                 outcome = outcome[: _OUTCOME_SNIPPET_LEN - 1] + "…"
             entry = f"- {when}**{record.entity.name}**"
@@ -143,13 +144,40 @@ class GenerateHandoffUseCase:
         result.sessions_included = included
 
         # -- record to history so the next session can recall it ---------
+        # The full markdown goes to its own file under .magatama/handoffs/;
+        # history gets a one-line summary pointing at it. Logging the full
+        # markdown as the outcome would make every later session_recall (and
+        # the context-inject hook) replay the whole document.
         if log_history:
             comp_dir = workspace if workspace.name == ".comp" else workspace / ".comp"
+            root = comp_dir.parent
+            outcome_for_history = markdown
+            files: list[str] = []
+            try:
+                handoff_dir = root / ".magatama" / "handoffs"
+                handoff_dir.mkdir(parents=True, exist_ok=True)
+                stamp = datetime.now(tz=UTC).strftime("%Y%m%d-%H%M%S")
+                handoff_path = handoff_dir / f"handoff-{stamp}.md"
+                handoff_path.write_text(markdown, encoding="utf-8")
+                result.handoff_file = str(handoff_path)
+                rel_path = f".magatama/handoffs/{handoff_path.name}"
+                files = [rel_path]
+                summary = f"ブランチ {branch}" if branch else "git情報なし"
+                uncommitted_count = len([ln for ln in status.splitlines() if ln.strip()])
+                outcome_for_history = (
+                    f"引継ぎ生成: {summary}、未コミット {uncommitted_count} 件、"
+                    f"直近セッション {included} 件。全文: {rel_path}"
+                )
+            except OSError as e:
+                # Fall back to the old behavior (full markdown in history)
+                # rather than losing the handoff content entirely.
+                result.errors.append(f"引継ぎファイルの書き込みに失敗: {e}")
             try:
                 log_file = append_history_record(
                     comp_dir,
                     query="handoff: 次セッションへの引継ぎ",
-                    outcome=markdown,
+                    outcome=outcome_for_history,
+                    files=files,
                 )
                 result.history_file = str(log_file)
             except OSError as e:

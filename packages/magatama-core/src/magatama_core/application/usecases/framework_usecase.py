@@ -9,7 +9,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, ClassVar
 
-from magatama_core.domain.entities import Entity, EntityType
+from magatama_core.domain.entities import Entity, EntityType, RelationshipType
 from magatama_core.domain.value_objects import EntityId
 from magatama_core.infrastructure.storage import NetworkXKnowledgeGraph
 
@@ -1759,8 +1759,13 @@ class DependencyImpactUseCase:
         """Find entities that directly depend on this entity."""
         dependents: list[dict[str, Any]] = []
 
-        # Find incoming relationships (who calls/imports/uses this)
-        incoming = [r for r in all_rels if r.target_id == entity_id]
+        # Find incoming relationships (who calls/imports/uses this).
+        # DISCUSSED links come from comP session history: a past conversation
+        # mentioning an entity is not a code dependency, so it must not
+        # inflate impact scores.
+        incoming = [
+            r for r in all_rels if r.target_id == entity_id and r.type != RelationshipType.DISCUSSED
+        ]
 
         for rel in incoming:
             source = self._graph.entities.get(rel.source_id)
