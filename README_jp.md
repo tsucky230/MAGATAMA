@@ -1,149 +1,259 @@
-# MAGATAMA (勾玉) — 巨大なコードベースの「地図」を AI に渡す
+# MAGATAMA (勾玉) — 巨大コードベースの「地図」をAIに渡す
 
 [![CI](https://github.com/tsucky230/MAGATAMA/workflows/CI/badge.svg)](https://github.com/tsucky230/MAGATAMA/actions)
-[![Coverage](https://codecov.io/gh/tsucky230/MAGATAMA/branch/main/graph/badge.svg)](https://codecov.io/gh/tsucky230/MAGATAMA)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-> 🇺🇸 [English README](README.md)
+> 🇬🇧 [English README](README.md)
 
 ---
 
-## 🗺️ 30 秒でわかる MAGATAMA
+## 🗺️ 30秒でわかるMAGATAMA
 
-知らない街に着いたばかりの人を想像してください。目的地にたどり着くのに、
-**すべての通りを端から端まで歩いて確かめる**人はいません。普通は **地図**を
-見て、必要な道だけを把握します。
+知らない街に着いた人は、全部の道を歩いて覚えたりしません。**地図**を見て、必要な道だけを覚えます。
 
-LLM（Claude / Copilot など）に大きなコードベースを理解させるとき、多くの人は
-LLM に**全ソースを読ませて**います。これは「街の全通りを歩かせる」のと同じで、
-時間（＝トークン＝コスト）を浪費します。
+ところがLLM（Claude・Copilot等）に大きなコードベースを渡すとき、人は**全ソースを読ませます**。全部の道を歩かせているのと同じで、時間＝トークン＝コストが燃えます。
 
-ここで効くのが、**兄弟ソフト [comP](https://github.com/tsucky230/comP)（VSCode
-拡張機能）との組み合わせ**です。MAGATAMA は単体でも使えますが、comP と組み合わせる
-と効果が倍増します。両者の役割はこう分かれています。
+そこで兄弟ツール **[comP](https://github.com/tsucky230/comP)**（VSCode拡張）との分業です：
 
-- **comP** は、あなたのコードを歩き回って**地図（インデックス）を作る測量士**です。
-- **MAGATAMA** は、その地図を読み、LLM に**「いま必要な区画だけ」を手渡す案内人**です。
+- **comP** ＝ コードを歩いて**地図（索引）を作る測量士**
+- **MAGATAMA** ＝ 地図を読み、**今必要な区画だけをLLMに渡す案内人**
 
-結果、LLM は全ソースを読まずに、関数・クラス・依存関係といった「街の構造」を
-把握できます。実測で **概観把握なら約 1/500 のトークン**で済みました
-（→ [OVERVIEW_jp.md](OVERVIEW_jp.md) に計測の全データ）。
+本リポジトリ自身で計測した結果、プロジェクト概要の把握に必要なトークンは**約1/500**になりました（実測データ: [OVERVIEW.md](OVERVIEW.md)）。
 
-> **一言で**: MAGATAMA は、コードを「知識グラフ（地図）」に変換し、AI に最小の
-> トークンで文脈を渡す **MCP サーバ**です。
-> [YATA (八咫)](https://github.com/nahisaho/YATA) のフォークに、コードインデクサー
-> [comP](https://github.com/tsucky230/comP) との直接連携を加えたものです。
+> **一言で**：コードを「知識グラフ（地図）」に変換し、**最小トークンで最大コンテキスト**をAIに供給するMCPサーバー。[YATA (八咫)](https://github.com/nahisaho/YATA) のフォークに [comP](https://github.com/tsucky230/comP) 直結ブリッジを加えたもの。
 
 ---
 
-## 💡 これで何ができるのか（3 つの代表シーン）
+## 📊 効果の見積もり：どの用途で、どれだけ効くのか
 
-### シーン 1: 初見の巨大リポジトリを 5 分で把握したい
+効果は用途に依存します。正直な目安を示します。
 
-> 「このリポジトリ、何ができて、どんな構造？ どこから読めばいい？」
+| 用途 | 削減の目安 | なぜそうなるか |
+| --- | --- | --- |
+| **巨大リポジトリの概要把握** | **〜1/500**（実測） | 全読みが「統計＋主要モジュール＋公開シンボル」の読み取りに置き換わる |
+| **変更の影響分析** | **大** | `analyze_impact` が波及先を **risk=high/medium/low 判定済み**で返す。LLMが行う「集計と解釈」のトークンごと消える |
+| **フレームワークの正しい書き方** | **大（間接効果）** | 47フレームワークの知識グラフを `hybrid_search` で横断。**存在しないAPIを幻覚→実装→失敗→やり直し**のループを根絶 |
+| **セッション引き継ぎ** | **大** | `generate_handoff` がトークン予算内で引き継ぎ文書を自動生成。前提の再説明が不要に |
+| **小規模リポジトリの単発質問** | 小 | comP直結で足りる（後述の使い分け表を参照） |
+| **コードと無関係な作業** | ゼロ | 対象外 |
 
-LLM は全ファイルを開く代わりに、comP の地図から**統計・主要モジュール・
-エクスポートされたシンボル**だけを読み、概観を返します。実際にこの MAGATAMA
-自身でやった結果が [OVERVIEW_jp.md](OVERVIEW_jp.md) です。
+### 数字に表れない2つの効果
 
-### シーン 2: ある関数を変えたら何が壊れるか知りたい
+**① 失敗リトライの消滅**
+安価なモデルの隠れコストは「間違った前提で実装→失敗→やり直し」のループです。MAGATAMAはこれを2方向から潰します：
 
-> 「`save_graph` を直すと、どこに影響する？」
+```
+方向1（構造の誤解を防ぐ）：
+  analyze_impact が波及先をリスク判定済みで提示
+  → 「気づかなかった呼び出し元」起因の手戻りが消える
 
-`analyze_impact` / `get_call_graph` が、地図をたどって**影響範囲**を返します。
-grep で全文検索して目視する作業を、構造グラフが肩代わりします。
+方向2（知識の幻覚を防ぐ）：
+  hybrid_search が公式イディオムと自コードを同時提示
+  → 「それっぽいが存在しないAPI」起因の手戻りが消える
+```
 
-### シーン 3: フレームワークの作法に沿って書きたい
+**② 判断のオフロード（安価なモデルほど効く）**
+comP直結では「関連ノードのリスト」が返り、**解釈はLLM任せ**です。高性能モデルなら解釈できますが、安価なモデルはここで間違えます。MAGATAMAは解釈（リスク判定・集計・品質分析）を**決定的なコードで済ませてから**渡すため、**モデルの判断力に依存する部分が減り、安いモデルの守備範囲が広がります**。
 
-> 「FastAPI の依存性注入って、どう書くのが正解？」
+---
 
-MAGATAMA には **47 フレームワークの作り付け知識グラフ**が入っており、
-`hybrid_search` であなたのコードと公式作法を**横断検索**できます（YATA 由来）。
+## 💡 実際にできること（5つの代表シーン）
 
-### シーン 4: 「このファイル、前に何の話で触ったっけ？」を思い出したい
+### シーン1：見知らぬ巨大リポジトリを5分で把握
+>
+> 「このリポジトリは何をしていて、どこから読めばいい？」
 
-> 「auth まわりを直したいけど、過去のセッションでどんな依頼があった？」
+全ファイルを開く代わりに、地図の**統計・主要モジュール・公開シンボル**だけを読んで概要を返します。本リポジトリ自身での実践例が [OVERVIEW.md](OVERVIEW.md)。
 
-comP はあなたと AI の会話履歴を `.comp/` に記録しています。MAGATAMA の
-`read_external_sessions` は、その**会話の記録をコードの地図と同じグラフに載せ**、
-記録が触れたファイルやシンボルと線（DISCUSSED）でつなぎます。以後、
-`get_related_entities` でファイルを引くと「過去にそのファイルを触った依頼」が
-一緒に出てきます。**会話の記憶とコードの地図が、一枚の地図になる**機能です。
+### シーン2：関数を変えたら何が壊れるか知る
+>
+> 「`save_graph` を触ったらどこに影響する？」
 
-### シーン 5: 留守中の変化を、次のチャットに自動で引き継ぎたい
+`analyze_impact` / `get_call_graph` が地図を辿り、**影響範囲（blast radius）をリスク判定つきで**返します。grepと目視のループが不要に。
 
-> 「昨日の夜、チームの誰かが何か変えたらしい。影響は？」
+### シーン3：フレームワークの流儀に沿ったコードを書く
+>
+> 「FastAPIの依存性注入の正しいやり方は？」
 
-`magatama patrol` を回しておくと、comP の地図を定期的に見回り、
-**前回からの差分（追加・変更・削除されたシンボル）を検出**して、変化した箇所に
-影響範囲（impact）と品質（quality）の分析を自動で付け、結果を comP の会話履歴に
-**メモとして書き残します**。次のチャットで AI が `session_recall` を呼ぶと、
-「留守中に何がどう変わり、どこに影響するか」が最初から頭に入った状態で始まります。
+**47フレームワークの知識グラフを内蔵**（YATA由来）。`hybrid_search` が公式イディオムと自分のコードを横断検索します。
+
+### シーン4：「このファイル、過去にどんな依頼で触ったっけ？」
+>
+> 「認証を作り直したい。過去セッションで何を議論した？」
+
+comPは会話を `.comp/` に記録します。MAGATAMAの `read_external_sessions` はその**会話記録をコードと同じグラフに載せ**、言及したファイル・シンボルと接続（DISCUSSEDエッジ）します。以降、ファイルへの `get_related_entities` が**そのファイルに触れた過去の依頼**も返します。**会話の記憶とコードの地図が、ひとつの地図になります。**
+
+### シーン5：「留守中に何が変わったか」を自動で引き継ぐ
+>
+> 「昨晩チームの誰かが何か変えた。影響は？」
+
+`magatama patrol` を回しておくと、comPの地図を定期的に読み直して**前回からの差分を検出**し、各変更に影響・品質分析を添えて**comPの会話履歴に書き込みます**。次のチャットでAIが `session_recall` を呼んだ時点で、もう「何がどこで変わって、どこが痛いか」を知っています。
 
 ```bash
-magatama patrol . --interval 600   # 10 分ごとに見回り
-magatama patrol . --once           # 1 回だけ（cron / CI 向け）
+magatama patrol . --interval 600   # 10分ごとに巡回
+magatama patrol . --once           # 単発実行（cron / CI 向け）
 ```
 
 ---
 
-## 🧩 comP と MAGATAMA の関係
+## 🧩 comPとMAGATAMAの関係・使い分け
 
-```text
-[comP（VSCode拡張 + Rust常駐）]
-        │ ワークスペースを解析して地図を書き込む
+```
+[comP（VSCode拡張 + Rustデーモン）]
+        │ ワークスペースを解析して地図を書き出す
         ▼
-   .comp/index.db  (SQLite, WALモード)   ← 街の地図
+   .comp/index.db（SQLite, WALモード）  ← 街の地図
         │
-        ├─→ comP MCP …………… 地図を直接引く（1ファイル要約・1シンボル取得など軽量）
+        ├─→ comP MCP ……………… 地図を直接引く（ファイル要約・単一シンボル — 軽量）
         │
-        └─→ MAGATAMA Bridge … 地図を知識グラフに取り込み、横断分析（38ツール）
+        └─→ MAGATAMA Bridge … 地図を知識グラフに取り込んで分析（39ツール）
                   │
                   ▼
-        Claude Desktop / Cursor / Copilot / Claude Code
+      Claude Desktop / Claude Code / Cursor / Copilot
 ```
 
-- **comP** = 地図を作る＆軽く引く。`get_file_summary` / `get_symbol` など。
-- **MAGATAMA** = 地図を俯瞰して分析。`search_entities` / `analyze_impact` /
-  `hybrid_search` など。
+### 「comP直結だけで十分では？」
 
-### 「comP を直接つなぐだけで足りるのでは？」
+**単発の照会なら十分です。** MAGATAMAの価値は照会の**その先**にあります。
 
-**単発の参照なら、足ります。**「このファイルに何がある？」「このシンボルの依存は？」
-程度なら comP のツールだけで十分で、MAGATAMA を挟む意味はありません。
-MAGATAMA の価値は「参照」の先にあります。
+| | comP直結 | MAGATAMA併用 |
+| --- | --- | --- |
+| **影響分析** | 接続ノードのリストを返す（解釈はLLM任せ） | しきい値判定して `risk=high/medium/low` で返す。LLMの集計トークンを節約 |
+| **会話記憶** | `session_recall` ＝ 部分一致のフラットなリスト | 会話がコードの隣のグラフノードになる。「このファイルに触れた過去の依頼」が1クエリ |
+| **動作環境** | VSCode拡張のデーモンが必要 | index.dbを直接読むため**エディタなしのCI/cronで動く**（`patrol`） |
+| **プロジェクト横断** | 1デーモン＝1ワークスペース | 複数プロジェクトの地図を1グラフに載せて横断検索 |
+| **知識** | 自分のコードのみ | 47フレームワークの知識グラフを横断検索 |
 
-| | comP 直結 | MAGATAMA を挟むと |
-|---|---|---|
-| **影響調査** | 繋がったノードの一覧が返る（解釈は LLM 任せ） | スコアと閾値で `risk=high/medium/low` まで判定して返す。LLM が集計に使うトークンを節約 |
-| **会話の記憶** | `session_recall` = 文字列フィルタ付きのフラットな一覧 | 会話記録がコードと同じグラフ上のノードになり、「このファイルを触った過去の依頼」をグラフ探索で引ける |
-| **動く場所** | VSCode 拡張のデーモンが必要 | index.db を直接読むので、エディタなしの CI・cron でも動く（`patrol`） |
-| **横断** | 1 デーモン = 1 ワークスペース | 複数プロジェクトの地図を 1 グラフに載せて横断クエリできる |
-| **知識** | あなたのコードのみ | 47 フレームワークの作り付け知識グラフと横断検索 |
+一言で：**comPが地図を描き、MAGATAMAはその上で働く分析官・記録係。**
 
-一言で言えば、**comP が地図、MAGATAMA はその地図の上で働く分析屋と記録係**です。
+---
+
+## 🤖 Claudeでのうまい使い方
+
+### 使い方①：新セッションは handoff から始める
+
+セッション終了時と開始時をこの2行で繋ぎます：
+
+```markdown
+# 終了時：
+generate_handoff を実行して、今日の決定事項と未解決課題を引き継ぎ文書にして
+
+# 翌日の開始時：
+session_recall で前回の handoff を復元してから作業を始めて
+```
+
+`generate_handoff` は**トークン予算内に収まるよう自動要約**し、comP履歴に書き込むため、次セッションの `session_recall` で確実に拾えます。手書きの引き継ぎメモは不要になります。
+
+### 使い方②：安価なモデルへの「判断済みデータ」供給
+
+設計＝上位モデル、実装＝安価なモデル、の階層運用で真価が出ます：
+
+```markdown
+# 上位モデル（設計セッション）：
+analyze_impact の結果と handoff を添えて、実装手順リストを作って
+
+# 安価なモデル（実装セッション）：
+handoff と risk=low の判定済み影響リストの範囲内でのみ実装して。
+リスト外のファイルに触れる必要が出たら実装せず報告して
+```
+
+安価なモデルに渡るのは**判断済み・範囲確定済みの材料だけ**。迷子になる余地を構造的に奪います。
+
+### 使い方③：Reviewer役に客観データを持たせる
+
+レビューセッション（実装とは別会話）でこう指示します：
+
+```markdown
+この差分を analyze_impact / analyze_quality / find_hotspots の結果と
+突き合わせてレビューして。risk=high の波及先で未修正のものを最優先で指摘
+```
+
+LLMの「感想レビュー」が、グラフ由来の**機械的検出＋LLMの解釈**という2段構えになります。
+
+### 使い方④：patrol でレビューを非同期化
+
+`magatama patrol` をRaspberry PiやCIで常駐させれば、**誰もチャットしていない間に差分検出と影響分析が済んでいます**。朝一番のセッションが「調査」からでなく「判断」から始められます。
+
+### 使い方⑤：未知のOSSを読むときの型
+
+```markdown
+get_external_graph_info(path="...") で地図の鮮度を確認して。
+問題なければ read_external_graph → get_graph_stats で全体像、
+次に find_critical_paths で読むべき順路を出して
+```
+
+---
+
+## 📝 CLAUDE.md への反映方法（プロンプト集）
+
+MAGATAMAを入れても、**AI側の行動ルールを更新しなければ宝の持ち腐れ**です。以下のプロンプトをClaudeに投げると、CLAUDE.mdをMAGATAMA前提に書き換えられます。
+
+### プロンプト例①：初期導入（MUST/NEVERの追記）
+
+```markdown
+CLAUDE.md に以下のルールを MUST/NEVER として追記してください：
+
+MUST:
+- セッション開始時に session_recall で handoff と patrol 記録を復元する
+- コード全体の把握は read_external_graph + get_graph_stats を最初に使う
+- 既存コードの変更前に analyze_impact を実行し、risk=high の波及先を列挙する
+- フレームワークのAPIを使う実装の前に hybrid_search で公式イディオムを確認する
+- セッション終了前に generate_handoff を実行する
+
+NEVER:
+- グラフ化されたプロジェクトのソース全読み
+- analyze_impact を経ない既存関数のシグネチャ変更
+- hybrid_search で確認していないフレームワークAPIの使用
+
+各ルールに理由を1行添え、既存ルールとの矛盾があれば指摘してください。
+```
+
+### プロンプト例②：幻覚API事故の再発防止（違反の学習）
+
+```markdown
+先ほどあなたは存在しない FastAPI の API を使って実装し、失敗しました。
+hybrid_search で事前確認していれば防げたはずです。
+原因を1行で述べ、同種の事故を防ぐルールを CLAUDE.md の NEVER 節に
+1行追加する形で提案してください。
+```
+
+### プロンプト例③：3段階ワークフローへの組み込み
+
+```markdown
+私の開発フローは 設計→実装→レビュー の3段階です。各段階で MAGATAMA の
+どのツール（read_external_graph / analyze_impact / hybrid_search /
+generate_handoff / analyze_quality / find_hotspots / session_recall）を
+どの順で使うべきか、「段階別 MAGATAMA 利用手順」として CLAUDE.md に
+追記する原稿を書いてください。トークン最小化を最優先とします。
+```
+
+### プロンプト例④：責任分界の固定（comP・Claude メモリーとの棲み分け）
+
+```markdown
+CLAUDE.md に以下の1行を追記してください：
+「記憶の正は3層で管理する。コード構造と影響分析の正は MAGATAMA（グラフ）、
+セッション記録の正は comP（.comp/）、人物・好みの正は Claude メモリーとし、
+層をまたいで同じ情報を重複記録しない」
+```
+
+> 💡 CLAUDE.mdは「失敗のたびに1行育てる」もの。違反→原因→ルール追加のループを回すのが最短です。
 
 ---
 
 ## 🚀 セットアップ（実例つき）
 
-ゴール: **① comP でコードをインデックス化 → ② MAGATAMA を入れる →
-③ AI ツールに MCP として登録 → ④ 動作確認**。
+ゴール：**① comPでコードを索引化 → ② MAGATAMAをインストール → ③ AIツールにMCPサーバー登録 → ④ 動作確認**
 
-### Step 1. comP を VSCode 拡張として入れて、インデックス化を始める
+### Step 1. comPをVSCode拡張として導入し、索引を作る
 
-1. VSCode に comP 拡張（`tsucky230.comp-vscode`）をインストールします。
-   （[comP リポジトリ](https://github.com/tsucky230/comP) の手順／VSIX を参照）
-2. 対象プロジェクトのフォルダを VSCode で開きます。
-3. comP が自動でワークスペースを解析し、
-   **`<プロジェクト>/.comp/index.db`** に地図を書き出します（WAL モードの SQLite）。
-   大きなリポジトリでも初回だけ時間がかかり、以降は変更分のみ増分更新されます。
+1. VSCodeにcomP拡張（`tsucky230.comp-vscode`）をインストール（手順は [comPリポジトリ](https://github.com/tsucky230/comP) 参照）
+2. プロジェクトフォルダをVSCodeで開く
+3. comPが自動で解析し、**`<project>/.comp/index.db`**（SQLite, WALモード）に地図を書き出す。初回のみ時間がかかり、以降は差分更新
 
-> 確認: エクスプローラに `.comp/` フォルダと `index.db` ができていれば成功です。
+> 確認：`.comp/` フォルダに `index.db` があればOK。
 
-comP 自身を MCP として AI に直接つなぐ場合は、`.mcp.json` にこう書きます
-（このリポジトリの実例）:
+comP自体をMCPサーバーとしてAIに繋ぐ場合の `.mcp.json`（本リポジトリでの実例）：
 
 ```json
 {
@@ -160,32 +270,31 @@ comP 自身を MCP として AI に直接つなぐ場合は、`.mcp.json` にこ
 }
 ```
 
-> `COMP_WORKSPACE_ROOT` をインデックス対象のフォルダに合わせてください。
-> パスのバージョン番号（`0.8.1`）は導入した拡張のバージョンに置き換えます。
+> `COMP_WORKSPACE_ROOT` は索引化したいフォルダに、パス中のバージョン（`0.8.1`）はインストール済みの拡張バージョンに合わせてください。
 
-### Step 2. MAGATAMA をインストール
+### Step 2. MAGATAMAをインストール
 
 ```bash
-# 開発版（このリポジトリ）を使う場合
+# ソースから（本リポジトリ）
 git clone https://github.com/tsucky230/MAGATAMA.git
 cd MAGATAMA
-uv sync --all-packages       # uv が未導入なら https://astral.sh/uv
+uv sync --all-packages       # uv未導入なら https://astral.sh/uv
 
-# もしくは PyPI から
+# または PyPI から
 pip install magatama
 ```
 
-動作確認:
+確認：
 
 ```bash
-magatama info        # バージョン・ツール数（38）が表示されれば OK
+magatama info        # バージョンとツール数（39）が表示されればOK
 ```
 
-### Step 3. AI ツールに MCP として登録
+### Step 3. MCPサーバーとして登録
 
-#### Claude Desktop（Windows の例）
+#### Claude Desktop（Windows）
 
-`%APPDATA%\Claude\claude_desktop_config.json`:
+`%APPDATA%\Claude\claude_desktop_config.json`：
 
 ```json
 {
@@ -200,7 +309,7 @@ magatama info        # バージョン・ツール数（38）が表示されれ�
 
 #### GitHub Copilot / VS Code
 
-プロジェクトルートの `.vscode/mcp.json`:
+プロジェクトルートの `.vscode/mcp.json`：
 
 ```json
 {
@@ -213,80 +322,76 @@ magatama info        # バージョン・ツール数（38）が表示されれ�
 }
 ```
 
-PyPI 版を入れた場合は `"command": "magatama", "args": ["serve"]` でも可。
-他ツール（Cursor / Continue）や SSE モードは
-[AI ツール設定ガイド](docs/AI_TOOLS_SETUP.md) を参照してください。
+PyPI導入なら `"command": "magatama", "args": ["serve"]` でOK。Cursor / Continue・SSEモードは [AIツール設定ガイド](docs/AI_TOOLS_SETUP.md) 参照。
 
-### Step 4. つないで使う
+### Step 4. 接続して使う
 
-AI ツールを再起動し、チャットからこう頼みます:
+AIツールを再起動し、チャットで：
 
-```text
+```
 get_external_graph_info(path="e:/dev/myproject") で comP の地図を確認して。
-問題なければ read_external_graph で取り込んで、このプロジェクトを概観して。
+問題なければ read_external_graph して、プロジェクトの概要を教えて
 ```
 
-これで LLM が comP の地図を MAGATAMA に取り込み、全ソースを読まずに概観します。
+LLMがcomPの地図をMAGATAMAに取り込み、**全ソースを読まずに**プロジェクトを概観します。
 
 ---
 
-## 🎬 使ってみる: プロンプト → 出力サンプル
+## 🎬 試してみる：プロンプト→出力例
 
-実際の操作イメージです（AI ツールのチャットに投げる想定）。
-
-### 例 A: プロジェクト概観
+### 例A：プロジェクト概要
 
 **プロンプト**
 
-```text
-read_external_graph(path="e:/dev/MAGATAMA") で取り込んでから、
-get_graph_stats でこのプロジェクトの規模と構成を要約して。
+```
+read_external_graph(path="e:/dev/MAGATAMA") してから get_graph_stats で
+このプロジェクトの規模と構造を要約して
 ```
 
-**出力サンプル（実データ）**
+**出力例（実データ）**
 
-```text
-✓ 取り込み完了（203 ファイル / 3,829 シンボル）
+```
+✓ 取り込み完了（203ファイル / 3,829シンボル）
 - 言語: Python 123 / Markdown 38 / JSON 36 / YAML 1
-- 最大モジュール: framework_usecase.py（133 シンボル）
-- 構成: packages/magatama-core（エンジン）＋ packages/magatama-mcp（MCP+CLI）
+- 最大モジュール: framework_usecase.py（133シンボル）
+- 構成: packages/magatama-core（エンジン）+ packages/magatama-mcp（MCP+CLI）
 → Clean Architecture（domain → application → infrastructure → interface）
 ```
 
-### 例 B: 影響範囲の調査
+### 例B：影響分析
 
 **プロンプト**
 
-```text
-search_entities(query="save_graph") で対象を特定して、
-analyze_impact でこの関数を変更したときの影響範囲を教えて。
+```
+search_entities(query="save_graph") で対象を特定し、analyze_impact で
+この関数を変更した場合の影響範囲を教えて
 ```
 
-**出力サンプル**
+**出力例**
 
-```text
+```
 対象: _handle_save_graph (mcp_server.py:442)
-影響を受ける可能性: save コマンド（cli/main.py）, parse --output の保存処理
-→ 変更時はこの 2 経路のテストを確認してください。
+影響の可能性: `save` コマンド (cli/main.py)、parse --output の保存経路
+→ 変更時はこの2経路のテストを確認
 ```
 
-### 例 C: フレームワーク作法の確認（YATA 由来）
+### 例C：フレームワークのイディオム（YATA由来）
 
 **プロンプト**
 
-```text
-hybrid_search(query="FastAPI dependency injection") で、
-公式の作法と、うちのコードの該当箇所を横断検索して。
+```
+hybrid_search(query="FastAPI dependency injection") で公式の流儀と、
+自分のコードでの該当箇所を横断検索して
 ```
 
-**出力サンプル**
+**出力例**
 
-```text
-[Framework] FastAPI: Depends() を関数引数に宣言（Router/Dependency）
-[Local]    （該当なし）→ まだ DI を使っていません。導入候補: routes 層
+```
+[Framework] FastAPI: Depends() を関数引数で宣言（Router/Dependency）
+[Local]    （該当なし）→ DI未使用。導入候補: routes 層
 ```
 
-> CLI だけで試したい場合は、まず地図を JSON 化して再利用できます:
+> CLIだけで試したい場合は、地図をJSONに永続化して使い回せます：
 >
 > ```bash
 > magatama parse ./src -o graph.json
@@ -296,95 +401,61 @@ hybrid_search(query="FastAPI dependency injection") で、
 
 ---
 
-## 🔧 MCP Tools（38）
+## 🔧 MCPツール（39）
 
-LLM はこれらから**必要なものだけ**を自律的に選んで呼びます。
+LLMはこの中から**必要なツールだけを自律的に選んで**使います。
 
-<details>
-<summary><b>🔌 comP Bridge（4）— 地図と記憶の取り込み</b></summary>
+**🔌 comP Bridge（5）— 地図と記憶の取り込み**
 
-| Tool | 説明 |
-|------|------|
-| `read_external_graph` | comP インデックスを知識グラフに読み込む（`mode=replace`/`merge`） |
-| `read_external_sessions` | comP の会話履歴を SESSION ノードとして取り込み、触れたファイル・シンボルと DISCUSSED で接続 |
-| `generate_handoff` | 直近セッション + git 現状から引継ぎ Markdown を生成し comP 履歴に記録（トークン予算指定可） |
-| `get_external_graph_info` | comP インデックスの統計を確認（ロードなし・鮮度チェック） |
+| ツール | 説明 |
+| --- | --- |
+| `read_external_graph` | comP索引を知識グラフに読み込む（`mode=replace`/`merge`） |
+| `read_external_sessions` | comP会話履歴をSESSIONノードとして取り込み、言及ファイル・シンボルと接続（DISCUSSEDエッジ） |
+| `get_entity_history` | ファイル/シンボルを「過去にどの依頼が触ったか」（新しい順）＋現在の影響分析を1コールで返す |
+| `generate_handoff` | 引き継ぎMarkdownを生成（直近セッション＋git状態、トークン予算制御）。全文は`.magatama/handoffs/`、履歴には要約1行を記録 |
+| `get_external_graph_info` | 読み込まずにcomP索引の統計を確認（鮮度チェック） |
 
-</details>
+**📁 コア（10）— 解析と検索**
 
-<details>
-<summary><b>📁 基本（10）— 解析と検索</b></summary>
+`parse_file` / `parse_directory` / `search_entities` / `get_entity` / `get_related_entities` / `get_graph_stats` / `save_graph` / `load_graph` / `list_supported_languages` / `get_language_for_file`
 
-| Tool | 説明 |
-|------|------|
-| `parse_file` / `parse_directory` | ソースを解析してエンティティ抽出 |
-| `search_entities` / `get_entity` | 名前・型で検索 / 詳細取得 |
-| `get_related_entities` | 隣接ノード（関係先）取得 |
-| `get_graph_stats` | グラフ統計 |
-| `save_graph` / `load_graph` | JSON への保存／読込 |
-| `list_supported_languages` / `get_language_for_file` | 24 言語の一覧 / 判定 |
+**🧠 フレームワーク知識（7）— 47フレームワークの内蔵地図**
 
-</details>
+`list_frameworks` / `search_framework_docs` / `search_all_frameworks` / `find_code_patterns` / `get_framework_entity_context` / `framework_semantic_search_tool` / `framework_find_by_pattern`
 
-<details>
-<summary><b>🧠 フレームワーク知識（7）— 47 FW の作り付け地図</b></summary>
+**🔍 検索・コンテキスト（4）／📚 ドキュメント・推薦（4）**
 
-`list_frameworks` / `search_framework_docs` / `search_all_frameworks` /
-`find_code_patterns` / `get_framework_entity_context` /
-`framework_semantic_search_tool` / `framework_find_by_pattern`
+`semantic_search` / `find_by_pattern` / `get_code_context` / `find_usage_examples` ・ `generate_documentation` / `recommend_code` / `analyze_impact` / `find_critical_paths`
 
-</details>
+**🔎 ハイブリッド検索・品質（4）／🤖 AI支援（5）**
 
-<details>
-<summary><b>🔍 検索・コンテキスト（4）/ 📚 ドキュメント・推奨（4）</b></summary>
+`hybrid_search` / `analyze_quality` / `track_evolution` / `find_hotspots` ・ `get_coding_guidance` / `detect_patterns` / `check_api_compatibility` / `navigate_code` / `get_call_graph`
 
-`semantic_search` / `find_by_pattern` / `get_code_context` /
-`find_usage_examples` ・ `generate_documentation` / `recommend_code` /
-`analyze_impact` / `find_critical_paths`
-
-</details>
-
-<details>
-<summary><b>🔎 ハイブリッド検索・品質（4）/ 🤖 AI 支援（5）</b></summary>
-
-`hybrid_search` / `analyze_quality` / `track_evolution` / `find_hotspots` ・
-`get_coding_guidance` / `detect_patterns` / `check_api_compatibility` /
-`navigate_code` / `get_call_graph`
-
-</details>
-
-**MCP Prompts**: `analyze_codebase` / `explain_entity` / `find_dependencies`
-**MCP Resources**: `magatama://graph/stats`
+**MCP Prompts**: `analyze_codebase` / `explain_entity` / `find_dependencies`　**MCP Resources**: `magatama://graph/stats`
 
 ---
 
-## 💻 CLI コマンド（人が手で叩く用）
+## 💻 CLIコマンド（ターミナルの人間向け）
 
 | コマンド | 何をするか | 例 |
-|---------|-----------|----|
-| `parse` | 解析して知識グラフを構築（`-o` で保存） | `magatama parse ./src -o graph.json` |
+| --- | --- | --- |
+| `parse` | 知識グラフを構築（`-o` で保存） | `magatama parse ./src -o graph.json` |
 | `query` | エンティティ検索 | `magatama query "User" -t class -g graph.json` |
 | `stats` | 統計表示 | `magatama stats -g graph.json` |
-| `serve` | MCP サーバ起動 | `magatama serve` / `--transport sse --port 8080` |
-| `watch` | 変更を監視して自動更新（`-o` で自動保存） | `magatama watch ./src -o graph.json` |
-| `patrol` | comP の地図を定期巡回し、差分＋影響分析を comP の会話履歴にメモ | `magatama patrol . --interval 600` |
-| `validate` | グラフ整合性チェック（`--repair` で修復） | `magatama validate -g graph.json --repair` |
-| `info` | サーバ情報・ツール一覧 | `magatama info` |
+| `serve` | MCPサーバー起動 | `magatama serve` / `--transport sse --port 8080` |
+| `watch` | 監視と自動更新（`-o` で自動保存） | `magatama watch ./src -o graph.json` |
+| `patrol` | comPの地図を定期巡回し、差分＋影響分析をcomP履歴に記録 | `magatama patrol . --interval 600` |
+| `validate` | グラフ整合性チェック（`--repair`） | `magatama validate -g graph.json --repair` |
+| `info` | サーバー情報・ツール一覧 | `magatama info` |
 
-> ヒント: `parse`/`query`/`stats` は**別プロセスで状態を持ちません**。
-> `parse -o` で地図を JSON 化し、`query`/`stats` の `--graph` で読み込んで使います。
-> AI 連携では代わりに `serve` の常駐サーバがグラフを保持し、LLM がツールを呼びます。
+> 注：`parse`/`query`/`stats` は**プロセス間で状態を持ちません**。`parse -o` でJSONに書き出し、`query`/`stats` の `--graph` で読み込んでください。AI連携では常駐の `serve` プロセスがグラフを保持します。
 
 ---
 
 ## 🏗️ 対応言語・フレームワーク
 
-- **24 言語**: Python, TypeScript/JS, Rust, Go, Java, Kotlin, Scala, C/C++, C#,
-  Swift, Objective-C, PHP, Ruby, Dart, Elixir, Haskell, Julia, Lua, Groovy,
-  SQL, Zig, YAML
-- **47 フレームワーク**（457K+ エンティティ）: Django/Flask/FastAPI, React/Vue/
-  Angular/Next.js, Actix/Axum/Tauri, Gin/Echo, Phoenix, Spring Boot, Rails,
-  Laravel, SwiftUI, Jetpack Compose ほか
+- **24言語**: Python, TypeScript/JS, Rust, Go, Java, Kotlin, Scala, C/C++, C#, Swift, Objective-C, PHP, Ruby, Dart, Elixir, Haskell, Julia, Lua, Groovy, SQL, Zig, YAML
+- **47フレームワーク**（457K+エンティティ）: Django/Flask/FastAPI, React/Vue/Angular/Next.js, Actix/Axum/Tauri, Gin/Echo, Phoenix, Spring Boot, Rails, Laravel, SwiftUI, Jetpack Compose 等
 
 ---
 
@@ -392,31 +463,29 @@ LLM はこれらから**必要なものだけ**を自律的に選んで呼びま
 
 ```bash
 uv sync --all-packages
-uv run pytest                         # テスト（918 件）
+uv run pytest                         # テスト（918）
 uv run pytest --cov=magatama_core --cov=magatama_mcp
 uv run ruff check . && uv run mypy packages/
 ```
 
-```text
+```
 MAGATAMA/
 ├── packages/
 │   ├── magatama-core/   # 知識グラフエンジン（ライブラリ）
-│   └── magatama-mcp/    # MCP サーバ＋CLI（magatama コマンド）
-├── steering/            # プロジェクトメモリ・規約
-└── storage/specs/       # 設計ドキュメント（要件・C4図・ADR）
+│   └── magatama-mcp/    # MCPサーバー + CLI（magatama コマンド）
+├── steering/            # プロジェクトメモリ・ルール
+└── storage/specs/       # 設計ドキュメント（要件、C4、ADR）
 ```
 
-設計は **Clean Architecture**。詳細・実測は [OVERVIEW_jp.md](OVERVIEW_jp.md)。
+**Clean Architecture** で構築。詳細と計測は [OVERVIEW.md](OVERVIEW.md)。
 
 ---
 
-## 📜 ライセンス / 謝辞
+## 📜 ライセンス／クレジット
 
-MIT License。本プロジェクトは
-[YATA](https://github.com/nahisaho/YATA)（Copyright (c) 2025 nahisaho）を
-MIT のもとフォークし、comP Bridge を追加したものです。
+MITライセンス。本プロジェクトは [YATA](https://github.com/nahisaho/YATA)（Copyright (c) 2025 nahisaho, MIT License）のフォークにcomP Bridgeを追加したものです。
 
-- [YATA](https://github.com/nahisaho/YATA) by **nahisaho** — 基盤
+- [YATA](https://github.com/nahisaho/YATA) by **nahisaho** — 土台
 - [comP](https://github.com/tsucky230/comP) by **tsucky230** — コードインデクサー
 - [Model Context Protocol](https://modelcontextprotocol.io/) / Tree-sitter / NetworkX / FastMCP
 
@@ -424,28 +493,23 @@ MIT のもとフォークし、comP Bridge を追加したものです。
 
 ## 📖 ドキュメント
 
-- [プロジェクト概観＋トークン実測（OVERVIEW_jp.md）](OVERVIEW_jp.md)
-- [AI ツール設定ガイド](docs/AI_TOOLS_SETUP.md)
+- [プロジェクト概要＋トークン計測（OVERVIEW.md）](OVERVIEW.md)
+- [AIツール設定ガイド](docs/AI_TOOLS_SETUP.md)
 - [知識データベース更新ガイド](docs/KNOWLEDGE_UPDATE_GUIDE.md)
 - [トラブルシューティング](docs/TROUBLESHOOTING.md)
 - [English README](README.md) / [CHANGELOG](CHANGELOG.md)
 
 ---
 
-## 💖 このプロジェクトを応援する
+## 💖 支援する
 
-MAGATAMA は無料・オープンソース（MIT）です。役に立ったら、開発の応援をいただけると嬉しいです:
+MAGATAMAは完全無料・オープンソースです。役に立ったら開発を支援していただけませんか？
 
-- ☕ **[GitHub Sponsors](https://github.com/sponsors/tsucky230)** — コーヒー1杯ぶんの支援で継続開発を応援
-- 💖 **このリポジトリに⭐スター** — MAGATAMA を広めるのに役立ちます
-
-あなたの応援が、開発の加速・保守・新機能につながります。ありがとうございます！🙏
+- ☕ **[GitHub スポンサー](https://github.com/sponsors/tsucky230)** — 開発を応援
+- 💖 **このリポジトリに Star をつける** — 他の人に知らせてください
 
 ---
 
-## 📛 名前の由来
+## 📛 名前について
 
-**YATA（八咫）** は「非常に大きい」を意味する古語。広大なコードと膨大な
-フレームワーク知識を丸ごと扱う思想を表します。**MAGATAMA（勾玉）** は
-「小さな石に強い力を凝縮したもの」。広大な情報から本質だけを抽出し、高密度に
-圧縮して LLM へ届ける——三種の神器のひとつ、勾玉のように。
+**YATA（八咫）** は「非常に大きい」を表す古語で、巨大なコードベースとフレームワーク知識を丸ごと扱う志を表します。**MAGATAMA（勾玉）** は「大きな力を凝縮した小さな石」——その広大さから本質を抽出し、高密度でLLMに届ける役割を表します。三種の神器のひとつ、勾玉のように。
