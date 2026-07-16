@@ -10,6 +10,9 @@ from pathlib import Path
 from typing import Any, ClassVar
 
 from magatama_core.domain.entities import Entity, EntityType, RelationshipType
+from magatama_core.domain.repositories.knowledge_graph_repository import (
+    KnowledgeGraphRepository,
+)
 from magatama_core.domain.value_objects import EntityId
 from magatama_core.infrastructure.storage import NetworkXKnowledgeGraph
 
@@ -1654,8 +1657,12 @@ class DependencyImpactUseCase:
     impact = direct_count * 1.0 + sum(indirect_count[d] * (0.5 ^ d)) for d in 1..depth
     """
 
-    def __init__(self, knowledge_graph: NetworkXKnowledgeGraph) -> None:
+    def __init__(self, knowledge_graph: KnowledgeGraphRepository) -> None:
         """Initialize the use case.
+
+        Only the repository interface (entities/relationships) is used, so
+        any KnowledgeGraphRepository works — EntityHistoryUseCase passes the
+        graph it was given, which is typed as the repository protocol.
 
         Args:
             knowledge_graph: Knowledge graph to analyze
