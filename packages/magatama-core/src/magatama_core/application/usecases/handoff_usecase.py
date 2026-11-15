@@ -85,9 +85,13 @@ class GenerateHandoffUseCase:
             result.errors.append(f"セッション履歴の読み取りに失敗: {e}")
 
         # -- git state ---------------------------------------------------
-        branch = _git(workspace, "rev-parse", "--abbrev-ref", "HEAD")
-        status = _git(workspace, "status", "--porcelain")
-        log = _git(workspace, "log", "--oneline", "-10")
+        repo_root = _git(workspace, "rev-parse", "--show-toplevel")
+        if repo_root and Path(repo_root).resolve() == workspace.resolve():
+            branch = _git(workspace, "rev-parse", "--abbrev-ref", "HEAD")
+            status = _git(workspace, "status", "--porcelain")
+            log = _git(workspace, "log", "--oneline", "-10")
+        else:
+            branch = status = log = ""
 
         # -- assemble within budget --------------------------------------
         now = datetime.now(tz=UTC).strftime("%Y-%m-%d %H:%M UTC")

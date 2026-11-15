@@ -42,6 +42,7 @@ class SessionRecord:
     symbols: list[str] = field(default_factory=list)
     timestamp_ms: int | None = None
     outcome: str = ""
+    trace: dict[str, object] = field(default_factory=dict)
 
 
 @dataclass
@@ -97,6 +98,34 @@ def _str_list(value: object) -> list[str]:
     if not isinstance(value, list):
         return []
     return [v for v in value if isinstance(v, str) and v]
+
+
+def _trace_fields(record: dict[str, object]) -> dict[str, object]:
+    """Keep selected comP provenance fields without copying arbitrary JSON."""
+    trace: dict[str, object] = {}
+    for key in ("agent", "session_id", "turn_id", "parent_turn_id", "kind", "commit"):
+        value = record.get(key)
+        if isinstance(value, str) and value:
+            trace[key] = value
+    test_exit = record.get("test_exit")
+    if isinstance(test_exit, int) and not isinstance(test_exit, bool):
+        trace["test_exit"] = test_exit
+    rules = record.get("rules")
+    if isinstance(rules, list):
+        clean_rules = []
+        for rule in rules:
+            if not isinstance(rule, dict):
+                continue
+            clean = {
+                key: value
+                for key in ("file", "heading", "hash")
+                if isinstance(value := rule.get(key), str) and value
+            }
+            if clean:
+                clean_rules.append(clean)
+        if clean_rules:
+            trace["rules"] = clean_rules
+    return trace
 
 
 class CompSessionReader:
@@ -163,6 +192,7 @@ class CompSessionReader:
                         symbols=_str_list(call.get("symbols")),
                         timestamp_ms=timestamp if isinstance(timestamp, int) else None,
                         outcome=str(outcome),
+                        trace=_trace_fields(call),
                     )
                 )
 
@@ -208,5 +238,6 @@ class CompSessionReader:
                     symbols=_str_list(record.get("symbols")),
                     timestamp_ms=ts if isinstance(ts, int) else None,
                     outcome=str(outcome),
+                    trace=_trace_fields(record),
                 )
             )

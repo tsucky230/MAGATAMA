@@ -6,6 +6,9 @@ import re
 from dataclasses import dataclass, field
 from pathlib import Path
 
+from magatama_core.application.usecases.change_scope_usecase import (
+    normalize_comp_path as _norm_path,
+)
 from magatama_core.domain.entities.base import Entity, EntityType
 from magatama_core.domain.entities.relationships import Relationship, RelationshipType
 from magatama_core.domain.errors import EntityAlreadyExistsError
@@ -99,38 +102,33 @@ class LoadCompSessionsResult:
     discussed_links: int = 0
     unmatched_files: int = 0
     unmatched_symbols: int = 0
+    ambiguous_files: int = 0
+    ambiguous_symbols: int = 0
     sources: list[str] = field(default_factory=list)
     skipped_records: int = 0
     errors: list[str] = field(default_factory=list)
-
-
-def _norm_path(path: str) -> str:
-    p = path.replace("\\", "/").lower()
-    # comP daemon auto-records sometimes use extended-length Windows paths
-    # (//?/E:/dev/...); strip the prefix so they compare like normal paths.
-    if p.startswith("//?/"):
-        p = p[4:]
-    return p
 
 
 def _match_file_targets(
     key: str,
     file_targets: dict[str, set[EntityId]],
     file_suffix_targets: list[tuple[str, EntityId]],
-) -> set[EntityId]:
+) -> tuple[set[EntityId], bool]:
     """Match a normalized record path against graph MODULE paths.
 
     Tries exact match first, then suffix match in both directions: the
     record path may be relative while the graph path is absolute, or
     (daemon auto-records) absolute while the graph path is relative.
     """
-    targets = set(file_targets.get(key, set()))
-    if not targets:
+    candidates = set(file_targets.get(key, set()))
+    if not candidates:
         suffix = "/" + key
-        targets = {eid for k, eid in file_suffix_targets if k.endswith(suffix)}
-    if not targets:
-        targets = {eid for k, eid in file_suffix_targets if k and key.endswith("/" + k)}
-    return targets
+        candidates = {eid for k, eid in file_suffix_targets if k.endswith(suffix)}
+    if not candidates:
+        candidates = {eid for k, eid in file_suffix_targets if k and key.endswith("/" + k)}
+    # A basename may occur in several indexed roots. Guessing would attach
+    # history to the wrong code and make subsequent impact reviews misleading.
+    return (candidates, False) if len(candidates) == 1 else (set(), len(candidates) > 1)
 
 
 class LoadCompSessionsUseCase:
@@ -178,7 +176,7 @@ class LoadCompSessionsUseCase:
         # match any non-module, non-session entity by exact name.
         file_targets: dict[str, set[EntityId]] = {}
         file_suffix_targets: list[tuple[str, EntityId]] = []
-        symbol_targets: dict[str, set[EntityId]] = {}
+        symbol_targets: dict[str, list[Entity]] = {}
         for entity in self._graph.entities.all():
             if entity.type == EntityType.SESSION:
                 continue
@@ -187,7 +185,7 @@ class LoadCompSessionsUseCase:
                     file_targets.setdefault(key, set()).add(entity.id)
                     file_suffix_targets.append((key, entity.id))
             else:
-                symbol_targets.setdefault(entity.name, set()).add(entity.id)
+                symbol_targets.setdefault(entity.name, []).append(entity)
 
         result = LoadCompSessionsResult(
             success=True,
@@ -206,35 +204,63 @@ class LoadCompSessionsUseCase:
             result.sessions_loaded += 1
 
             linked: set[EntityId] = set()
+            linked_file_paths: set[str] = set()
             for f in set(record.files):
-                targets = _match_file_targets(_norm_path(f), file_targets, file_suffix_targets)
+                targets, ambiguous = _match_file_targets(
+                    _norm_path(f), file_targets, file_suffix_targets
+                )
                 if not targets:
-                    result.unmatched_files += 1
+                    if ambiguous:
+                        result.ambiguous_files += 1
+                    else:
+                        result.unmatched_files += 1
                     continue
                 for target_id in targets - linked:
+                    target = self._graph.entities.get(target_id)
+                    if target is not None:
+                        linked_file_paths.add(_norm_path(target.location.file))
                     self._graph.relationships.add(
                         Relationship(
                             source_id=record.entity.id,
                             target_id=target_id,
                             type=RelationshipType.DISCUSSED,
-                            metadata={"origin": "comp-session", "kind": "file", "mention": f},
+                            metadata={
+                                "origin": "comp-session",
+                                "kind": "file",
+                                "mention": f,
+                                "trace": record.trace,
+                            },
                         )
                     )
                     linked.add(target_id)
                     result.discussed_links += 1
 
             for s in set(record.symbols):
-                targets = symbol_targets.get(s, set())
-                if not targets:
+                candidates = symbol_targets.get(s, [])
+                symbol_matches = [
+                    entity
+                    for entity in candidates
+                    if not linked_file_paths
+                    or _norm_path(entity.location.file) in linked_file_paths
+                ]
+                if not symbol_matches:
                     result.unmatched_symbols += 1
                     continue
-                for target_id in targets - linked:
+                if len(symbol_matches) > 1:
+                    result.ambiguous_symbols += 1
+                    continue
+                for target_id in {entity.id for entity in symbol_matches} - linked:
                     self._graph.relationships.add(
                         Relationship(
                             source_id=record.entity.id,
                             target_id=target_id,
                             type=RelationshipType.DISCUSSED,
-                            metadata={"origin": "comp-session", "kind": "symbol", "mention": s},
+                            metadata={
+                                "origin": "comp-session",
+                                "kind": "symbol",
+                                "mention": s,
+                                "trace": record.trace,
+                            },
                         )
                     )
                     linked.add(target_id)
@@ -281,6 +307,22 @@ class EntityHistoryUseCase:
                     "Load data first with read_external_graph / read_external_sessions."
                 ],
             )
+        if len(targets) > 1:
+            files = sorted({entity.location.file for entity in targets})
+            return EntityHistoryResult(
+                success=False,
+                query=name,
+                matched_entities=[
+                    {
+                        "id": e.id.value,
+                        "name": e.name,
+                        "type": e.type.value,
+                        "file": e.location.file,
+                    }
+                    for e in targets
+                ],
+                errors=[f"Ambiguous entity {name!r}; use a full file path. Matches: {files}"],
+            )
 
         result.matched_entities = [
             {
@@ -310,6 +352,7 @@ class EntityHistoryUseCase:
                         "outcome": docstring[m.end() :] if m else docstring,
                         "when": m.group(1) if m else "",
                         "mentions": [],
+                        "trace": (rel.metadata or {}).get("trace", {}),
                     }
                     entries[session.id.value] = entry
                 mentions = entry["mentions"]
@@ -335,7 +378,7 @@ class EntityHistoryUseCase:
                     DependencyImpactUseCase,
                 )
 
-                r = DependencyImpactUseCase(self._graph).analyze_impact(entity_name=name)
+                r = DependencyImpactUseCase(self._graph).analyze_impact(entity_name=targets[0].name)
                 result.impact = {
                     "impact_score": r.impact_score,
                     "risk_level": r.risk_level,
@@ -354,18 +397,21 @@ class EntityHistoryUseCase:
                 targets[entity.id.value] = entity
 
         key = _norm_path(name)
+        modules: list[tuple[str, Entity]] = []
         for entity in self._graph.entities.all():
-            if entity.type != EntityType.MODULE or entity.id.value in targets:
+            if entity.type != EntityType.MODULE:
                 continue
             # File MODULE entities are named with their path. Deliberately
             # not matched on location.file: markdown headings etc. are also
             # MODULE-typed and share the file location, and matching them
             # would balloon the result with every section of the file.
             candidate = _norm_path(entity.name)
-            if (
-                candidate == key
-                or candidate.endswith("/" + key)
-                or (candidate and key.endswith("/" + candidate))
-            ):
+            modules.append((candidate, entity))
+            if candidate == key:
+                targets[entity.id.value] = entity
+        if targets:
+            return list(targets.values())
+        for candidate, entity in modules:
+            if candidate.endswith("/" + key) or (candidate and key.endswith("/" + candidate)):
                 targets[entity.id.value] = entity
         return list(targets.values())

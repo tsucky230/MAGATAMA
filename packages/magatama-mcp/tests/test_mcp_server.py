@@ -345,6 +345,7 @@ class TestCompBridgeToolsLegacyServer:
         assert "read_external_sessions" in tool_names
         assert "get_entity_history" in tool_names
         assert "get_external_graph_info" in tool_names
+        assert "analyze_change_scope" in tool_names
 
     @pytest.mark.asyncio
     async def test_get_entity_history_not_found(self, server: MagatamaMcpServer) -> None:
@@ -415,6 +416,16 @@ class TestCompBridgeToolsLegacyServer:
     ) -> None:
         result = await server.call_tool("get_external_graph_info", {"path": str(tmp_path / "x")})
         assert result["exists"] is False
+
+    @pytest.mark.asyncio
+    async def test_analyze_change_scope_not_found(
+        self, server: MagatamaMcpServer, tmp_path
+    ) -> None:
+        result = await server.call_tool(
+            "analyze_change_scope", {"path": str(tmp_path / "x"), "files": ["src/app.py"]}
+        )
+        assert result["success"] is False
+        assert result["risk_level"] == "unknown"
 
     @pytest.mark.asyncio
     async def test_read_external_sessions_roundtrip(

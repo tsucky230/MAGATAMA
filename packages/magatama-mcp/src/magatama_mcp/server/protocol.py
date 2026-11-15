@@ -4,11 +4,13 @@ This module provides the actual MCP protocol implementation
 using the official MCP Python SDK (FastMCP).
 """
 
+from dataclasses import asdict
 from pathlib import Path
 from typing import Any
 
 from mcp.server import FastMCP
 
+from magatama_core.application.usecases.change_scope_usecase import ChangeScopeUseCase
 from magatama_core.application.usecases.comp_usecase import (
     EntityHistoryUseCase,
     LoadCompIndexUseCase,
@@ -1601,6 +1603,7 @@ def create_mcp_server(name: str = "magatama") -> FastMCP:
     load_comp_index_usecase = LoadCompIndexUseCase(knowledge_graph=knowledge_graph)
     load_comp_sessions_usecase = LoadCompSessionsUseCase(knowledge_graph=knowledge_graph)
     entity_history_usecase = EntityHistoryUseCase(knowledge_graph=knowledge_graph)
+    change_scope_usecase = ChangeScopeUseCase(knowledge_graph=knowledge_graph)
     generate_handoff_usecase = GenerateHandoffUseCase()
 
     @mcp.tool()
@@ -1664,10 +1667,39 @@ def create_mcp_server(name: str = "magatama") -> FastMCP:
             "discussed_links": result.discussed_links,
             "unmatched_files": result.unmatched_files,
             "unmatched_symbols": result.unmatched_symbols,
+            "ambiguous_files": result.ambiguous_files,
+            "ambiguous_symbols": result.ambiguous_symbols,
             "sources": result.sources,
             "skipped_records": result.skipped_records,
             "errors": result.errors,
         }
+
+    @mcp.tool()
+    def analyze_change_scope(path: str, files: list[str], depth: int = 3) -> dict[str, Any]:
+        """Find code affected by changes to files in a comP index.
+
+        Load the current index, then follow dependency edges from every symbol
+        in ``files`` to its callers and users. Main-root paths are relative;
+        additional-root paths are absolute. Ambiguous or absent paths fail
+        with risk=unknown. The score is a heuristic, not a safety guarantee.
+        ``depth`` is clamped to 1..10. Returns affected symbols with the edge
+        and source symbol that explain each result; it never modifies files.
+        """
+        loaded = load_comp_index_usecase.execute(path, mode="replace")
+        if not loaded.success:
+            return {"success": False, "risk_level": "unknown", "errors": loaded.errors}
+        parent = Path(loaded.db_path).parent
+        workspace_root = parent.parent if parent.name == ".comp" else parent
+        result = asdict(
+            change_scope_usecase.execute(files, depth=depth, workspace_root=str(workspace_root))
+        )
+        result["db_path"] = loaded.db_path
+        result["comp_metadata"] = loaded.comp_metadata
+        result["skipped_edges"] = loaded.skipped_edges
+        if loaded.skipped_edges:
+            result["risk_level"] = "unknown"
+            result["errors"].append("Some index edges could not be loaded")
+        return result
 
     @mcp.tool()
     def get_entity_history(
@@ -1700,8 +1732,18 @@ def create_mcp_server(name: str = "magatama") -> FastMCP:
         if path:
             index_result = load_comp_index_usecase.execute(path, mode="replace")
             load_errors.extend(index_result.errors)
-            sessions_result = load_comp_sessions_usecase.execute(path, mode="replace")
-            load_errors.extend(sessions_result.errors)
+            if index_result.success:
+                sessions_result = load_comp_sessions_usecase.execute(path, mode="replace")
+                load_errors.extend(sessions_result.errors)
+            if load_errors:
+                return {
+                    "success": False,
+                    "query": name,
+                    "matched_entities": [],
+                    "history": [],
+                    "impact": None,
+                    "errors": load_errors,
+                }
         result = entity_history_usecase.execute(name, limit=limit, analyze=analyze)
         return {
             "success": result.success,

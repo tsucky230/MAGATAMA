@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="comP のコードグラフを MAGATAMA で変更前の確認に使う。波及候補とその根拠を、ファイルからたどれます。">
+  <title>MAGATAMA — その変更、どこまで届く？</title>
+  <link rel="stylesheet" href="site.css">
+</head>
+<body>
+  <a class="skip" href="#main">本文へ移動</a>
+  <header class="site-header">
+    <a class="brand" href="index_ja.html" aria-label="MAGATAMA ホーム"><span class="brand-mark">◈</span> MAGATAMA</a>
+    <nav aria-label="ページ内ナビゲーション">
+      <a href="#how">使い方</a>
+      <a href="#try">試す</a>
+      <a href="#evidence">数字の読み方</a>
+      <a href="index.html" lang="en">English</a>
+    </nav>
+  </header>
+
+  <main id="main">
+    <section class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow">comP × MAGATAMA</p>
+        <h1>直す場所は見つかった。<br><span>波及先は、見えていますか？</span></h1>
+        <p class="lead">変更は一つのファイルで終わるとは限りません。comP がコード間の関係を索引にし、MAGATAMA がそのグラフから呼び出し元や確認すべきファイルをたどります。各候補には、つながりの根拠も添えます。</p>
+        <div class="actions">
+          <a class="button primary" href="#try">自分のコードで試す <span aria-hidden="true">→</span></a>
+          <a class="button secondary" href="https://github.com/tsucky230/MAGATAMA">ソースを見る</a>
+        </div>
+        <p class="quiet">ローカルで解析。わからない箇所も明示し、レビューの出発点を作ります。</p>
+      </div>
+      <div class="hero-visual" aria-label="変更範囲の結果例">
+        <div class="terminal-bar"><span></span><span></span><span></span><strong>変更する前に</strong></div>
+        <div class="terminal-content">
+          <p class="terminal-label">変更対象</p>
+          <p class="path">shared/src/app.py <span class="tag">ライブラリ</span></p>
+          <div class="connector"><span></span> 呼び出し元 <span></span></div>
+          <p class="path">src/app.py <span class="tag">アプリ</span></p>
+          <div class="result-note"><strong>この呼び出し元を確認。</strong> 変更するシンボルへの直接の呼び出しが索引にあります。</div>
+        </div>
+        <p class="visual-caption">二つのルートを含むテストデータから作った説明例</p>
+      </div>
+    </section>
+
+    <section class="section" id="how">
+      <div class="section-heading">
+        <p class="eyebrow">変更前の手順</p>
+        <h2>ファイルのパスから、確認する場所へ。</h2>
+        <p>何を直し、どのテストを実行するかは開発者が決めます。その判断に必要な最初の手掛かりを、グラフから得られます。</p>
+      </div>
+      <div class="steps">
+        <article class="step"><span class="step-number">01</span><h3>comP が地図を作る</h3><p>ファイル、シンボル、依存関係をローカルの SQLite に索引します。コードを探すときは comP 自体の検索や影響グラフも使えます。</p></article>
+        <article class="step"><span class="step-number">02</span><h3>MAGATAMA が波及先をたどる</h3><p>変更予定のファイルを渡すと、索引済みの呼び出し元や利用箇所を追います。comP が複数ルートを索引していれば、ルートをまたぐ関係も対象です。</p></article>
+        <article class="step"><span class="step-number">03</span><h3>根拠を見て確認する</h3><p>候補ごとにファイル、距離、関係の種類、どのシンボルを経由したかを返します。そこから読むコードとテストを選べます。</p></article>
+      </div>
+    </section>
+
+    <section class="section story">
+      <div>
+        <p class="eyebrow">コードの関係だけではない</p>
+        <h2>以前の判断も、ファイルから探せる。</h2>
+        <p>comP の作業履歴があれば、MAGATAMA は過去の依頼を、その中で話題になったファイルやシンボルへ結び付けます。変更前に、そのコードについて以前何が話されたかを調べられます。</p>
+        <p>comP 自体にも session_recall があります。MAGATAMA はコードを入口として履歴を見る手段を加えます。comP の会話記録はベータ機能で既定では OFF です。履歴表示には、プロジェクトの .comp に記録が必要です。</p>
+      </div>
+      <div class="story-card">
+        <p class="small-label">先に確かめたい二つのこと</p>
+        <blockquote>「ここを直したら、どこを確認する？」</blockquote>
+        <blockquote>「以前、なぜここを変更した？」</blockquote>
+        <p class="story-foot">変更範囲の解析とエンティティの履歴</p>
+      </div>
+    </section>
+
+    <section class="section try" id="try">
+      <div class="section-heading">
+        <p class="eyebrow">現在のソースで試す</p>
+        <h2>自分のコードで、波及候補を見る。</h2>
+        <p>新しいファイル単位の解析ツールは、この変更に含まれます。変更を含むチェックアウトを使ってください。標準ブランチから新たに clone して使えるのは、変更が反映された後です。公開済み PyPI 版にはまだ含まれません。</p>
+      </div>
+      <ol class="try-list">
+        <li><strong>comP を起動。</strong> <a href="https://github.com/tsucky230/comP#installation--setup-3-steps">VS Code 拡張を導入</a>し、対象プロジェクトに .comp/index.db ができたことを確認します。</li>
+        <li><strong>MAGATAMA をソースから実行。</strong> 下のコマンドで環境を用意し、MCP クライアントに magatama serve を登録します。</li>
+        <li><strong>実際のファイルを指定。</strong> プロンプトのパスを、索引のあるプロジェクトと変更予定のファイルへ置き換えます。</li>
+      </ol>
+      <div class="code-grid">
+        <div class="code-panel"><p>ソースの準備</p><pre><code>git clone https://github.com/tsucky230/MAGATAMA.git
+cd MAGATAMA
+uv sync --all-packages --dev
+uv run magatama info</code></pre></div>
+        <div class="code-panel"><p>最初の質問</p><pre><code>get_external_graph_info(path="&lt;対象プロジェクト&gt;") で索引を確認して。
+次に analyze_change_scope(
+  path="&lt;対象プロジェクト&gt;",
+  files=["src/変更予定のファイル.py"]
+) を実行して。
+波及候補と依存関係の根拠を教えて。</code></pre></div>
+      </div>
+      <p class="note">メインルートは相対パス、追加ルートは対応する comP の版で絶対パスを使います。同名のファイルにはフルパスを指定してください。パスが曖昧な場合、索引に依存関係がない・読み飛ばした関係がある場合、またはファイルが二重登録されている場合は <strong>risk=unknown</strong> として確認を促します。</p>
+    </section>
+
+    <section class="section evidence" id="evidence">
+      <div class="section-heading">
+        <p class="eyebrow">数字の読み方</p>
+        <h2>一つの概要把握の計測。万能な節約率ではありません。</h2>
+      </div>
+      <div class="evidence-grid">
+        <div class="metric"><strong>145,978</strong><span>選んだソースファイルを読む場合の推定入力トークン</span></div>
+        <div class="metric"><strong>289</strong><span>概要把握に使った comP の簡潔な地図のトークン</span></div>
+        <div class="evidence-copy"><p>この数字は、以前このリポジトリで行った<a href="https://github.com/tsucky230/MAGATAMA/blob/main/OVERVIEW_jp.md">概要把握の実験</a>です。当時の一つの作業で二つの入力を比較したもので、変更影響の正確さや、別のプロジェクトでも同じ節約率になることは示しません。</p><p>変更確認では、返ってきたパスと関係をコードやテストと照合してください。MAGATAMA の high / medium / low は索引上の関係に基づく目安です。</p></div>
+      </div>
+    </section>
+
+    <section class="section final-cta">
+      <h2>次に直す、そのファイルから始めましょう。</h2>
+      <p>グラフで確認候補を絞り、最後はコードとテストで判断してください。</p>
+      <div class="actions"><a class="button primary" href="#try">ソースで試す <span aria-hidden="true">→</span></a><a class="button secondary" href="https://github.com/tsucky230/comP">comP を見る</a></div>
+    </section>
+  </main>
+
+  <footer>
+    <p>MAGATAMA は <a href="https://github.com/nahisaho/YATA">YATA</a> を基にした MIT ライセンスのプロジェクトで、<a href="https://github.com/tsucky230/comP">comP</a> と連携します。</p>
+    <p><a href="https://github.com/tsucky230/MAGATAMA/blob/main/README_jp.md">README</a> · <a href="https://github.com/tsucky230/MAGATAMA/issues">Issues</a> · <a href="index.html" lang="en">English</a></p>
+  </footer>
+</body>
+</html>

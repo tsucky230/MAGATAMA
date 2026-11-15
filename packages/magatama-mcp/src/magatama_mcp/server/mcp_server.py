@@ -5,10 +5,11 @@ functionality to AI coding assistants via the Model Context Protocol.
 """
 
 from collections.abc import Awaitable, Callable
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any
 
+from magatama_core.application.usecases.change_scope_usecase import ChangeScopeUseCase
 from magatama_core.application.usecases.comp_usecase import (
     EntityHistoryUseCase,
     LoadCompIndexUseCase,
@@ -176,6 +177,7 @@ class MagatamaMcpServer:
         self._entity_history_usecase = EntityHistoryUseCase(
             knowledge_graph=self._knowledge_graph,
         )
+        self._change_scope_usecase = ChangeScopeUseCase(knowledge_graph=self._knowledge_graph)
         self._generate_handoff_usecase = GenerateHandoffUseCase()
 
         # Register tool handlers
@@ -191,6 +193,7 @@ class MagatamaMcpServer:
             "read_external_graph": self._handle_read_external_graph,
             "read_external_sessions": self._handle_read_external_sessions,
             "get_entity_history": self._handle_get_entity_history,
+            "analyze_change_scope": self._handle_analyze_change_scope,
             "generate_handoff": self._handle_generate_handoff,
             "get_external_graph_info": self._handle_get_external_graph_info,
         }
@@ -427,6 +430,29 @@ class MagatamaMcpServer:
                         },
                     },
                     "required": ["name"],
+                },
+            ),
+            Tool(
+                name="analyze_change_scope",
+                description=(
+                    "Load a comP index and identify affected symbols and files from changed "
+                    "file paths, including dependencies across workspace roots"
+                ),
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "path": {"type": "string", "description": "comP workspace root"},
+                        "files": {
+                            "type": "array",
+                            "items": {"type": "string"},
+                            "description": "Indexed file paths (relative main root, absolute extra roots)",
+                        },
+                        "depth": {
+                            "type": "integer",
+                            "description": "Maximum dependency depth (1-10)",
+                        },
+                    },
+                    "required": ["path", "files"],
                 },
             ),
             Tool(
@@ -734,6 +760,8 @@ class MagatamaMcpServer:
             "discussed_links": result.discussed_links,
             "unmatched_files": result.unmatched_files,
             "unmatched_symbols": result.unmatched_symbols,
+            "ambiguous_files": result.ambiguous_files,
+            "ambiguous_symbols": result.ambiguous_symbols,
             "sources": result.sources,
             "skipped_records": result.skipped_records,
             "errors": result.errors,
@@ -751,8 +779,18 @@ class MagatamaMcpServer:
         if path:
             index_result = self._load_comp_index_usecase.execute(path, mode="replace")
             load_errors.extend(index_result.errors)
-            sessions_result = self._load_comp_sessions_usecase.execute(path, mode="replace")
-            load_errors.extend(sessions_result.errors)
+            if index_result.success:
+                sessions_result = self._load_comp_sessions_usecase.execute(path, mode="replace")
+                load_errors.extend(sessions_result.errors)
+            if load_errors:
+                return {
+                    "success": False,
+                    "query": name,
+                    "matched_entities": [],
+                    "history": [],
+                    "impact": None,
+                    "errors": load_errors,
+                }
         result = self._entity_history_usecase.execute(name, limit=limit, analyze=analyze)
         return {
             "success": result.success,
@@ -762,6 +800,28 @@ class MagatamaMcpServer:
             "impact": result.impact,
             "errors": load_errors + result.errors,
         }
+
+    async def _handle_analyze_change_scope(
+        self, path: str, files: list[str], depth: int = 3
+    ) -> dict[str, Any]:
+        """Load the current comP graph and return file-scoped impact evidence."""
+        loaded = self._load_comp_index_usecase.execute(path, mode="replace")
+        if not loaded.success:
+            return {"success": False, "risk_level": "unknown", "errors": loaded.errors}
+        parent = Path(loaded.db_path).parent
+        workspace_root = parent.parent if parent.name == ".comp" else parent
+        result = asdict(
+            self._change_scope_usecase.execute(
+                files, depth=depth, workspace_root=str(workspace_root)
+            )
+        )
+        result["db_path"] = loaded.db_path
+        result["comp_metadata"] = loaded.comp_metadata
+        result["skipped_edges"] = loaded.skipped_edges
+        if loaded.skipped_edges:
+            result["risk_level"] = "unknown"
+            result["errors"].append("Some index edges could not be loaded")
+        return result
 
     async def _handle_generate_handoff(
         self,

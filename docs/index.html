@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Use comP's code graph with MAGATAMA to see where a file change may reach, why it matters, and what to inspect next.">
+  <title>MAGATAMA — Know where a code change reaches</title>
+  <link rel="stylesheet" href="site.css">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="site-header">
+    <a class="brand" href="index.html" aria-label="MAGATAMA home"><span class="brand-mark">◈</span> MAGATAMA</a>
+    <nav aria-label="Main navigation">
+      <a href="#how">How it works</a>
+      <a href="#try">Try it</a>
+      <a href="#evidence">Evidence</a>
+      <a href="index_ja.html" lang="ja">日本語</a>
+    </nav>
+  </header>
+
+  <main id="main">
+    <section class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow">comP × MAGATAMA</p>
+        <h1>You found the file.<br><span>What else will your change reach?</span></h1>
+        <p class="lead">A code change rarely stops at one file. comP maps the relationships in your repository. MAGATAMA uses that graph to show the indexed callers, the files they live in, and the edge that explains each connection.</p>
+        <div class="actions">
+          <a class="button primary" href="#try">Try it on your repository <span aria-hidden="true">→</span></a>
+          <a class="button secondary" href="https://github.com/tsucky230/MAGATAMA">View the source</a>
+        </div>
+        <p class="quiet">Local analysis. A review starting point, with uncertainty shown explicitly.</p>
+      </div>
+      <div class="hero-visual" aria-label="Example change scope result">
+        <div class="terminal-bar"><span></span><span></span><span></span><strong>Before you edit</strong></div>
+        <div class="terminal-content">
+          <p class="terminal-label">Changing</p>
+          <p class="path">shared/src/app.py <span class="tag">library</span></p>
+          <div class="connector"><span></span> calls from <span></span></div>
+          <p class="path">src/app.py <span class="tag">application</span></p>
+          <div class="result-note"><strong>Review this caller.</strong> The graph shows a direct call to the changed symbol.</div>
+        </div>
+        <p class="visual-caption">Illustrative result from a two-root test fixture</p>
+      </div>
+    </section>
+
+    <section class="section" id="how">
+      <div class="section-heading">
+        <p class="eyebrow">The workflow</p>
+        <h2>Go from a file path to a review plan.</h2>
+        <p>You still decide what to change and test. The graph makes the first pass faster to inspect.</p>
+      </div>
+      <div class="steps">
+        <article class="step"><span class="step-number">01</span><h3>comP builds the map</h3><p>It indexes files, symbols, and dependencies in a local SQLite database. Its own search and impact tools are useful when you need to locate code.</p></article>
+        <article class="step"><span class="step-number">02</span><h3>MAGATAMA traces the change</h3><p>Give it the files you plan to edit. It follows indexed dependencies to callers and users, including other roots when comP has indexed them.</p></article>
+        <article class="step"><span class="step-number">03</span><h3>You inspect the evidence</h3><p>Each affected symbol includes its file, distance, relationship, and the symbol through which it was reached. Use that list to choose code and tests to inspect.</p></article>
+      </div>
+    </section>
+
+    <section class="section story">
+      <div>
+        <p class="eyebrow">More than a call graph</p>
+        <h2>Recover the reason behind the code.</h2>
+        <p>When comP history exists, MAGATAMA links past requests to the files and symbols they discussed. Ask about a file before changing it and see both the past conversation and the current indexed impact.</p>
+        <p>comP already offers session recall. MAGATAMA adds a code-centered route into that history. Conversation recording in comP is a beta feature and is off by default; the history view needs records in the project's .comp directory.</p>
+      </div>
+      <div class="story-card">
+        <p class="small-label">Two useful questions</p>
+        <blockquote>“Where should I check if I change this file?”</blockquote>
+        <blockquote>“What earlier decision touched it?”</blockquote>
+        <p class="story-foot">Change scope + entity history</p>
+      </div>
+    </section>
+
+    <section class="section try" id="try">
+      <div class="section-heading">
+        <p class="eyebrow">Try the current source</p>
+        <h2>See a result on your own code.</h2>
+        <p>The new file-scoped tool is in this change. Use a checkout containing it. A fresh clone of the default branch will have it after this change lands there; the published PyPI package does not have it yet.</p>
+      </div>
+      <ol class="try-list">
+        <li><strong>Start comP.</strong> <a href="https://github.com/tsucky230/comP#installation--setup-3-steps">Install the VS Code extension</a>, open your project, and confirm that .comp/index.db exists.</li>
+        <li><strong>Run MAGATAMA from source.</strong> Clone the repository, then run the commands below. Register the resulting magatama serve command in your MCP client.</li>
+        <li><strong>Ask about a real file.</strong> Replace the placeholders in the prompt with paths from your indexed project.</li>
+      </ol>
+      <div class="code-grid">
+        <div class="code-panel"><p>Source setup</p><pre><code>git clone https://github.com/tsucky230/MAGATAMA.git
+cd MAGATAMA
+uv sync --all-packages --dev
+uv run magatama info</code></pre></div>
+        <div class="code-panel"><p>First question</p><pre><code>Check get_external_graph_info(path="&lt;project&gt;").
+Then call analyze_change_scope(
+  path="&lt;project&gt;",
+  files=["src/file-to-change.py"]
+).
+Show each affected file and its dependency reason.</code></pre></div>
+      </div>
+      <p class="note">The main root uses relative paths. Additional roots use absolute paths in comP builds that support them. Use full paths for same-named files. An ambiguous path, an index without dependency edges or with skipped edges, or duplicate file entries produce <strong>risk=unknown</strong>.</p>
+    </section>
+
+    <section class="section evidence" id="evidence">
+      <div class="section-heading">
+        <p class="eyebrow">Evidence, with its limits</p>
+        <h2>One measured overview. No universal savings claim.</h2>
+      </div>
+      <div class="evidence-grid">
+        <div class="metric"><strong>145,978</strong><span>estimated input tokens for selected source files</span></div>
+        <div class="metric"><strong>289</strong><span>tokens in the compact comP map summary used for the overview</span></div>
+        <div class="evidence-copy"><p>These numbers come from an earlier <a href="https://github.com/tsucky230/MAGATAMA/blob/main/OVERVIEW.md">experiment on this repository</a>. They compare two inputs for one overview task on an older snapshot. They do not measure impact accuracy or promise the same saving on another project.</p><p>For a change review, inspect the returned paths and edges against source and tests. MAGATAMA's high/medium/low risk label is a heuristic over the index.</p></div>
+      </div>
+    </section>
+
+    <section class="section final-cta">
+      <h2>Start with the file you are about to change.</h2>
+      <p>Let the graph point to the places worth checking, then use your judgment and tests to finish the review.</p>
+      <div class="actions"><a class="button primary" href="#try">Try the source <span aria-hidden="true">→</span></a><a class="button secondary" href="https://github.com/tsucky230/comP">Explore comP</a></div>
+    </section>
+  </main>
+
+  <footer>
+    <p>MAGATAMA is an MIT-licensed fork of <a href="https://github.com/nahisaho/YATA">YATA</a>, integrated with <a href="https://github.com/tsucky230/comP">comP</a>.</p>
+    <p><a href="https://github.com/tsucky230/MAGATAMA/blob/main/README.md">README</a> · <a href="https://github.com/tsucky230/MAGATAMA/issues">Issues</a> · <a href="index_ja.html" lang="ja">日本語</a></p>
+  </footer>
+</body>
+</html>

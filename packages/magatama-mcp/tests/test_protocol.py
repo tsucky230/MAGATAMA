@@ -247,6 +247,7 @@ class TestCompBridgeTools:
         assert "read_external_sessions" in tool_names
         assert "get_entity_history" in tool_names
         assert "get_external_graph_info" in tool_names
+        assert "analyze_change_scope" in tool_names
 
     @pytest.mark.asyncio
     async def test_get_entity_history_not_found(self) -> None:
@@ -305,6 +306,20 @@ class TestCompBridgeTools:
         assert payload["success"] is True
         assert payload["history"][0]["request"] == "refactor main"
         assert payload["impact"] is not None
+
+        _blocks, scope = await mcp.call_tool(
+            "analyze_change_scope", {"path": str(workspace), "files": ["src/app.py"]}
+        )
+        assert scope["success"] is True
+        assert scope["changed_files"] == ["src/app.py"]
+        assert scope["risk_level"] == "unknown"  # This fixture has no dependency edges.
+
+        _blocks, stale = await mcp.call_tool(
+            "get_entity_history",
+            {"name": "main", "path": str(tmp_path / "missing-workspace")},
+        )
+        assert stale["success"] is False
+        assert stale["history"] == []
 
     @pytest.mark.asyncio
     async def test_read_external_sessions_not_found(self, tmp_path: Path) -> None:
