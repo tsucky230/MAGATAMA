@@ -43,7 +43,7 @@ comP 単体でも関連コードの検索、影響グラフ、過去セッショ
 ## 自分のリポジトリで試す
 
 1. VS Code に [comP を導入して起動](https://github.com/tsucky230/comP#installation--setup-3-steps)します。対象プロジェクトに .comp/index.db ができたことを確認してください。comP 自体を AI に接続する場合は、comP の **Setup Agents** コマンドを使えます。
-2. この変更を含む MAGATAMA のチェックアウトを使います。`analyze_change_scope` は公開済みの PyPI 版にはまだ含まれていません。標準ブランチを新たに clone して使えるのは、この変更が反映された後です。
+2. `analyze_change_scope` は MAGATAMA v0.7.0 に含まれます。ソースのチェックアウトから試す場合は、次のコマンドを使います。
 
 ~~~bash
 git clone https://github.com/tsucky230/MAGATAMA.git

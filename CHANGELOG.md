@@ -9,6 +9,17 @@ MAGATAMA は [YATA (八咫)](https://github.com/nahisaho/YATA) のフォーク�
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.0] - 2026-11-17
+
+### Added
+
+- Added `analyze_change_scope` over comP's code graph, including cross-root paths and ambiguity detection.
+- Reworked README and GitHub Pages around change review and session history workflows.
+
+### Fixed
+
+- Normalized Windows path variants when loading comP index data.
+
 ## [0.6.0] - 2026-07-16
 
 ### Added

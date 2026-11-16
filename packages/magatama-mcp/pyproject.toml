@@ -4,7 +4,7 @@
 
 [project]
 name = "magatama"
-version = "0.6.0"
+version = "0.7.0"
 description = "MAGATAMA MCP Server - AI Coding Support via Model Context Protocol"
 readme = "README.md"
 license = { text = "MIT" }
@@ -24,7 +24,7 @@ dependencies = [
     # Core library (Article I: Library-First)
     "magatama-core",
     # MCP Protocol (ADR-002)
-    "mcp>=1.0.0",
+    "mcp>=1.0.0,<2",
     # CLI Framework
     "click>=8.1.0",
     # HTTP Server (for SSE transport)

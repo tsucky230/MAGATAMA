@@ -43,7 +43,7 @@ A comP index is required for the bridge features. comP's conversation recording 
 ## Try it on your repository
 
 1. [Install and start comP](https://github.com/tsucky230/comP#installation--setup-3-steps) in VS Code. Open your project and confirm that it has .comp/index.db. comP's **Setup Agents** command can connect comP itself to your assistant.
-2. Run MAGATAMA from a checkout that contains this change. `analyze_change_scope` is not yet part of the published PyPI release; a fresh clone of the default branch will have it after this change lands there:
+2. `analyze_change_scope` is included in MAGATAMA v0.7.0. To run it from a source checkout:
 
 ~~~bash
 git clone https://github.com/tsucky230/MAGATAMA.git
