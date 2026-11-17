@@ -1691,7 +1691,9 @@ def create_mcp_server(name: str = "magatama") -> FastMCP:
         parent = Path(loaded.db_path).parent
         workspace_root = parent.parent if parent.name == ".comp" else parent
         result = asdict(
-            change_scope_usecase.execute(files, depth=depth, workspace_root=str(workspace_root))
+            change_scope_usecase.execute(
+                files, depth=depth, workspace_root=str(workspace_root), alias=loaded.alias
+            )
         )
         result["db_path"] = loaded.db_path
         result["comp_metadata"] = loaded.comp_metadata

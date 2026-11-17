@@ -43,18 +43,26 @@ class ChangeScopeUseCase:
         self._graph = knowledge_graph
 
     def execute(
-        self, files: list[str], depth: int = 3, workspace_root: str = ""
+        self, files: list[str], depth: int = 3, workspace_root: str = "", alias: str = ""
     ) -> ChangeScopeResult:
+        """``alias`` limits the analysis to one loaded comP index.
+
+        The graph outlives a single request, so it can hold several workspaces;
+        without the limit, same-named files elsewhere (``README.md``) read as
+        ambiguous paths or duplicate path representations of this workspace.
+        """
         depth = max(1, min(depth, 10))
         if not files or any(not isinstance(item, str) or not item.strip() for item in files):
             return ChangeScopeResult(
                 success=False, depth_analyzed=depth, errors=["files must contain file paths"]
             )
 
+        alias_pattern = re.escape(alias) if alias else "[^:]+"
         modules = [
             entity
             for entity in self._graph.entities.all()
-            if entity.type == EntityType.MODULE and re.match(r"^comp:[^:]+:f\d+$", entity.id.value)
+            if entity.type == EntityType.MODULE
+            and re.match(rf"^comp:{alias_pattern}:f\d+$", entity.id.value)
         ]
         canonical_counts: dict[str, int] = defaultdict(int)
         if workspace_root:
@@ -81,6 +89,7 @@ class ChangeScopeUseCase:
             entity.id.value: entity
             for entity in self._graph.entities.all()
             if entity.type != EntityType.SESSION
+            and (not alias or entity.id.value.startswith(f"comp:{alias}:"))
         }
         changed_ids = {
             rel.target_id.value

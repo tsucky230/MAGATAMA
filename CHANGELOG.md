@@ -13,6 +13,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- fix: `analyze_change_scope` が、同じサーバーで前に読み込んだ別のワークスペースの索引まで
+  照合と二重登録の検査に含めていた問題を修正。別のプロジェクトを解析した後では、`README.md`
+  のような同名ファイルが「曖昧」で失敗し、無関係なファイルでも「パス表記の二重登録」として
+  `risk_level=unknown` になっていた。解析を、今回読み込んだ索引の別名（alias）のモジュールと
+  シンボルに限定した
 - fix: `comp_history_writer.append_history_record` が排他ロックを取らずに
   `.comp/history/log-YYYY-MM.jsonl` へ直接追記していた問題を修正。comP の
   `append_history_line`（`std::fs::File::lock()`）と同一のOSプリミティブで
