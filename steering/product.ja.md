@@ -1,8 +1,8 @@
 # Product Context
 
 **Project**: MAGATAMA (勾玉)
-**Last Updated**: 2026-01-01
-**Version**: 1.2
+**Last Updated**: 2026-09-07
+**Version**: 1.3
 
 > MAGATAMA は [YATA (八咫)](https://github.com/nahisaho/YATA) のフォークに、
 > 兄弟ツール [comP](https://github.com/tsucky230/comP)（VSCode 拡張のコード
@@ -302,54 +302,79 @@ MAGATAMAは、AI Codingアシスタント（GitHub Copilot、Claude、Cursor等�
 
 ## Product Roadmap
 
-### Phase 1: MVP (Months 1-3)
+> 外部からの「MAGATAMAをマルチLLMのDirectorにする」という進化提案に対する
+> 批判的レビューを踏まえ、3段階として再整理したもの（詳細は
+> [ADR-005](../storage/specs/ADR-005-no-multi-llm-routing.md) 参照）。
 
-**Goal**: Launch minimum viable product
+### Phase 0: comP仕様変更への追随（実施済み）
 
-**Features**:
+**Goal**: 姉妹プロジェクトcomPの仕様変更（排他ロック方式・agent属性の導入）に
+MAGATAMA側を追随させ、`.comp/history/log-YYYY-MM.jsonl` への同時書き込みで
+JSONL行が破損するリスクを解消する。
 
-- [Feature 1]
-- [Feature 2]
-- [Feature 3]
+**実施内容**:
+
+- `comp_history_writer.append_history_record` に、comPの
+  `append_history_line`（`std::fs::File::lock()`）と同一のOSプリミティブ
+  （Windows: `msvcrt.locking`、Unix: `fcntl.flock`）で競合する排他ロックを実装
+- 書き込みレコードに `agent` フィールドを追加（`magatama` /
+  `magatama-patrol` / `magatama-handoff` / `magatama-hook`）し、
+  comP側の `SessionCall.agent` が `"unknown"` にフォールバックする問題を解消
+- Stop hook（`.claude/hooks/history-record.sh`）を `comp-daemon append-history`
+  経由に統一し、ロックを経由しない「第3の書き手」を解消
+- docstringのバージョン固定記述（"comP daemon (0.9.2)"）を除去
 
 **Success Criteria**:
 
-- [Criterion 1]
-- [Criterion 2]
+- MAGATAMAの書き込みとcomPデーモン（またはStop hook経由）の書き込みを
+  並行実行する結合テストで、JSONL全行がパース可能であることを実機確認済み
+- 既存テストスイートが全件PASS
 
 ---
 
-### Phase 2: Growth (Months 4-6)
+### Phase 1: 既存の強みの普及
 
-**Goal**: Achieve product-market fit
+**Goal**: 新機能ではなく、既に実装済みの `analyze_impact` /
+`read_external_sessions` / `patrol` の実測値・ユースケースをREADME等の
+ドキュメントで前面に出し、認知を広げる。GitHub star数が0という現状を踏まえ、
+新規機能開発より認知拡大を優先する。
 
 **Features**:
 
-- [Feature 4]
-- [Feature 5]
-- [Feature 6]
+- `analyze_impact`（依存関係影響分析）の具体的なユースケースの言語化
+- `read_external_sessions` / comP Bridge（`read_external_graph` 等）による
+  「地図の再パース不要」という差別化ポイントの言語化
+- `patrol`（地図の巡回者）の実測値に基づいたユースケース紹介
+
+**次アクション（今回のスコープ外）**: 上記の実測値・ユースケースを
+`README.md` / `README_jp.md` へ実際に反映する改稿作業は、実測ベンチマークの
+取得を伴うため本ロードマップ整理とは別タスクとして扱う。
 
 **Success Criteria**:
 
-- [Criterion 1]
-- [Criterion 2]
+- README/ドキュメントに、捏造でない実測値・実例に基づくユースケースが
+  掲載されている
 
 ---
 
-### Phase 3: Scale (Months 7-12)
+### Phase 2: 条件付き・将来検討
 
-**Goal**: Scale to {{USER_TARGET}} users
+**Goal**: 「人間の修正差分から暗黙のルールを検知する」機能
+（Autonomic Memory相当）は、[ADR-005](../storage/specs/ADR-005-no-multi-llm-routing.md)
+の Decision 2 により、検知結果を**自動で**ルールファイルへ書き込む設計を
+却下している。再提案する場合は、検知 → 提示 → **人間の承認** → 書き込み、
+の各段階を分離した設計を必須の前提とする。
 
-**Features**:
+**Features**（承認フローが確定するまでは未着手）:
 
-- [Feature 7]
-- [Feature 8]
-- [Feature 9]
+- 差分からの暗黙ルール検知ロジック
+- 検知結果を人間が確認・承認するためのレビューUI/フロー
+- 承認後のみルールファイルへ反映する書き込み経路
 
 **Success Criteria**:
 
-- [Criterion 1]
-- [Criterion 2]
+- 自動書き込み経路が存在しないこと（人間の承認なしにルールファイルが
+  変更されるパスが無いこと）を設計レビューで確認できる
 
 ---
 
@@ -635,5 +660,5 @@ Key concepts and terminology used in this domain:
 
 ---
 
-**Last Updated**: 2026-01-01
+**Last Updated**: 2026-09-07
 **Maintained By**: MAGATAMA Development Team

@@ -1,0 +1,41 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash 'e:\\dev\\MAGATAMA\\.codex\\hooks\\constraint-watchdog.sh'",
+            "timeout": 10,
+            "statusMessage": "Checking constraints..."
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash 'e:\\dev\\MAGATAMA\\.codex\\hooks\\context-inject.sh'",
+            "timeout": 10,
+            "statusMessage": "Injecting session history..."
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash 'e:\\dev\\MAGATAMA\\.codex\\hooks\\history-record.sh'",
+            "timeout": 15,
+            "statusMessage": "Recording session history..."
+          }
+        ]
+      }
+    ]
+  }
+}

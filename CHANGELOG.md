@@ -9,6 +9,33 @@ MAGATAMA は [YATA (八咫)](https://github.com/nahisaho/YATA) のフォーク�
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+
+- fix: `comp_history_writer.append_history_record` が排他ロックを取らずに
+  `.comp/history/log-YYYY-MM.jsonl` へ直接追記していた問題を修正。comP の
+  `append_history_line`（`std::fs::File::lock()`）と同一のOSプリミティブで
+  競合する排他ロックを実装（Windows: `msvcrt.locking`、Unix: `fcntl.flock`）。
+  comP 実バイナリとの並行書き込み結合テストで実機競合を確認済み
+- fix: Stop hook（`.claude/hooks/history-record.sh`）が `fs.appendFileSync` で
+  ロックを経由しない「第3の書き手」になっていた問題を修正。`comp-daemon
+  append-history` 経由に統一し、バイナリ未解決時のみ直接書き込みにフォールバック
+  する（バイナリが起動して失敗した場合は無ロック書き込みをしない）
+
+### Added
+
+- feat: 履歴レコードに `agent` フィールドを追加（`magatama` /
+  `magatama-patrol` / `magatama-handoff` / `magatama-hook`）。comP 側の
+  `SessionCall.agent` が未設定時 `"unknown"` になる問題を解消し、
+  session_recall で記録の出所が判別できるようになった
+
+### Changed
+
+- docs: `steering/product.ja.md` の Product Roadmap を Phase 0/1/2 として
+  再整理（[ADR-005](storage/specs/ADR-005-no-multi-llm-routing.md) 参照）。
+  マルチLLM Director/ルーター化の提案を却下し、既存機能の普及を優先する方針を明記
+
 ## [0.7.0] - 2026-11-17
 
 ### Added

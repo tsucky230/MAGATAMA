@@ -329,6 +329,7 @@ class PatrolUseCase:
                 outcome=self.format_summary(report),
                 files=report.files_added + report.files_changed + report.files_removed,
                 symbols=[a.name for a in report.analyses],
+                agent="magatama-patrol",
             )
             report.history_file = str(log_file)
         except OSError as e:

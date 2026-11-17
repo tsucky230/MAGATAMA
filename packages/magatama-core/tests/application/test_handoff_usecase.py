@@ -99,6 +99,7 @@ def test_handoff_writes_history(tmp_path: Path) -> None:
     record = json.loads(lines[-1])
     assert record["query"].startswith("handoff")
     assert "引継ぎ" in record["outcome"]
+    assert record["agent"] == "magatama-handoff"
 
 
 def test_handoff_full_text_saved_summary_logged(tmp_path: Path) -> None:

@@ -182,6 +182,7 @@ class GenerateHandoffUseCase:
                     query="handoff: 次セッションへの引継ぎ",
                     outcome=outcome_for_history,
                     files=files,
+                    agent="magatama-handoff",
                 )
                 result.history_file = str(log_file)
             except OSError as e:

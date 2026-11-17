@@ -156,8 +156,18 @@ def test_history_written_on_change(tmp_path: Path) -> None:
     assert record["query"].startswith("magatama patrol")
     assert "helper" in record["outcome"]
     assert "a.py" in record["files"]
+    assert record["agent"] == "magatama-patrol"
     # Same shape the comP daemon writes
-    assert set(record) == {"timestamp", "query", "outcome", "files", "symbols", "tokens", "stale"}
+    assert set(record) == {
+        "timestamp",
+        "query",
+        "outcome",
+        "files",
+        "symbols",
+        "tokens",
+        "stale",
+        "agent",
+    }
 
 
 def test_no_log_flag(tmp_path: Path) -> None:
