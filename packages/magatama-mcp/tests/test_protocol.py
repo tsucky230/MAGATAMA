@@ -709,3 +709,73 @@ class TestGenerateHandoffTool:
         )
         assert payload["success"] is True
         assert "引継ぎ" in payload["markdown"]
+
+
+def _write_scope_workspace(root: Path) -> None:
+    """comP index with README.md and src/app.py; caller() in app.py calls helper() in lib.py."""
+    import sqlite3
+
+    comp_dir = root / ".comp"
+    comp_dir.mkdir(parents=True)
+    conn = sqlite3.connect(comp_dir / "index.db")
+    conn.executescript(
+        "CREATE TABLE files (id INTEGER PRIMARY KEY, path TEXT, hash TEXT,"
+        " language TEXT, last_indexed INTEGER DEFAULT 0, char_count INTEGER DEFAULT 0);"
+        "CREATE TABLE nodes (id INTEGER PRIMARY KEY, file_id INTEGER, name TEXT,"
+        " kind TEXT, line INTEGER, col INTEGER, scope TEXT,"
+        " is_exported INTEGER DEFAULT 0, signature TEXT);"
+        "CREATE TABLE edges (from_id INTEGER, to_id INTEGER, kind TEXT);"
+        "CREATE TABLE metadata (key TEXT PRIMARY KEY, value TEXT);"
+    )
+    conn.executemany(
+        "INSERT INTO files (id, path, hash, language) VALUES (?, ?, ?, ?)",
+        [
+            (1, "README.md", "a", "markdown"),
+            (2, "src/app.py", "b", "python"),
+            (3, "src/lib.py", "c", "python"),
+        ],
+    )
+    conn.executemany(
+        "INSERT INTO nodes (id, file_id, name, kind, line, col) VALUES (?, ?, ?, ?, ?, ?)",
+        [
+            (1, 1, "Intro", "heading", 1, 0),
+            (2, 2, "caller", "function", 1, 0),
+            (3, 3, "helper", "function", 1, 0),
+        ],
+    )
+    conn.execute("INSERT INTO edges (from_id, to_id, kind) VALUES (2, 3, 'function_call')")
+    conn.commit()
+    conn.close()
+
+
+@pytest.mark.asyncio
+async def test_analyze_change_scope_ignores_other_loaded_workspaces(tmp_path: Path) -> None:
+    """A long-lived server that analyzed workspace A must judge workspace B on B's index alone.
+
+    Same-named files in A must not make B's paths ambiguous or look like duplicate
+    path representations (which would force risk_level='unknown').
+    """
+    alpha, beta = tmp_path / "alpha", tmp_path / "beta"
+    _write_scope_workspace(alpha)
+    _write_scope_workspace(beta)
+    mcp = create_mcp_server()
+    _blocks, first = await mcp.call_tool(
+        "analyze_change_scope", {"path": str(alpha), "files": ["src/lib.py"]}
+    )
+    assert first["success"] is True
+
+    _blocks, readme = await mcp.call_tool(
+        "analyze_change_scope", {"path": str(beta), "files": ["README.md"]}
+    )
+    assert readme["success"] is True
+    assert readme["errors"] == []
+    assert readme["risk_level"] == "low"
+
+    _blocks, lib = await mcp.call_tool(
+        "analyze_change_scope", {"path": str(beta), "files": ["src/lib.py"]}
+    )
+    assert lib["success"] is True
+    assert lib["errors"] == []
+    assert lib["risk_level"] == "low"
+    assert lib["affected_files"] == ["src/app.py"]
+    assert [s["id"] for s in lib["changed_symbols"]] == ["comp:beta:n3"]
