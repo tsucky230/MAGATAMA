@@ -18,7 +18,7 @@ MAGATAMA follows without you upgrading it by hand.
 ```json
 "magatama": {
   "command": "uvx",
-  "args": ["magatama@0.7.2", "serve"],
+  "args": ["magatama@0.7.3", "serve"],
   "env": { "COMP_MANAGED_BY": "comP" }
 }
 ```

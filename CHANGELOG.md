@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.3] - 2026-11-21
+
 ### Added
 
 - feat: comP の索引の形式の版（`metadata.schema_version`、comP 0.12.3 から）を読み込み時に確かめ、

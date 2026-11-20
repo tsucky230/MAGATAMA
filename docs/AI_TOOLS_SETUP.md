@@ -17,7 +17,7 @@ comP は Marketplace から自動で更新されるので、MAGATAMA を手で�
 ```json
 "magatama": {
   "command": "uvx",
-  "args": ["magatama@0.7.2", "serve"],
+  "args": ["magatama@0.7.3", "serve"],
   "env": { "COMP_MANAGED_BY": "comP" }
 }
 ```
