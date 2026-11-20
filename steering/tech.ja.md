@@ -117,7 +117,7 @@ MAGATAMA/                            # uv モノレポ
 │   │           └── storage/         # networkx_graph / sqlite_storage / comp_index_reader
 │   └── magatama-mcp/                # MCP サーバ＋CLI（配布名 `magatama`）
 │       └── src/magatama_mcp/
-│           ├── server/              # MCP 実装（FastMCP, mcp_server.py / protocol.py）
+│           ├── server/              # MCP 実装（MCPServer, mcp_server.py / protocol.py）
 │           └── cli/                 # CLI 実装（Click, main.py）
 ├── knowledge_graphs/                # 47 フレームワークの事前学習済みグラフ（JSON）
 ├── docs/                            # 利用ガイド（日英）

@@ -52,7 +52,7 @@ LLM にコードを理解させると全文を読ませてトークンを浪費�
 ソース ─Tree-sitter→ [MAGATAMA] ─→ NetworkX知識グラフ ＋ 47FW事前知識
                        │
                        ▼
-       MCP Server (FastMCP / 36 tools) ・ CLI (Click)
+       MCP Server (MCPServer / 40 tools) ・ CLI (Click)
                        │
                        ▼
           Claude Desktop / Cursor / Copilot

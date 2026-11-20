@@ -52,7 +52,7 @@ over only search, impact analysis and call graphs. Fully local, no data leaves.
 source ─Tree-sitter→ [MAGATAMA] ─→ NetworkX knowledge graph + 47-framework knowledge
                        │
                        ▼
-       MCP Server (FastMCP / 36 tools) · CLI (Click)
+       MCP Server (MCPServer / 40 tools) · CLI (Click)
                        │
                        ▼
           Claude Desktop / Cursor / Copilot
