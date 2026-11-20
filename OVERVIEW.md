@@ -76,7 +76,7 @@ Designed on **Clean Architecture** (domain → application → infrastructure �
 - **Language mix (measured by comP)**: Python 123 / Markdown 38 / JSON 36 / unknown 5 / YAML 1
 - **Parsing**: `tree-sitter` + 23 language parsers (Python/TS/Rust/Go/Java/C#…)
 - **Graph**: `networkx` / **validation**: `pydantic` / **logging**: `structlog`
-- **MCP**: `mcp>=1.0` / **CLI**: `click`+`rich` / **SSE**: `uvicorn`+`httpx` / **watch**: `watchdog`
+- **MCP**: `mcp>=2.3,<3` / **CLI**: `click`+`rich` / **SSE**: `uvicorn`+`httpx` / **watch**: `watchdog`
 - **Layout**: uv monorepo (`magatama-core` lib + `magatama` app), Python 3.11+, MIT
 
 ## 6. How to use

@@ -76,7 +76,7 @@ LLM にコードを理解させると全文を読ませてトークンを浪費�
 - **言語比率（comP実測）**: Python 123 / Markdown 38 / JSON 36 / unknown 5 / YAML 1
 - **解析**: `tree-sitter` ＋ 言語別パーサ23種（Python/TS/Rust/Go/Java/C#…）
 - **グラフ**: `networkx` ／ **データ検証**: `pydantic` ／ **ログ**: `structlog`
-- **MCP**: `mcp>=1.0` ／ **CLI**: `click`＋`rich` ／ **SSE**: `uvicorn`+`httpx` ／ **監視**: `watchdog`
+- **MCP**: `mcp>=2.3,<3` ／ **CLI**: `click`＋`rich` ／ **SSE**: `uvicorn`+`httpx` ／ **監視**: `watchdog`
 - **構成**: uv モノレポ（`magatama-core` ライブラリ ＋ `magatama` アプリ）、Python 3.11+、MIT
 
 ## 6. 使い方
