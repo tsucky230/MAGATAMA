@@ -11,6 +11,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.2] - 2026-11-21
+
+### Fixed
+
+- fix: 0.7.1 が依存を `mcp>=1.0.0,<3` と宣言していたため、mcp 1.x が入った環境では
+  インストールは成功するのに、起動時に `MCPServer` の ImportError になっていた。
+  コードが必要とする `mcp>=2.3.0,<3` に直した（mcp 2.3 は pydantic 2.12 以上を必要とする）
+
 ## [0.7.1] - 2026-11-21
 
 ### Fixed
