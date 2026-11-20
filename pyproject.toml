@@ -37,6 +37,9 @@ dev = [
 target-version = "py311"
 line-length = 100
 src = ["packages/magatama-core/src", "packages/magatama-mcp/src"]
+# ruff 0.17 から Markdown 内のコードブロックも整形するようになった。docs/ と storage/specs/ の
+# サンプルコードは上流 YATA から引き継いだ文書なので、整形の対象から外す（0.16 までと同じ扱い）
+extend-exclude = ["*.md"]
 
 [tool.ruff.lint]
 select = [
@@ -57,6 +60,7 @@ select = [
 ]
 ignore = [
     "PLR0913",  # Too many arguments
+    "PLR0917",  # too-many-positional-arguments (ruff 0.17 で既定に入った規則。PLR0913 と同じ理由で外す)
     "PLR2004",  # Magic value comparison
     "E501",     # Line too long (handled by the formatter; long strings allowed)
     # Established style of this codebase / low-value churn:

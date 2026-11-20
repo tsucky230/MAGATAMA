@@ -8,7 +8,7 @@ from dataclasses import asdict
 from pathlib import Path
 from typing import Any
 
-from mcp.server import FastMCP
+from mcp.server import MCPServer
 
 from magatama_core.application.usecases.change_scope_usecase import ChangeScopeUseCase
 from magatama_core.application.usecases.comp_usecase import (
@@ -71,6 +71,7 @@ from magatama_core.infrastructure.parsers import (
     ZigParser,
 )
 from magatama_core.infrastructure.storage import NetworkXKnowledgeGraph
+from magatama_mcp import __version__
 
 # Default knowledge graphs directory
 DEFAULT_KNOWLEDGE_GRAPHS_DIR = (
@@ -118,7 +119,7 @@ SUPPORTED_LANGUAGES: dict[str, dict[str, Any]] = {
 }
 
 
-def create_mcp_server(name: str = "magatama") -> FastMCP:
+def create_mcp_server(name: str = "magatama") -> MCPServer:
     """Create and configure the MCP server.
 
     This function creates a FastMCP server with all MAGATAMA tools
@@ -130,7 +131,7 @@ def create_mcp_server(name: str = "magatama") -> FastMCP:
     Returns:
         Configured FastMCP server instance
     """
-    mcp = FastMCP(name=name)
+    mcp = MCPServer(name=name, version=__version__)
 
     # Initialize knowledge graph
     knowledge_graph = NetworkXKnowledgeGraph()

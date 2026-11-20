@@ -7,6 +7,15 @@ import pytest
 from magatama_mcp.server.protocol import create_mcp_server
 
 
+async def _structured(server, name, arguments):
+    """ツールの構造化された結果を返す。
+
+    mcp 2 の call_tool は CallToolResult を返す。mcp 1 は (内容, 構造化結果) のタプルだった。
+    """
+    result = await server.call_tool(name, arguments)
+    return result.structured_content
+
+
 class TestMcpProtocolHandler:
     """Tests for MCP protocol handler."""
 
@@ -253,7 +262,7 @@ class TestCompBridgeTools:
     async def test_get_entity_history_not_found(self) -> None:
         """Unknown name yields success=False with a hint, not an exception."""
         mcp = create_mcp_server()
-        _blocks, payload = await mcp.call_tool("get_entity_history", {"name": "nope"})
+        payload = await _structured(mcp, "get_entity_history", {"name": "nope"})
         assert payload["success"] is False
         assert payload["errors"]
 
@@ -300,21 +309,22 @@ class TestCompBridgeTools:
         (comp_dir / "session-memory.json").write_text(json.dumps(memory), encoding="utf-8")
 
         mcp = create_mcp_server()
-        _blocks, payload = await mcp.call_tool(
-            "get_entity_history", {"name": "main", "path": str(workspace)}
+        payload = await _structured(
+            mcp, "get_entity_history", {"name": "main", "path": str(workspace)}
         )
         assert payload["success"] is True
         assert payload["history"][0]["request"] == "refactor main"
         assert payload["impact"] is not None
 
-        _blocks, scope = await mcp.call_tool(
-            "analyze_change_scope", {"path": str(workspace), "files": ["src/app.py"]}
+        scope = await _structured(
+            mcp, "analyze_change_scope", {"path": str(workspace), "files": ["src/app.py"]}
         )
         assert scope["success"] is True
         assert scope["changed_files"] == ["src/app.py"]
         assert scope["risk_level"] == "unknown"  # This fixture has no dependency edges.
 
-        _blocks, stale = await mcp.call_tool(
+        stale = await _structured(
+            mcp,
             "get_entity_history",
             {"name": "main", "path": str(tmp_path / "missing-workspace")},
         )
@@ -350,7 +360,7 @@ class TestCompBridgeTools:
         (comp_dir / "session-memory.json").write_text(json.dumps(memory), encoding="utf-8")
 
         mcp = create_mcp_server()
-        _blocks, payload = await mcp.call_tool("read_external_sessions", {"path": str(workspace)})
+        payload = await _structured(mcp, "read_external_sessions", {"path": str(workspace)})
         assert payload["success"] is True
         assert payload["sessions_loaded"] == 1
 
@@ -704,8 +714,8 @@ class TestGenerateHandoffTool:
             encoding="utf-8",
         )
         mcp = create_mcp_server()
-        _blocks, payload = await mcp.call_tool(
-            "generate_handoff", {"path": str(tmp_path / "proj"), "token_budget": 500}
+        payload = await _structured(
+            mcp, "generate_handoff", {"path": str(tmp_path / "proj"), "token_budget": 500}
         )
         assert payload["success"] is True
         assert "引継ぎ" in payload["markdown"]
@@ -759,20 +769,20 @@ async def test_analyze_change_scope_ignores_other_loaded_workspaces(tmp_path: Pa
     _write_scope_workspace(alpha)
     _write_scope_workspace(beta)
     mcp = create_mcp_server()
-    _blocks, first = await mcp.call_tool(
-        "analyze_change_scope", {"path": str(alpha), "files": ["src/lib.py"]}
+    first = await _structured(
+        mcp, "analyze_change_scope", {"path": str(alpha), "files": ["src/lib.py"]}
     )
     assert first["success"] is True
 
-    _blocks, readme = await mcp.call_tool(
-        "analyze_change_scope", {"path": str(beta), "files": ["README.md"]}
+    readme = await _structured(
+        mcp, "analyze_change_scope", {"path": str(beta), "files": ["README.md"]}
     )
     assert readme["success"] is True
     assert readme["errors"] == []
     assert readme["risk_level"] == "low"
 
-    _blocks, lib = await mcp.call_tool(
-        "analyze_change_scope", {"path": str(beta), "files": ["src/lib.py"]}
+    lib = await _structured(
+        mcp, "analyze_change_scope", {"path": str(beta), "files": ["src/lib.py"]}
     )
     assert lib["success"] is True
     assert lib["errors"] == []

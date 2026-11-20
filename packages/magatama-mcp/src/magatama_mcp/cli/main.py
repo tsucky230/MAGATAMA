@@ -139,8 +139,7 @@ def serve(transport: str, port: int) -> None:
         console.print("[blue]Starting MAGATAMA MCP Server (SSE)[/blue]")
         console.print(f"  Port: {port}")
         mcp = create_mcp_server()
-        mcp.settings.port = port
-        mcp.run(transport="sse")
+        mcp.run(transport="sse", port=port)
     else:
         # stdio mode - run silently for MCP clients
         mcp = create_mcp_server()

@@ -24,7 +24,7 @@ dependencies = [
     # Core library (Article I: Library-First)
     "magatama-core",
     # MCP Protocol (ADR-002)
-    "mcp>=1.0.0,<2",
+    "mcp>=1.0.0,<3",
     # CLI Framework
     "click>=8.1.0",
     # HTTP Server (for SSE transport)
