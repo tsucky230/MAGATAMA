@@ -11,6 +11,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- feat: comP の索引の形式の版（`metadata.schema_version`、comP 0.12.3 から）を読み込み時に確かめ、
+  ずれていれば `read_external_graph`・`analyze_change_scope`・`get_entity_history` の応答の `warnings` に
+  どちらを更新すべきかを載せる。版がない（comP が古い）・対応外の版（MAGATAMA が古い）のどちらでも
+  読み込みは止めない
+
 ## [0.7.2] - 2026-11-21
 
 ### Fixed

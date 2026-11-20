@@ -1635,6 +1635,7 @@ def create_mcp_server(name: str = "magatama") -> MCPServer:
             "entities_removed": result.entities_removed,
             "skipped_edges": result.skipped_edges,
             "comp_metadata": result.comp_metadata,
+            "warnings": result.warnings,
             "errors": result.errors,
         }
 
@@ -1698,6 +1699,7 @@ def create_mcp_server(name: str = "magatama") -> MCPServer:
         )
         result["db_path"] = loaded.db_path
         result["comp_metadata"] = loaded.comp_metadata
+        result["warnings"] = loaded.warnings
         result["skipped_edges"] = loaded.skipped_edges
         if loaded.skipped_edges:
             result["risk_level"] = "unknown"
@@ -1732,9 +1734,11 @@ def create_mcp_server(name: str = "magatama") -> MCPServer:
             impact (score, risk_level, total_affected), errors.
         """
         load_errors: list[str] = []
+        load_warnings: list[str] = []
         if path:
             index_result = load_comp_index_usecase.execute(path, mode="replace")
             load_errors.extend(index_result.errors)
+            load_warnings.extend(index_result.warnings)
             if index_result.success:
                 sessions_result = load_comp_sessions_usecase.execute(path, mode="replace")
                 load_errors.extend(sessions_result.errors)
@@ -1745,6 +1749,7 @@ def create_mcp_server(name: str = "magatama") -> MCPServer:
                     "matched_entities": [],
                     "history": [],
                     "impact": None,
+                    "warnings": load_warnings,
                     "errors": load_errors,
                 }
         result = entity_history_usecase.execute(name, limit=limit, analyze=analyze)
@@ -1754,6 +1759,7 @@ def create_mcp_server(name: str = "magatama") -> MCPServer:
             "matched_entities": result.matched_entities,
             "history": result.history,
             "impact": result.impact,
+            "warnings": load_warnings,
             "errors": load_errors + result.errors,
         }
 

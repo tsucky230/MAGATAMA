@@ -20,6 +20,7 @@ from magatama_core.infrastructure.storage.comp_index_reader import (
     CompIndexNotFoundError,
     CompIndexReader,
 )
+from magatama_core.infrastructure.storage.comp_schema import check_comp_schema_version
 from magatama_core.infrastructure.storage.comp_session_reader import (
     CompSessionReader,
     CompSessionsNotFoundError,
@@ -37,6 +38,7 @@ class LoadCompIndexResult:
     skipped_edges: int = 0
     comp_metadata: dict[str, str] = field(default_factory=dict)
     errors: list[str] = field(default_factory=list)
+    warnings: list[str] = field(default_factory=list)
 
 
 class LoadCompIndexUseCase:
@@ -89,6 +91,7 @@ class LoadCompIndexUseCase:
             entities_removed=removed,
             skipped_edges=data.skipped_edges,
             comp_metadata=data.metadata,
+            warnings=check_comp_schema_version(data.metadata),
         )
 
 

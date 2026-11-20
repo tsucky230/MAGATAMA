@@ -741,6 +741,7 @@ class MagatamaMcpServer:
             "entities_removed": result.entities_removed,
             "skipped_edges": result.skipped_edges,
             "comp_metadata": result.comp_metadata,
+            "warnings": result.warnings,
             "errors": result.errors,
         }
 
@@ -776,9 +777,11 @@ class MagatamaMcpServer:
     ) -> dict[str, Any]:
         """Handle get_entity_history tool (comP bridge)."""
         load_errors: list[str] = []
+        load_warnings: list[str] = []
         if path:
             index_result = self._load_comp_index_usecase.execute(path, mode="replace")
             load_errors.extend(index_result.errors)
+            load_warnings.extend(index_result.warnings)
             if index_result.success:
                 sessions_result = self._load_comp_sessions_usecase.execute(path, mode="replace")
                 load_errors.extend(sessions_result.errors)
@@ -789,6 +792,7 @@ class MagatamaMcpServer:
                     "matched_entities": [],
                     "history": [],
                     "impact": None,
+                    "warnings": load_warnings,
                     "errors": load_errors,
                 }
         result = self._entity_history_usecase.execute(name, limit=limit, analyze=analyze)
@@ -798,6 +802,7 @@ class MagatamaMcpServer:
             "matched_entities": result.matched_entities,
             "history": result.history,
             "impact": result.impact,
+            "warnings": load_warnings,
             "errors": load_errors + result.errors,
         }
 
@@ -817,6 +822,7 @@ class MagatamaMcpServer:
         )
         result["db_path"] = loaded.db_path
         result["comp_metadata"] = loaded.comp_metadata
+        result["warnings"] = loaded.warnings
         result["skipped_edges"] = loaded.skipped_edges
         if loaded.skipped_edges:
             result["risk_level"] = "unknown"
