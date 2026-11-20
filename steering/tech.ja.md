@@ -28,7 +28,7 @@ MAGATAMAは、AI Codingを支援するMCP Serverです。プログラミング�
 
 | カテゴリ | ライブラリ | バージョン | 用途 |
 |----------|-----------|-----------|------|
-| MCP | mcp | ^1.0.0 | MCPプロトコル実装 |
+| MCP | mcp | >=1.0.0,<3（2.x で動作確認） | MCPプロトコル実装 |
 | AST Parser | tree-sitter | ^0.24.0 | ソースコード解析 |
 | Graph | networkx | ^3.2.0 | グラフ構造管理 |
 | Storage | sqlite3 | (stdlib) | データ永続化（comP の index.db 読取含む） |

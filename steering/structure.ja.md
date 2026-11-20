@@ -105,7 +105,7 @@ MAGATAMA/                            # uv モノレポ
 │   │   └── tests/
 │   └── magatama-mcp/                # MCP サーバ＋CLI（配布名 `magatama`）
 │       ├── src/magatama_mcp/
-│       │   ├── server/              # MCP 実装（MCPServer、40 ツール）
+│       │   ├── server/              # MCP 実装（MCPServer、36 ツール）
 │       │   └── cli/                 # Click 実装
 │       └── tests/                   # cli / server / e2e
 ├── knowledge_graphs/                # 47 フレームワーク事前学習済みグラフ（JSON）
