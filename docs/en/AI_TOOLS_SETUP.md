@@ -3,8 +3,41 @@
 This guide explains how to integrate the MAGATAMA MCP Server with various AI coding tools.
 (MAGATAMA is a fork of [YATA](https://github.com/nahisaho/YATA); the CLI command is `magatama`.)
 
+## Let comP keep MAGATAMA up to date (recommended)
+
+If you use the [comP](https://github.com/tsucky230/comP) VS Code extension
+(0.12.3 or later), comP can register MAGATAMA for you and keep it on the
+version comP was tested with. comP updates itself from the Marketplace, so
+MAGATAMA follows without you upgrading it by hand.
+
+1. Install [uv](https://docs.astral.sh/uv/) (comP starts MAGATAMA with `uvx`).
+2. Turn on the VS Code setting `comp.magatama.manage`, or run **comP: Let comP
+   manage MAGATAMA** from the Command Palette.
+3. Run **comP: Setup Agents**. comP adds this entry next to its own:
+
+```json
+"magatama": {
+  "command": "uvx",
+  "args": ["magatama@0.7.2", "serve"],
+  "env": { "COMP_MANAGED_BY": "comP" }
+}
+```
+
+- `COMP_MANAGED_BY` marks the entry as comP's. comP only ever rewrites entries
+  that carry it, and only to a
+  newer version. An entry you wrote yourself is never changed.
+- comP downloads the pinned version in the background right after it writes the
+  entry, so the agent's first start
+  does not wait for the download.
+- If you keep your own entry (`magatama serve`, `uv run --directory ...`), comP
+  checks its version at startup and
+  tells you when it is older than the version comP was tested with.
+
+The manual setups below still work.
+
 ## Table of Contents
 
+- [Let comP keep MAGATAMA up to date (recommended)](#let-comp-keep-magatama-up-to-date-recommended)
 - [Claude Desktop](#claude-desktop)
 - [GitHub Copilot (VS Code)](#github-copilot-vs-code)
 - [Cursor](#cursor)

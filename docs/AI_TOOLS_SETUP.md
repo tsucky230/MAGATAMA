@@ -3,8 +3,36 @@
 このガイドでは、MAGATAMA MCP Server を各種 AI コーディングツールと連携させる方法を説明します。
 （MAGATAMA は [YATA](https://github.com/nahisaho/YATA) のフォークです。CLI コマンドは `magatama` です。）
 
+## comP に MAGATAMA の更新を任せる（おすすめ）
+
+VS Code 拡張機能の [comP](https://github.com/tsucky230/comP)（0.12.3 以降）を使っている場合は、
+comP が MAGATAMA を登録し、comP が動作を確かめた版に保ちます。
+comP は Marketplace から自動で更新されるので、MAGATAMA を手で更新しなくても追随します。
+
+1. [uv](https://docs.astral.sh/uv/) を入れる（comP は MAGATAMA を `uvx` で起動します）
+2. VS Code の設定 `comp.magatama.manage` を ON にするか、
+   コマンドパレットで **comP: Let comP manage MAGATAMA** を実行する
+3. **comP: Setup Agents** を実行する。comP は自分の登録の隣に、次の登録を足します
+
+```json
+"magatama": {
+  "command": "uvx",
+  "args": ["magatama@0.7.2", "serve"],
+  "env": { "COMP_MANAGED_BY": "comP" }
+}
+```
+
+- `COMP_MANAGED_BY` は comP が書いた登録の目印です。comP が書き換えるのはこの目印のある登録だけで、
+  版は上げる方向にしか変えません。ご自身で書いた登録は変更しません。
+- comP は登録を書いた直後に、その版を裏でダウンロードします。エージェントの初回起動がダウンロード待ちになりません。
+- ご自身の登録（`magatama serve`、`uv run --directory ...`）を使い続ける場合は、comP が起動時に版を確かめ、
+  comP が動作を確かめた版より古ければお知らせします。
+
+以下の手動の設定も、これまでどおり使えます。
+
 ## 目次
 
+- [comP に MAGATAMA の更新を任せる（おすすめ）](#comp-に-magatama-の更新を任せるおすすめ)
 - [Claude Desktop](#claude-desktop)
 - [GitHub Copilot (VS Code)](#github-copilot-vs-code)
 - [Cursor](#cursor)
