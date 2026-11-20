@@ -1,5 +1,5 @@
 [mcp_servers.comp]
-command = 'c:\Users\tsuck\.vscode\extensions\tsucky230.comp-vscode-0.11.11\daemon\target\release\comp-daemon-win.exe'
+command = 'c:\Users\tsuck\.vscode\extensions\tsucky230.comp-vscode-0.12.1\daemon\target\release\comp-daemon-win.exe'
 
 [mcp_servers.comp.env]
 COMP_WORKSPACE_ROOT = 'e:\dev\MAGATAMA'
