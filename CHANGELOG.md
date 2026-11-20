@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.1] - 2026-11-21
+
 ### Fixed
 
 - fix: `analyze_change_scope` が、同じサーバーで前に読み込んだ別のワークスペースの索引まで
@@ -18,6 +20,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   のような同名ファイルが「曖昧」で失敗し、無関係なファイルでも「パス表記の二重登録」として
   `risk_level=unknown` になっていた。解析を、今回読み込んだ索引の別名（alias）のモジュールと
   シンボルに限定した
+
+### Changed
+
+- build: 依存を最新にし、MCP の Python SDK を 2 系へ移行（`mcp>=1.0.0,<3`、2.3.0 で確認）。
+  FastMCP が `MCPServer` に改名されたのに合わせ、SSE のポートは `run()` の引数で渡すようにした。
+  サーバー情報（`serverInfo.version`）に MAGATAMA の版を載せる。MCP プロトコル 2024-11-05 /
+  2025-06-18 / 2025-11-25 のクライアントで initialize・tools/list・tools/call を確認済み
+- chore: ruff 0.17 に合わせ、新しく既定に入った PLR0917 を除外し、Markdown 内のコードブロックを
+  整形の対象外にした
+
+## [0.7.0] - 2026-11-17
+
+### Added
+
+- feat: 履歴レコードに `agent` フィールドを追加（`magatama` /
+  `magatama-patrol` / `magatama-handoff` / `magatama-hook`）。comP 側の
+  `SessionCall.agent` が未設定時 `"unknown"` になる問題を解消し、
+  session_recall で記録の出所が判別できるようになった
+- Added `analyze_change_scope` over comP's code graph, including cross-root paths and ambiguity detection.
+- Reworked README and GitHub Pages around change review and session history workflows.
+
+### Fixed
+
 - fix: `comp_history_writer.append_history_record` が排他ロックを取らずに
   `.comp/history/log-YYYY-MM.jsonl` へ直接追記していた問題を修正。comP の
   `append_history_line`（`std::fs::File::lock()`）と同一のOSプリミティブで
@@ -27,30 +52,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   ロックを経由しない「第3の書き手」になっていた問題を修正。`comp-daemon
   append-history` 経由に統一し、バイナリ未解決時のみ直接書き込みにフォールバック
   する（バイナリが起動して失敗した場合は無ロック書き込みをしない）
-
-### Added
-
-- feat: 履歴レコードに `agent` フィールドを追加（`magatama` /
-  `magatama-patrol` / `magatama-handoff` / `magatama-hook`）。comP 側の
-  `SessionCall.agent` が未設定時 `"unknown"` になる問題を解消し、
-  session_recall で記録の出所が判別できるようになった
+- Normalized Windows path variants when loading comP index data.
 
 ### Changed
 
 - docs: `steering/product.ja.md` の Product Roadmap を Phase 0/1/2 として
   再整理（[ADR-005](storage/specs/ADR-005-no-multi-llm-routing.md) 参照）。
   マルチLLM Director/ルーター化の提案を却下し、既存機能の普及を優先する方針を明記
-
-## [0.7.0] - 2026-11-17
-
-### Added
-
-- Added `analyze_change_scope` over comP's code graph, including cross-root paths and ambiguity detection.
-- Reworked README and GitHub Pages around change review and session history workflows.
-
-### Fixed
-
-- Normalized Windows path variants when loading comP index data.
 
 ## [0.6.0] - 2026-07-16
 
