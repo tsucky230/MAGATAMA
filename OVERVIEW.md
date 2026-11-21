@@ -52,7 +52,7 @@ over only search, impact analysis and call graphs. Fully local, no data leaves.
 source ─Tree-sitter→ [MAGATAMA] ─→ NetworkX knowledge graph + 47-framework knowledge
                        │
                        ▼
-       MCP Server (MCPServer / 36 tools) · CLI (Click)
+       MCP Server (MCPServer / 41 tools) · CLI (Click)
                        │
                        ▼
           Claude Desktop / Cursor / Copilot
@@ -91,7 +91,7 @@ magatama serve                            # start the MCP server (for AI tools)
 ## 7. Status
 
 - **Maturity**: `Development Status :: 3 - Alpha` (pyproject classifiers)
-- **Tests**: 794, coverage 76% (README). CLI tests verified locally.
+- **Tests**: 1,151 (1,149 passed, 2 skipped), branch coverage 81% (measured 2026-11-21).
 - **Known limits / to confirm**: comP index dependency-edge count is `0`
   (to confirm). Index is slightly stale with a deleted file lingering →
   re-indexing should resolve it.
@@ -101,7 +101,7 @@ magatama serve                            # start the MCP server (for AI tools)
 1. `README.md` — the entry point to all features and the design philosophy
 2. `packages/magatama-core/src/magatama_core/application/usecases/comp_usecase.py` — the comP Bridge core
 3. `packages/magatama-core/src/magatama_core/infrastructure/storage/comp_index_reader.py` — SQLite → graph
-4. `packages/magatama-mcp/src/magatama_mcp/server/mcp_server.py` — where the 36 tools register
+4. `packages/magatama-mcp/src/magatama_mcp/server/protocol.py` — where the 41 MCP tools register (`mcp_server.py` holds the 15 tools the CLI calls)
 5. `packages/magatama-core/src/magatama_core/application/usecases/framework_usecase.py` — largest module (133 symbols)
 
 ---
@@ -159,7 +159,7 @@ file's role in one line.
 
 ## 🅱️ What YATA already gives you (framework knowledge, cross-search, analysis)
 
-MAGATAMA inherits all 36 YATA tools. Here are the signature ones as
+MAGATAMA inherits all 36 YATA tools and adds its own (41 in total). Here are the signature ones as
 prompt + sample output.
 
 ### B-1. Look up framework idioms — `search_framework_docs`
@@ -320,7 +320,7 @@ comP's map versus **without** it (reading all source).
 - **Fast**: no waiting for the LLM to read every file — just the right block.
 - **Cheap**: an overview costs **~1/500 of the tokens**; helps both API billing
   and context budget.
-- **Broad**: cross-search 24 languages + 47 frameworks' idioms (36 YATA tools).
+- **Broad**: cross-search 24 languages + 47 frameworks' idioms (41 tools, 36 from YATA).
 - **Safe**: fully local — your code never leaves the machine.
 - **Easy**: install comP in VSCode and open the folder; the map auto-updates.
   Then just ask your AI.

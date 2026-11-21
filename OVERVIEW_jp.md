@@ -52,7 +52,7 @@ LLM にコードを理解させると全文を読ませてトークンを浪費�
 ソース ─Tree-sitter→ [MAGATAMA] ─→ NetworkX知識グラフ ＋ 47FW事前知識
                        │
                        ▼
-       MCP Server (MCPServer / 36 tools) ・ CLI (Click)
+       MCP Server (MCPServer / 41 tools) ・ CLI (Click)
                        │
                        ▼
           Claude Desktop / Cursor / Copilot
@@ -91,7 +91,7 @@ magatama serve                            # MCPサーバ起動（AIツールか�
 ## 7. 現在の状態
 
 - **成熟度**: `Development Status :: 3 - Alpha`（pyproject classifiers）
-- **テスト**: 794件・カバレッジ76%（README）。手元でCLIテストの成功を確認。
+- **テスト**: 1,151件（成功 1,149・スキップ 2）・分岐を含むカバレッジ81%（2026-11-21 実測）。
 - **既知の制約 / 要確認**: comP インデックスの依存エッジ数が `0`（要確認）。
   インデックスがやや古く削除済みファイルが残存 → 再インデックスで解消見込み。
 
@@ -100,7 +100,7 @@ magatama serve                            # MCPサーバ起動（AIツールか�
 1. `README_jp.md` — 全機能と設計思想の入口
 2. `packages/magatama-core/src/magatama_core/application/usecases/comp_usecase.py` — comP Bridge の中核
 3. `packages/magatama-core/src/magatama_core/infrastructure/storage/comp_index_reader.py` — SQLite→グラフ変換
-4. `packages/magatama-mcp/src/magatama_mcp/server/mcp_server.py` — 36ツールの登録口
+4. `packages/magatama-mcp/src/magatama_mcp/server/protocol.py` — 41 の MCP ツールの登録口（`mcp_server.py` は CLI から呼ぶ 15 ツール）
 5. `packages/magatama-core/src/magatama_core/application/usecases/framework_usecase.py` — 最大モジュール（133シンボル）
 
 ---
@@ -158,7 +158,7 @@ list_indexed_files の結果から、シンボル数が多い上位 5 ファイ�
 
 ## 🅱️ 旧 YATA でできること（フレームワーク知識・横断検索・分析）
 
-MAGATAMA は YATA の 36 ツールをそのまま継承しています。代表的なものを、
+MAGATAMA は YATA の 36 ツールをそのまま継承し、独自のツールを足しています（計 41）。代表的なものを、
 プロンプトと出力イメージで紹介します。
 
 ### B-1. フレームワークの作法を引く — `search_framework_docs`
@@ -319,7 +319,7 @@ LoadCompIndexUseCase — comP の index.db を知識グラフに取り込むユ�
 
 - **速い**: 全ファイルを読ませる待ち時間が消える。地図の該当区画だけを見る。
 - **安い**: 概観なら **約 1/500 のトークン**。API 課金でもコンテキスト枠でも効く。
-- **広い**: 24 言語＋47 フレームワークの作法を横断検索（YATA 由来の 36 ツール）。
+- **広い**: 24 言語＋47 フレームワークの作法を横断検索（41 ツール。うち 36 は YATA 由来）。
 - **安全**: 完全ローカル。コードは外に出ない。
 - **楽**: VSCode に comP を入れて開くだけで地図は自動更新。あとは AI に聞くだけ。
 

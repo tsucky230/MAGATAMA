@@ -33,9 +33,9 @@ tech_stack:
 
 # Project Metrics
 metrics:
-  tests: 794
-  coverage: "76%"
-  mcp_tools: 36
+  tests: 1151
+  coverage: "81%"
+  mcp_tools: 41
   language_parsers: 24
   framework_knowledge_graphs: 47
   design_patterns_detection: 10

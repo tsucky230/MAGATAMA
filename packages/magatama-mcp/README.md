@@ -82,9 +82,9 @@ magatama validate --graph graph.json --repair
 
 ## MCP Tools
 
-全 **36 ツール**を提供します（基本・フレームワーク知識・検索・品質分析・
-AI 支援・comP Bridge）。下表は基本ツールの抜粋で、全 36 ツールの一覧は
-[ルート README](https://github.com/tsucky230/MAGATAMA#-mcp-tools-36) を参照してください。
+全 **41 ツール**を提供します（基本・フレームワーク知識・検索・品質分析・
+AI 支援・comP Bridge）。下表は基本ツールの抜粋です。全ツールの定義は
+[`server/protocol.py`](src/magatama_mcp/server/protocol.py) にあります。
 
 | Tool | 説明 |
 |------|------|
@@ -96,6 +96,7 @@ AI 支援・comP Bridge）。下表は基本ツールの抜粋で、全 36 ツ�
 | `save_graph` / `load_graph` | JSON への保存 / 読み込み |
 | `read_external_graph` | **comP Bridge**: comP インデックスを取り込み |
 | `get_external_graph_info` | **comP Bridge**: comP インデックスの統計を確認 |
+| `analyze_external_usage` | 外部パッケージの import・呼び出し箇所と、調べ切れなかった箇所を返す（comP の索引は不要） |
 
 ## MCP Prompts
 

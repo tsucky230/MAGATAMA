@@ -69,8 +69,8 @@
 
 | パス | 説明 |
 |------|------|
-| `server/mcp_server.py` | MCP ツール登録（36 ツール） |
-| `server/protocol.py` | MCP サーバ（MCPServer）生成・プロンプト・リソース |
+| `server/mcp_server.py` | CLI から呼ぶツールの登録（15 ツール） |
+| `server/protocol.py` | MCP サーバ（MCPServer）生成・MCP ツール登録（41 ツール）・プロンプト・リソース |
 | `cli/main.py` | CLI コマンド（parse / query / stats / serve / watch …） |
 
 ### Layer Dependency Rules
@@ -105,7 +105,7 @@ MAGATAMA/                            # uv モノレポ
 │   │   └── tests/
 │   └── magatama-mcp/                # MCP サーバ＋CLI（配布名 `magatama`）
 │       ├── src/magatama_mcp/
-│       │   ├── server/              # MCP 実装（MCPServer、36 ツール）
+│       │   ├── server/              # MCP 実装（MCPServer、41 ツール）
 │       │   └── cli/                 # Click 実装
 │       └── tests/                   # cli / server / e2e
 ├── knowledge_graphs/                # 47 フレームワーク事前学習済みグラフ（JSON）
