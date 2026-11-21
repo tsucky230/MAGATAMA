@@ -16,6 +16,10 @@ from magatama_core.application.usecases.comp_usecase import (
     LoadCompIndexUseCase,
     LoadCompSessionsUseCase,
 )
+from magatama_core.application.usecases.external_usage_usecase import (
+    ExternalUsageUseCase,
+    RootNotFoundError,
+)
 from magatama_core.application.usecases.framework_usecase import (
     APICompatibilityUseCase,
     CodeContextUseCase,
@@ -1606,6 +1610,7 @@ def create_mcp_server(name: str = "magatama") -> MCPServer:
     entity_history_usecase = EntityHistoryUseCase(knowledge_graph=knowledge_graph)
     change_scope_usecase = ChangeScopeUseCase(knowledge_graph=knowledge_graph)
     generate_handoff_usecase = GenerateHandoffUseCase()
+    external_usage_usecase = ExternalUsageUseCase()
 
     @mcp.tool()
     def read_external_graph(path: str, mode: str = "replace") -> dict[str, Any]:
@@ -1705,6 +1710,27 @@ def create_mcp_server(name: str = "magatama") -> MCPServer:
             result["risk_level"] = "unknown"
             result["errors"].append("Some index edges could not be loaded")
         return result
+
+    @mcp.tool()
+    def analyze_external_usage(
+        path: str,
+        exclude: list[str] | None = None,
+        packages: list[str] | None = None,
+    ) -> dict[str, Any]:
+        """Map which external packages the code under a directory imports and uses.
+
+        Parses Python, JavaScript and TypeScript files (not node_modules, virtualenvs
+        or ``exclude`` globs) and returns every import, the names used from it, and
+        ``gaps``: places that could not be analyzed (parse errors, dynamic imports,
+        string-evaluated code, unreadable files, links leaving ``path``). A package
+        absent from both ``imports`` and ``gaps`` is not used. ``packages`` adds a
+        string-literal safety net for those import names. It never modifies files.
+        """
+        try:
+            result = external_usage_usecase.execute(path, exclude=exclude, packages=packages)
+        except RootNotFoundError as exc:
+            return {"success": False, "errors": [str(exc)]}
+        return {"success": True, **result.to_dict()}
 
     @mcp.tool()
     def get_entity_history(

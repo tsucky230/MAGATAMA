@@ -15,6 +15,10 @@ from magatama_core.application.usecases.comp_usecase import (
     LoadCompIndexUseCase,
     LoadCompSessionsUseCase,
 )
+from magatama_core.application.usecases.external_usage_usecase import (
+    ExternalUsageUseCase,
+    RootNotFoundError,
+)
 from magatama_core.application.usecases.handoff_usecase import GenerateHandoffUseCase
 from magatama_core.application.usecases.parse_usecase import (
     IncrementalParseUseCase,
@@ -179,6 +183,7 @@ class MagatamaMcpServer:
         )
         self._change_scope_usecase = ChangeScopeUseCase(knowledge_graph=self._knowledge_graph)
         self._generate_handoff_usecase = GenerateHandoffUseCase()
+        self._external_usage_usecase = ExternalUsageUseCase()
 
         # Register tool handlers
         self._tool_handlers: dict[str, Callable[..., Awaitable[dict[str, Any]]]] = {
@@ -194,6 +199,7 @@ class MagatamaMcpServer:
             "read_external_sessions": self._handle_read_external_sessions,
             "get_entity_history": self._handle_get_entity_history,
             "analyze_change_scope": self._handle_analyze_change_scope,
+            "analyze_external_usage": self._handle_analyze_external_usage,
             "generate_handoff": self._handle_generate_handoff,
             "get_external_graph_info": self._handle_get_external_graph_info,
         }
@@ -453,6 +459,31 @@ class MagatamaMcpServer:
                         },
                     },
                     "required": ["path", "files"],
+                },
+            ),
+            Tool(
+                name="analyze_external_usage",
+                description=(
+                    "Map which external packages the Python/JavaScript/TypeScript code under a "
+                    "directory imports and uses, plus gaps that could not be analyzed. "
+                    "Read-only; never modifies the directory"
+                ),
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "path": {"type": "string", "description": "Directory to analyze"},
+                        "exclude": {
+                            "type": "array",
+                            "items": {"type": "string"},
+                            "description": "fnmatch globs (relative to path) to skip",
+                        },
+                        "packages": {
+                            "type": "array",
+                            "items": {"type": "string"},
+                            "description": "Import names to look for in string literals",
+                        },
+                    },
+                    "required": ["path"],
                 },
             ),
             Tool(
@@ -828,6 +859,19 @@ class MagatamaMcpServer:
             result["risk_level"] = "unknown"
             result["errors"].append("Some index edges could not be loaded")
         return result
+
+    async def _handle_analyze_external_usage(
+        self,
+        path: str,
+        exclude: list[str] | None = None,
+        packages: list[str] | None = None,
+    ) -> dict[str, Any]:
+        """Map external package usage under a directory (read-only)."""
+        try:
+            result = self._external_usage_usecase.execute(path, exclude=exclude, packages=packages)
+        except RootNotFoundError as exc:
+            return {"success": False, "errors": [str(exc)]}
+        return {"success": True, **result.to_dict()}
 
     async def _handle_generate_handoff(
         self,

@@ -112,6 +112,71 @@ def parse(
 
 
 @cli.command()
+@click.argument("path", type=click.Path(exists=True, file_okay=False))
+@click.option(
+    "--exclude",
+    "-e",
+    multiple=True,
+    help="Glob pattern (relative to PATH) for files/directories to skip",
+)
+@click.option(
+    "--package",
+    "-p",
+    "packages",
+    multiple=True,
+    help="Import name to look for in string literals (safety net); repeatable",
+)
+@click.option("--json", "as_json", is_flag=True, help="Print the full result as JSON")
+def usage(path: str, exclude: tuple[str, ...], packages: tuple[str, ...], as_json: bool) -> None:
+    """Map which external packages the code under PATH uses.
+
+    Exit code 0 even if there are gaps (places that could not be analyzed);
+    2 if PATH is not a directory; 1 on an unexpected error.
+    """
+    import json
+
+    from magatama_core.application.usecases.external_usage_usecase import (
+        ExternalUsageUseCase,
+        RootNotFoundError,
+    )
+
+    try:
+        result = ExternalUsageUseCase().execute(
+            path, exclude=list(exclude), packages=list(packages)
+        )
+        # 標準出力は完成した結果だけにするため、出力の文字列も先に作る
+        data = result.to_dict()
+        text = json.dumps(data, ensure_ascii=False)
+    except RootNotFoundError as exc:
+        click.echo(f"Error: {exc}", err=True)
+        raise SystemExit(2) from exc
+    except Exception as exc:
+        click.echo(f"Error: {type(exc).__name__}: {exc}", err=True)
+        raise SystemExit(1) from exc
+
+    if as_json:
+        click.echo(text)
+        return
+
+    console.print(data["root"], style="bold", markup=False, highlight=False)
+    scanned = ", ".join(f"{lang}: {count}" for lang, count in data["files_scanned"].items())
+    console.print(f"Files scanned: {scanned}")
+    console.print(
+        f"Imports: {len(data['imports'])}  Uses: {len(data['uses'])}  Gaps: {len(data['gaps'])}"
+    )
+    for item in data["imports"]:
+        console.print(
+            f"  {item['top']}  ({item['module']}, {item['context']})  "
+            f"{item['file']}:{item['line']}",
+            markup=False,
+            highlight=False,
+        )
+    for gap in data["gaps"]:
+        where = f"{gap['file']}:{gap['line']}" if gap["line"] else gap["file"]
+        console.print(f"  gap {gap['kind']}  {where}", markup=False, highlight=False)
+
+
+@cli.command()
 @click.option(
     "--transport",
     "-t",

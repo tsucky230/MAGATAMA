@@ -4,6 +4,11 @@ from magatama_core.application.usecases.comp_usecase import (
     LoadCompIndexResult,
     LoadCompIndexUseCase,
 )
+from magatama_core.application.usecases.external_usage_usecase import (
+    ExternalUsageResult,
+    ExternalUsageUseCase,
+    RootNotFoundError,
+)
 from magatama_core.application.usecases.framework_usecase import (
     # REQ-009: API Compatibility
     APICompatibilityUseCase,
@@ -110,4 +115,7 @@ __all__ = [
     "CodeNavigationUseCase",
     "NavigationResult",
     "NavigationNode",
+    "ExternalUsageUseCase",
+    "ExternalUsageResult",
+    "RootNotFoundError",
 ]
