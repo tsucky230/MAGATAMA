@@ -11,6 +11,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- feat: 外部パッケージの利用の地図を返す CLI `magatama usage PATH --json` と MCP ツール `analyze_external_usage` を追加。
+  Python(`ast`)と JS/TS(tree-sitter)で、外部 import・呼び出し箇所と、調べ切れなかった箇所(`gaps`:
+  `parse_error`・`dynamic_import`・`dynamic_eval`・`string_reference` など)を返す。脆弱性スキャナの検出を
+  「このリポジトリはそのパッケージを使っていない」とふるい分ける用途向け。comP の索引は使わず、既存の解析器と
+  グラフは変えない。対象のディレクトリには書き込まない
+
 ## [0.7.3] - 2026-11-21
 
 ### Added
