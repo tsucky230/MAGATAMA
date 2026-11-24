@@ -38,6 +38,17 @@
 - R10 ディレクトリがシンボリックリンク・ジャンクションかどうかを判定できない(stat の失敗など)ときは、中に入らず
   ``unreadable`` の gap(language は "any")を出す
 - 既存の解析器(``infrastructure/parsers``)と知識グラフは使わず、変えない
+
+契約 第3版(2026-11-24、部品の中の読み込み):
+- ``execute(..., include_internal=True)`` のときだけ、最上位に ``internal_imports`` を足す。
+- JS/TS は内部指定子の import/export/require/dynamic import/AMD/importScripts を、Python は
+  相対 from import と package が決まる import_module を、書かれた指定子のまま1辺ずつ返す。
+- 内部の動的な読み込みは、値が決まるとき ``context="dynamic"`` で返し、決まらないときは
+  従来どおり ``dynamic_import`` の gap にする。
+- ``include_internal`` の有無で ``imports``・``uses``・``gaps``・``excluded_dirs``・
+  ``files_scanned``・``schema_version`` の意味と出力は変えない。
+- 第2版の R2 からの変更: ``import_module(".x", package=__package__)`` は ``__package__`` が自分のパッケージなので
+  ``dynamic_import`` の gap に出さない(外部パッケージの読み込みではない)。``internal_imports`` の col は imports と同じ決め方
 """
 
 from __future__ import annotations
@@ -129,6 +140,20 @@ class ImportRecord:
 
 
 @dataclass(frozen=True)
+class InternalImportRecord:
+    """部品内のモジュールどうしの読み込み1辺。"""
+
+    language: str
+    specifier: str
+    kind: str
+    names: tuple[ImportName, ...] | None
+    file: str
+    line: int
+    col: int
+    context: str
+
+
+@dataclass(frozen=True)
 class UseRecord:
     """外部パッケージ由来の名前の利用1件(助言の材料)。
 
@@ -174,6 +199,7 @@ class FileUsage:
     imports: list[ImportRecord] = field(default_factory=list)
     uses: list[UseRecord] = field(default_factory=list)
     gaps: list[GapRecord] = field(default_factory=list)
+    internal_imports: list[InternalImportRecord] = field(default_factory=list)
 
 
 @dataclass
@@ -187,6 +213,8 @@ class ExternalUsageResult:
     imports: list[ImportRecord]
     uses: list[UseRecord]
     gaps: list[GapRecord]
+    internal_imports: list[InternalImportRecord] = field(default_factory=list)
+    include_internal: bool = False
     schema_version: str = SCHEMA_VERSION
 
     def to_dict(self) -> dict[str, Any]:
@@ -201,7 +229,7 @@ class ExternalUsageResult:
         imports = sorted(self.imports, key=_import_key)
         uses = sorted(self.uses, key=_use_key)
         gaps = sorted(self.gaps, key=_gap_key)
-        return {
+        result = {
             "schema_version": self.schema_version,
             "tool": {"name": "magatama", "version": self.tool_version},
             "root": self.root,
@@ -247,6 +275,25 @@ class ExternalUsageResult:
                 for g in gaps
             ],
         }
+        if self.include_internal:
+            result["internal_imports"] = [
+                {
+                    "language": i.language,
+                    "specifier": i.specifier,
+                    "kind": i.kind,
+                    "names": (
+                        [{"name": n.name, "alias": n.alias} for n in i.names]
+                        if i.names is not None
+                        else None
+                    ),
+                    "file": i.file,
+                    "line": i.line,
+                    "col": i.col,
+                    "context": i.context,
+                }
+                for i in sorted(self.internal_imports, key=_internal_import_key)
+            ]
+        return result
 
 
 def _import_key(i: ImportRecord) -> tuple[Any, ...]:
@@ -263,6 +310,10 @@ def _use_key(u: UseRecord) -> tuple[Any, ...]:
 
 def _gap_key(g: GapRecord) -> tuple[Any, ...]:
     return (g.file, g.line or 0, g.language, g.kind, g.detail, g.candidates or ())
+
+
+def _internal_import_key(i: InternalImportRecord) -> tuple[Any, ...]:
+    return (i.file, i.line, i.col)
 
 
 def language_for(path: str) -> str | None:
@@ -694,7 +745,21 @@ class _PyAnalyzer:
             )
 
     def _v_ImportFrom(self, node: ast.ImportFrom, st: _PyState) -> None:
-        if node.level or not node.module:
+        if node.level:
+            self.usage.internal_imports.append(
+                InternalImportRecord(
+                    "python",
+                    "." * node.level + (node.module or ""),
+                    "from_import",
+                    tuple(ImportName(a.name, a.asname) for a in node.names),
+                    self.file,
+                    self._line(node),
+                    self._col(node),
+                    self._import_context(st),
+                )
+            )
+            return
+        if not node.module:
             return
         self.usage.imports.append(
             ImportRecord(
@@ -830,10 +895,26 @@ class _PyAnalyzer:
                 # R2: 相対名は package が決まれば、その top を読み込みとして出す
                 package = self._call_arg(node, 1, "package")
                 packages = self._resolve(package, st.scope) if package is not None else None
-                if packages is None:
+                package_is_runtime_context = (
+                    isinstance(package, ast.Name) and package.id == "__package__"
+                )
+                if packages is None and not package_is_runtime_context:
                     self._gap("dynamic_import", node, "相対名の package が静的に決まらない")
                     return
-                modules.extend(p for p in packages[1] if p and not p.startswith("."))
+                self.usage.internal_imports.append(
+                    InternalImportRecord(
+                        "python",
+                        module,
+                        "import_module",
+                        (),
+                        self.file,
+                        self._line(node),
+                        self._col(node),
+                        context,
+                    )
+                )
+                if packages is not None:
+                    modules.extend(p for p in packages[1] if p and not p.startswith("."))
             elif module and not module.startswith("."):
                 modules.append(module)
         for module in dict.fromkeys(modules):
@@ -904,6 +985,7 @@ class ExternalUsageUseCase:
         root: str | Path,
         exclude: list[str] | None = None,
         packages: list[str] | None = None,
+        include_internal: bool = False,
     ) -> ExternalUsageResult:
         """root 以下を解析する。root のファイルには書き込まない(キャッシュも作らない)。
 
@@ -937,6 +1019,8 @@ class ExternalUsageUseCase:
             imports=sorted(walk.imports, key=_import_key),
             uses=sorted(walk.uses, key=_use_key),
             gaps=sorted(walk.gaps, key=_gap_key),
+            internal_imports=sorted(walk.internal_imports, key=_internal_import_key),
+            include_internal=include_internal,
         )
 
 
@@ -968,6 +1052,7 @@ class _Walk:
         self.imports: list[ImportRecord] = []
         self.uses: list[UseRecord] = []
         self.gaps: list[GapRecord] = []
+        self.internal_imports: list[InternalImportRecord] = []
 
     def _inside_root(self, path: str) -> bool:
         target = os.path.normcase(os.path.realpath(path))
@@ -1087,3 +1172,4 @@ class _Walk:
         self.imports.extend(usage.imports)
         self.uses.extend(usage.uses)
         self.gaps.extend(usage.gaps)
+        self.internal_imports.extend(usage.internal_imports)

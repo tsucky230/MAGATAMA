@@ -91,7 +91,7 @@ For change reviews, the useful result is concrete: the affected paths and the gr
 - **Plan a shared-library update:** follow dependency edges into consumers across roots when the comP index contains those roots.
 - **Resume work:** combine get_entity_history with comP session_recall to recover earlier decisions tied to a file.
 - **Check overnight changes:** run magatama patrol periodically and read its notes in comP history.
-- **Triage vulnerability scan results:** run `magatama usage PATH --json` (MCP: analyze_external_usage) to list where Python and JS/TS code imports and calls external packages, plus the places it could not resolve (`gaps`). A package that never appears and has no gaps is a candidate for "not used". It does not need a comP index.
+- **Triage vulnerability scan results:** run `magatama usage PATH --json` (MCP: analyze_external_usage) to list where Python and JS/TS code imports and calls external packages, plus the places it could not resolve (`gaps`). A package that never appears and has no gaps is a candidate for "not used". It does not need a comP index. Add `--internal` to also list imports between modules inside PATH (`internal_imports`).
 
 The first three are workflows you can try now where the required index and history exist. Automated test selection and PR annotations are ideas for later work, not current features.
 

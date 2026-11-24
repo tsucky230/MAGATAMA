@@ -20,6 +20,7 @@ from magatama_core.application.usecases.external_usage_usecase import (
     GapRecord,
     ImportName,
     ImportRecord,
+    InternalImportRecord,
     UseRecord,
     is_relative_spec,
     package_top,
@@ -485,6 +486,24 @@ class _JsAnalyzer:
             )
         )
 
+    def _record_internal(self, node: Node, specifier: str, kind: str, context: str) -> None:
+        self.usage.internal_imports.append(
+            InternalImportRecord(
+                self.language,
+                specifier,
+                kind,
+                None,
+                self.file,
+                self._line(node),
+                self._col(node),
+                context,
+            )
+        )
+
+    @staticmethod
+    def _is_internal(specifier: str) -> bool:
+        return is_relative_spec(specifier) or specifier.startswith("#")
+
     def _gap(self, kind: str, node: Node, detail: str) -> None:
         self.usage.gaps.append(
             GapRecord(self.language, kind, self.file, self._line(node), detail, None)
@@ -515,7 +534,7 @@ class _JsAnalyzer:
         require_clause = next((c for c in node.children if c.type == "import_require_clause"), None)
         source = (require_clause or node).child_by_field_name("source")
         spec = _string_value(source) if source is not None else None
-        if spec is None or is_relative_spec(spec):
+        if spec is None:
             return
         is_import = node.type == "import_statement"
         locals_: list[str] = []  # 既定・名前空間の import で入る名前(alias の候補)
@@ -548,15 +567,19 @@ class _JsAnalyzer:
             alias_node = spec_node.child_by_field_name("alias")
             local = _text(alias_node) if alias_node is not None else None
             names.append(ImportName(name, local))
-            if is_import:
+            if is_import and not is_relative_spec(spec):
                 self._bind_member(local or name, name, spec, [])
-        if is_import:
+        if is_import and not is_relative_spec(spec):
             for local in locals_:
                 self._add_binding(local, spec)
         type_only = self._has_type_token(node) or (
             bool(specifiers) and not locals_ and all(self._has_type_token(s) for s in specifiers)
         )
         context = self._context(node, st, type_only=type_only)
+        if self._is_internal(spec):
+            self._record_internal(node, spec, "import" if is_import else "export_from", context)
+        if is_relative_spec(spec):
+            return
         alias = next((name for name in locals_ if name), None)
         self._record(node, st, spec, context, alias, tuple(names))
 
@@ -625,16 +648,16 @@ class _JsAnalyzer:
         args = [a for a in arguments.named_children if a.type != "comment"]
         name = _text(function)
         if function.type == "import":
-            self._load_call(node, st, args, "import()")
+            self._load_call(node, st, args, "import()", "dynamic_import")
         elif function.type == "identifier" and name == "define":
             self._amd_define(node, st, args)
         elif function.type == "identifier" and name in self.require_names:
             if name == "require" and args and args[0].type == "array":
                 self._amd_list(node, st, args[0])
             else:
-                self._load_call(node, st, args, "require")
+                self._load_call(node, st, args, "require", "require")
         elif function.type == "member_expression" and name == "module.require":
-            self._load_call(node, st, args, "module.require")
+            self._load_call(node, st, args, "module.require", "require")
         elif function.type == "member_expression" and self._is_indirect_require(function):
             self._gap("dynamic_import", node, "require の間接的な呼び出し(候補を追わない)")
         elif self._is_import_scripts(function):
@@ -659,7 +682,9 @@ class _JsAnalyzer:
             value = _string_value(child)
             if value is None:
                 unresolved = True
-            elif not is_relative_spec(value):
+            elif self._is_internal(value):
+                self._record_internal(node, value, "amd", self._context(node, st))
+            if value is not None and not is_relative_spec(value):
                 self._record(node, st, value, self._context(node, st))
         if unresolved:
             self._gap("dynamic_import", node, "AMD の依存の一覧が文字列だけではない")
@@ -682,15 +707,25 @@ class _JsAnalyzer:
             return _text(function.child_by_field_name("property")) == "importScripts"
         return False
 
-    def _load_call(self, node: Node, st: _State, args: list[Node], label: str) -> None:
+    def _load_call(
+        self,
+        node: Node,
+        st: _State,
+        args: list[Node],
+        label: str,
+        internal_kind: str,
+    ) -> None:
         if not args:
             return
         arg = args[0]
         literal = _string_value(arg)
         if literal is not None:
+            context = self._context(node, st)
+            if self._is_internal(literal):
+                self._record_internal(node, literal, internal_kind, context)
             if not is_relative_spec(literal):
                 alias, names = self._bind_loaded(node, literal)
-                self._record(node, st, literal, self._context(node, st), alias, names)
+                self._record(node, st, literal, context, alias, names)
             return
         resolved = None if arg.type == "spread_element" else self._resolve(arg, st.scope)
         if resolved is None:
@@ -700,6 +735,8 @@ class _JsAnalyzer:
         if context != "type_only":
             context = "dynamic"
         for module in dict.fromkeys(resolved[1]):
+            if self._is_internal(module):
+                self._record_internal(node, module, internal_kind, context)
             if is_relative_spec(module):
                 continue
             alias, names = self._bind_loaded(node, module)
@@ -720,6 +757,8 @@ class _JsAnalyzer:
                 found = _NODE_MODULES.findall(path)
                 if found:
                     self._record(node, st, path, context, top=found[-1])
+                else:
+                    self._record_internal(node, path, "import_scripts", context)
         if unresolved:
             self._gap("dynamic_import", node, "importScripts の引数が静的に決まらない")
 

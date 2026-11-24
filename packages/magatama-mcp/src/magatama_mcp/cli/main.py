@@ -127,7 +127,14 @@ def parse(
     help="Import name to look for in string literals (safety net); repeatable",
 )
 @click.option("--json", "as_json", is_flag=True, help="Print the full result as JSON")
-def usage(path: str, exclude: tuple[str, ...], packages: tuple[str, ...], as_json: bool) -> None:
+@click.option("--internal", is_flag=True, help="Include imports between modules inside PATH")
+def usage(
+    path: str,
+    exclude: tuple[str, ...],
+    packages: tuple[str, ...],
+    as_json: bool,
+    internal: bool,
+) -> None:
     """Map which external packages the code under PATH uses.
 
     Exit code 0 even if there are gaps (places that could not be analyzed);
@@ -142,7 +149,10 @@ def usage(path: str, exclude: tuple[str, ...], packages: tuple[str, ...], as_jso
 
     try:
         result = ExternalUsageUseCase().execute(
-            path, exclude=list(exclude), packages=list(packages)
+            path,
+            exclude=list(exclude),
+            packages=list(packages),
+            include_internal=internal,
         )
         # 標準出力は完成した結果だけにするため、出力の文字列も先に作る
         data = result.to_dict()

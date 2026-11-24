@@ -1716,6 +1716,7 @@ def create_mcp_server(name: str = "magatama") -> MCPServer:
         path: str,
         exclude: list[str] | None = None,
         packages: list[str] | None = None,
+        include_internal: bool = False,
     ) -> dict[str, Any]:
         """Map which external packages the code under a directory imports and uses.
 
@@ -1727,7 +1728,12 @@ def create_mcp_server(name: str = "magatama") -> MCPServer:
         string-literal safety net for those import names. It never modifies files.
         """
         try:
-            result = external_usage_usecase.execute(path, exclude=exclude, packages=packages)
+            result = external_usage_usecase.execute(
+                path,
+                exclude=exclude,
+                packages=packages,
+                include_internal=include_internal,
+            )
         except RootNotFoundError as exc:
             return {"success": False, "errors": [str(exc)]}
         return {"success": True, **result.to_dict()}

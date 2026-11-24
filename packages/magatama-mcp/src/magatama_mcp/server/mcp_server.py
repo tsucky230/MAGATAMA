@@ -482,6 +482,11 @@ class MagatamaMcpServer:
                             "items": {"type": "string"},
                             "description": "Import names to look for in string literals",
                         },
+                        "include_internal": {
+                            "type": "boolean",
+                            "description": "Include imports between modules inside path",
+                            "default": False,
+                        },
                     },
                     "required": ["path"],
                 },
@@ -865,10 +870,16 @@ class MagatamaMcpServer:
         path: str,
         exclude: list[str] | None = None,
         packages: list[str] | None = None,
+        include_internal: bool = False,
     ) -> dict[str, Any]:
         """Map external package usage under a directory (read-only)."""
         try:
-            result = self._external_usage_usecase.execute(path, exclude=exclude, packages=packages)
+            result = self._external_usage_usecase.execute(
+                path,
+                exclude=exclude,
+                packages=packages,
+                include_internal=include_internal,
+            )
         except RootNotFoundError as exc:
             return {"success": False, "errors": [str(exc)]}
         return {"success": True, **result.to_dict()}

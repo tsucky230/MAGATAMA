@@ -18,6 +18,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `parse_error`・`dynamic_import`・`dynamic_eval`・`string_reference` など)を返す。脆弱性スキャナの検出を
   「このリポジトリはそのパッケージを使っていない」とふるい分ける用途向け。comP の索引は使わず、既存の解析器と
   グラフは変えない。対象のディレクトリには書き込まない
+- feat: `magatama usage --internal`(MCP: `include_internal`)で、ディレクトリの中のモジュールどうしの読み込み
+  (JS/TS の `./`・`../`・`/`・`#` の指定子、Python の相対 import と package の決まる `import_module`)を `internal_imports` に
+  1 本ずつ返す。部品のソースの中で危険な関数に届くかを調べる用途向け。指定しないときの出力は変えない
+
+### Changed
+
+- `importlib.import_module(".x", package=__package__)` を `gaps` の `dynamic_import` に出さないようにした
+  (`__package__` は自分のパッケージなので、外部パッケージの読み込みではない)
 
 ## [0.7.3] - 2026-11-21
 
