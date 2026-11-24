@@ -47,6 +47,8 @@
   従来どおり ``dynamic_import`` の gap にする。
 - ``include_internal`` の有無で ``imports``・``uses``・``gaps``・``excluded_dirs``・
   ``files_scanned``・``schema_version`` の意味と出力は変えない。
+- 契約 第4版(2026-11-25): ``Function('return this')``・``new Function('return this')``(引数が 1 つの固定の文字列で、
+  空白を除くと ``return this`` か ``return this;``)は ``dynamic_eval`` の gap にしない。ほかは今までどおり
 - 第2版の R2 からの変更: ``import_module(".x", package=__package__)`` は ``__package__`` が自分のパッケージなので
   ``dynamic_import`` の gap に出さない(外部パッケージの読み込みではない)。``internal_imports`` の col は imports と同じ決め方
 """

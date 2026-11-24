@@ -915,8 +915,22 @@ class _JsAnalyzer:
                 or timer
             ):
                 hit = prop
+        if hit == "Function" and self._is_global_object_idiom(node):
+            return  # 契約 第4版: Function('return this') はグローバルオブジェクトを得るだけ
         if hit:
             self._gap("dynamic_eval", node, f"{hit} による文字列のコードの実行")
+
+    @staticmethod
+    def _is_global_object_idiom(node: Node) -> bool:
+        """契約 第4版: 引数がちょうど 1 つの固定の文字列で、空白を除くと ``return this`` か ``return this;``。"""
+        arguments = node.child_by_field_name("arguments")
+        if arguments is None:
+            return False
+        args = [a for a in arguments.named_children if a.type != "comment"]
+        if len(args) != 1:
+            return False
+        value = _string_value(args[0])
+        return value is not None and re.fullmatch(r"\s*return\s+this\s*;?\s*", value) is not None
 
     @staticmethod
     def _timer_has_code(node: Node) -> bool:
